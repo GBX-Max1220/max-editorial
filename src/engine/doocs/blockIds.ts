@@ -1,26 +1,24 @@
 /**
- * Phase 0 — 稳定语义块身份校验。
+ * Phase 0.1 — 稳定语义块身份校验。
  *
  * validateBlockIds 是纯函数：不改 token、不自动生成/改名 ID、不重排、不参与渲染。
- * 它只返回诊断。后续关系引用（SECOND CODE CHANGE）依赖这里的稳定 id。
+ * 它只返回诊断。后续关系引用依赖这里的稳定 id。
  *
- * 严重度选择（与 reconciliation 一致，不把旧内容变成发布阻断）：
- *  - missing-id / empty-id → warning（历史内容没有 id，逐条补；不阻断）
- *  - duplicate-id        → error（两个块共享同一身份 = 引用歧义）
+ * 治理映射（rev1 §14.1 machine-checkable）：missing/empty/duplicate 全部属
+ * MACHINE-CHECKABLE LINT（结构性）。duplicate-id = error（引用不可判定）；
+ * missing/empty = warning（历史内容过渡态，不阻断）。
  */
 
 import type { Token } from 'marked'
+import type { EditorialDiagnostic } from '../governance'
 import type { SemanticBlockToken } from './semantic'
 
 export type BlockIdDiagnosticCode = 'missing-id' | 'empty-id' | 'duplicate-id'
-export type BlockIdSeverity = 'warning' | 'error'
 
-export interface BlockIdDiagnostic {
+export interface BlockIdDiagnostic extends EditorialDiagnostic {
   code: BlockIdDiagnosticCode
-  severity: BlockIdSeverity
   blockType: string
-  id?: string
-  message: string
+  blockId?: string
 }
 
 /**
@@ -38,6 +36,7 @@ export function validateBlockIds(tokens: readonly Token[]): BlockIdDiagnostic[] 
     if (block.id === undefined) {
       diagnostics.push({
         code: 'missing-id',
+        governance: 'machine-lint',
         severity: 'warning',
         blockType: block.sType,
         message: `${block.sType} 块缺少稳定 id（后续关系引用需要）`,
@@ -48,9 +47,10 @@ export function validateBlockIds(tokens: readonly Token[]): BlockIdDiagnostic[] 
     if (block.id.trim() === '') {
       diagnostics.push({
         code: 'empty-id',
+        governance: 'machine-lint',
         severity: 'warning',
         blockType: block.sType,
-        id: block.id,
+        blockId: block.id,
         message: `${block.sType} 块的 id 为空`,
       })
       continue
@@ -60,9 +60,10 @@ export function validateBlockIds(tokens: readonly Token[]): BlockIdDiagnostic[] 
     if (seen.has(normalized)) {
       diagnostics.push({
         code: 'duplicate-id',
+        governance: 'machine-lint',
         severity: 'error',
         blockType: block.sType,
-        id: normalized,
+        blockId: normalized,
         message: `重复语义块 id：${normalized}`,
       })
     } else {

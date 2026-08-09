@@ -40,7 +40,7 @@ describe('validateBlockIds', () => {
     expect(diags).toHaveLength(1)
     expect(diags[0].code).toBe('duplicate-id')
     expect(diags[0].severity).toBe('error')
-    expect(diags[0].id).toBe('same')
+    expect(diags[0].blockId).toBe('same')
   })
 
   it('reports missing ids as warnings (legacy content)', () => {

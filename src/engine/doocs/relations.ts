@@ -7,9 +7,14 @@
  * STALE 语义（关键，贯穿类型/诊断/测试）：
  *   STALE = "目标内容在关系快照之后发生了变化，需要编辑复核"
  *   ≠  "关系为假 / 支持无效"
+ *
+ * 治理映射：全部属 MACHINE-CHECKABLE LINT（rev1 §14.1 结构性检查）。
+ * missing/ambiguous/type-invalid = error（结构不可解析）；stale = warning（机器可检测，
+ * 编辑复核是人的事）；unversioned = warning（历史内容过渡态）。
  */
 
 import type { Token, Tokens } from 'marked'
+import type { EditorialDiagnostic } from '../governance'
 import type { SemanticBlockToken } from './semantic'
 
 export type RelationKind = 'supports' | 'challenges'
@@ -45,14 +50,11 @@ export type RelationDiagnosticCode =
   | 'relation-target-stale'
   | 'relation-target-unversioned'
 
-export interface RelationDiagnostic {
+export interface RelationDiagnostic extends EditorialDiagnostic {
   code: RelationDiagnosticCode
-  severity: 'warning' | 'error'
   blockType: string
-  blockId?: string
   relationKind: RelationKind
   targetId: string
-  message: string
 }
 
 /** 从语义块 props 解析关系（沿用现有 key="value" 语法，无新 Markdown 扩展）。 */
@@ -99,7 +101,12 @@ export function canonicalizeSemanticText(token: Pick<SemanticBlockToken, 'lineIn
   return token.lineInline.map((line) => inlineText(line)).join(' ').replace(/\s+/g, ' ').trim()
 }
 
-/** 确定性字符串 hash（djb2 → hex）。 */
+/**
+ * 确定性字符串 hash（djb2 → 8 位 hex）。
+ * 保证声明：这是 document-local 编辑 staleness 的轻量确定性变更检测器。
+ * 不是加密完整性 / 安全 hash，不保证抗碰撞、不可篡改、provenance 认证。
+ * 若未来出现更强的 collision-sensitive guarantee 需求，再换 SHA-256。
+ */
 export function hashText(text: string): string {
   let h = 5381
   for (let i = 0; i < text.length; i++) {
@@ -169,6 +176,7 @@ export function validateRelations(tokens: readonly Token[]): RelationDiagnostic[
       if (!code) continue
       diagnostics.push({
         code,
+        governance: 'machine-lint',
         severity: state === 'stale' || state === 'unversioned' ? 'warning' : 'error',
         blockType: block.sType,
         blockId: block.id,
