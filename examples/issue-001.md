@@ -13,7 +13,7 @@ next:
 
 我一开始只是想确认一件事：这个 43 分钟，到底是科学，还是随口一说？
 
-:::question
+:::question id="q-90-confidence"
 AI 说自己 90% 确定，
 到底是什么意思？
 :::
@@ -24,7 +24,7 @@ AI 说自己 90% 确定，
 
 同样的数据集，换一个模型再问一遍，它回答得很干脆：
 
-:::ai-output
+:::ai-output id="ai-output-1"
 “建议每天恰好进行 43 分钟训练。”
 
 Confidence: 90%
@@ -32,17 +32,17 @@ Confidence: 90%
 
 这不是聊天气泡。这是我截取的原始输出。
 
-:::metric value="43" label="MINUTES · EXACTLY?"
+:::metric value="43" label="MINUTES · EXACTLY?" id="metric-43"
 :::
 
-:::judgment
+:::judgment id="jud-precision"
 一个数字可以算得没错，
 但仍然没有资格精确到那个程度。
 :::
 
 用一套证据标准来看，什么被支持了，什么没有被支持：
 
-:::evidence
+:::evidence id="ev-3060"
 SUPPORTED
 30–60 分钟，中等强度，每周 3–5 次
 
@@ -52,14 +52,14 @@ NOT SUPPORTED
 
 当然，要公平一点：
 
-:::counterpoint
+:::counterpoint id="cp-precision"
 精确表达并不必然意味着误导。
 在医疗和工程场景里，精确是有价值的。
 :::
 
 随后我把这套材料整理成一个小的评估集，跑了一轮系统测试：
 
-:::lab-note title="CHECKMYCOACH"
+:::lab-note title="CHECKMYCOACH" id="lab-checkmycoach"
 40 cases
 15 routed
 12 passed

@@ -29,6 +29,8 @@ export const SEMANTIC_TYPES = [
 export interface SemanticBlockToken extends Tokens.Generic {
   type: 'semanticBlock'
   sType: string
+  /** 稳定作者身份（`:::type id="..."`），文档内唯一；后续关系引用依赖它。 */
+  id?: string
   props: Record<string, string>
   lines: string[]
   /** 每行的行内 tokens（tokenizer 阶段用 this.lexer 生成，renderer 只做 parseInline）。 */
@@ -148,11 +150,13 @@ export function markedSemanticBlocks(): MarkedExtension {
 
           const raw = lines.slice(0, closed ? i + 1 : lines.length).join('\n')
           const dedented = dedentLines(body)
+          const props = parseProps(header)
           return {
             type: 'semanticBlock',
             raw,
             sType: type,
-            props: parseProps(header),
+            id: props.id,
+            props,
             lines: dedented,
             lineInline: dedented.map((l) => this.lexer.inline(l)),
             invalid: !closed,
