@@ -15,8 +15,10 @@
 import type { MarkedExtension, RendererThis, Token, Tokens } from 'marked'
 import { escapeHtml } from './vendor/basicHelpers'
 import { parseEvidence, parseLabNote } from '../shared/blockParse'
+import { parseRelations, type Relation } from './relations'
 
 export const SEMANTIC_TYPES = [
+  'claim',
   'question',
   'ai-output',
   'judgment',
@@ -37,6 +39,8 @@ export interface SemanticBlockToken extends Tokens.Generic {
   lineInline: Token[][]
   invalid: boolean
   unknown: boolean
+  /** typed relations（supports/challenges），由 props 解析；渲染层不读取。 */
+  relations?: Relation[]
 }
 
 const KNOWN = new Set<string>(SEMANTIC_TYPES)
@@ -103,6 +107,11 @@ function renderMetric(token: SemanticBlockToken): string {
 function renderSemanticBlock(this: RendererThis, token: SemanticBlockToken): string {
   const lines = token.lines
   switch (token.sType) {
+    case 'claim':
+      // claim 按 prose 渲染（rev1 §8.1：claim 是可被定位为"被支持/待查"的命题，非块状视觉组件）。
+      return token.lines
+        .map((l, i) => `<p>${this.parser.parseInline(token.lineInline[i] ?? [])}</p>`)
+        .join('')
     case 'question':
       return `<section class="sblock sblock-question"><div class="sblock-label">QUESTION</div><div class="sblock-body">${inlineLines.call(this, token)}</div></section>`
     case 'ai-output':
@@ -161,6 +170,7 @@ export function markedSemanticBlocks(): MarkedExtension {
             lineInline: dedented.map((l) => this.lexer.inline(l)),
             invalid: !closed,
             unknown: !KNOWN.has(type),
+            relations: parseRelations(props),
           }
         },
         renderer(this: RendererThis, token: Tokens.Generic) {
