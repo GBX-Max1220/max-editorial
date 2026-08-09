@@ -1,5 +1,6 @@
-export type PreviewMode = 'normal' | 'editorial'
-export type Viewport = 'desktop' | 'wechat' | 'mobile'
+import type { PreviewMode, Viewport } from '../engine/types'
+
+export type { PreviewMode, Viewport } from '../engine/types'
 
 export interface ModeTokens {
   showMasthead: boolean

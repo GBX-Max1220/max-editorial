@@ -1,9 +1,9 @@
-import type { WordCount } from '../utils/words'
+import type { WordCount } from '../engine/types'
 import type { PreviewMode } from '../render/modes'
 
 interface Props {
   counts: WordCount
-  totalBlocks: number
+  blockCount: number
   semanticBlocks: number
   mode: PreviewMode
   onMode: (m: PreviewMode) => void
@@ -14,7 +14,7 @@ interface Props {
 
 export function StatusBar({
   counts,
-  totalBlocks,
+  blockCount,
   semanticBlocks,
   mode,
   onMode,
@@ -25,7 +25,7 @@ export function StatusBar({
   return (
     <footer className="status">
       <span className="status-item">WORDS {counts.total}</span>
-      <span className="status-item">BLOCKS {totalBlocks}</span>
+      <span className="status-item">BLOCKS {blockCount}</span>
       <span className="status-item muted">SEMANTIC {semanticBlocks}</span>
       <span className="status-grow" />
       <div className="seg seg-mode" role="group" aria-label="Article mode">

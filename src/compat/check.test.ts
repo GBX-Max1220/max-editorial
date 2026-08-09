@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { parseMarkdown } from '../markdown/parser'
+import { structureFromBlocks } from '../engine/legacy/structure'
 import { runCompatibilityCheck } from './check'
 
-const blocks = (src: string) => parseMarkdown(src).blocks
-const run = (src: string) => runCompatibilityCheck(blocks(src), src)
+const run = (src: string) => runCompatibilityCheck(src, structureFromBlocks(parseMarkdown(src).blocks))
 
 describe('compatibility checker', () => {
   it('passes a clean document', () => {

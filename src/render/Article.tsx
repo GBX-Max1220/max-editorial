@@ -1,13 +1,17 @@
-import { type CSSProperties } from 'react'
-import type { Block } from '../markdown/types'
+import { type CSSProperties, type RefObject } from 'react'
 import { getViewportInfo, type PreviewMode, type Viewport } from './modes'
-import { renderBlock } from './blocks'
+
+// XSS 契约：正文 HTML 由引擎产出。legacy 引擎对全部文本转义；doocs 引擎把 raw
+// HTML token 转义为文本（marked 默认也转义正文），因此 <script> 只会显示为文字、
+// 不会执行。兼容性检查（CHECK）仍会对 source 里的 script/css/iframe 报 FAIL。
 
 interface ArticleProps {
-  blocks: Block[]
+  /** 引擎产出的正文 HTML（不含 masthead/footer）。 */
+  html: string
   frontmatter: Record<string, unknown>
   mode: PreviewMode
   viewport: Viewport
+  articleRef: RefObject<HTMLElement>
 }
 
 function Masthead({ fm }: { fm: Record<string, unknown> }) {
@@ -55,13 +59,13 @@ function ArticleFooter({ fm, editorial }: { fm: Record<string, unknown>; editori
   )
 }
 
-export function Article({ blocks, frontmatter, mode, viewport }: ArticleProps) {
+export function Article({ html, frontmatter, mode, viewport, articleRef }: ArticleProps) {
   const info = getViewportInfo(viewport)
   const style = { '--scale': String(info.scale) } as CSSProperties
   return (
-    <article className="article paper" data-mode={mode} style={style}>
+    <article ref={articleRef} className="article paper" data-mode={mode} style={style}>
       {mode === 'editorial' ? <Masthead fm={frontmatter} /> : <SimpleHeader fm={frontmatter} />}
-      {blocks.map((b, i) => renderBlock(b, i))}
+      <div className="article-body" dangerouslySetInnerHTML={{ __html: html }} />
       <ArticleFooter fm={frontmatter} editorial={mode === 'editorial'} />
     </article>
   )

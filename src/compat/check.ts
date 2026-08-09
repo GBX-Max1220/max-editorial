@@ -1,4 +1,4 @@
-import type { Block, InlineNode } from '../markdown/types'
+import type { EngineStructure } from '../engine/types'
 
 export type CheckSeverity = 'pass' | 'warning' | 'fail'
 export type CheckStatus = 'PASS' | 'WARNING' | 'FAIL'
@@ -15,27 +15,11 @@ export interface CheckResult {
   findings: CheckFinding[]
 }
 
-function imageSrcs(blocks: Block[]): string[] {
-  const out: string[] = []
-  const walkInline = (nodes: InlineNode[]) => {
-    for (const n of nodes) {
-      if (n.type === 'image') out.push(n.src)
-      else if (n.type === 'strong' || n.type === 'em' || n.type === 'link') walkInline(n.children)
-    }
-  }
-  for (const b of blocks) {
-    if (b.kind === 'image') out.push(b.src)
-    else if (b.kind === 'paragraph' || b.kind === 'heading' || b.kind === 'blockquote') walkInline(b.inline)
-    else if (b.kind === 'list') for (const it of b.items) walkInline(it.inline)
-  }
-  return out
-}
-
 /**
- * 微信兼容性检查。只输出结论，不做修复。
+ * 微信兼容性检查。引擎无关：只依赖 source + 引擎暴露的结构信息。
  * 规则有意保守：能 PASS 的不多警告，能警告的不升级 FAIL。
  */
-export function runCompatibilityCheck(blocks: Block[], source: string): CheckResult {
+export function runCompatibilityCheck(source: string, structure: EngineStructure): CheckResult {
   const findings: CheckFinding[] = []
   const lines = source.split('\n')
   const findLines = (re: RegExp) => lines.map((l, i) => (re.test(l) ? i + 1 : 0)).filter((n) => n !== 0)
@@ -65,7 +49,7 @@ export function runCompatibilityCheck(blocks: Block[], source: string): CheckRes
     })
   }
 
-  const badImages = imageSrcs(blocks).filter((u) => /^(file:\/\/|[A-Za-z]:[\\/])/.test(u))
+  const badImages = structure.images.filter((u) => /^(file:\/\/|[A-Za-z]:[\\/])/.test(u))
   if (badImages.length > 0) {
     findings.push({ severity: 'warning', code: 'local-image', message: `图片使用本地路径：${badImages[0]}` })
   }
@@ -82,8 +66,7 @@ export function runCompatibilityCheck(blocks: Block[], source: string): CheckRes
     })
   }
 
-  for (const b of blocks) {
-    if (b.kind !== 'semantic') continue
+  for (const b of structure.semanticBlocks) {
     const hasContent = b.lines.some((l) => l.trim() !== '')
     if (!hasContent && Object.keys(b.props).length === 0) {
       findings.push({ severity: 'warning', code: 'empty-block', message: `空的 ${b.type} 块` })
@@ -96,8 +79,8 @@ export function runCompatibilityCheck(blocks: Block[], source: string): CheckRes
     }
   }
 
-  for (const b of blocks) {
-    if (b.kind === 'table' && (b.headers.length > 6 || b.rows.some((r) => r.length > 6))) {
+  for (const cols of structure.tableCols) {
+    if (cols > 6) {
       findings.push({ severity: 'warning', code: 'wide-table', message: '表格超过 6 列，微信端可能显示过宽' })
     }
   }

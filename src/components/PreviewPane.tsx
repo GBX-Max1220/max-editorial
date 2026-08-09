@@ -1,14 +1,14 @@
-import type { ReactNode } from 'react'
-import type { Block } from '../markdown/types'
+import { type ReactNode, type RefObject } from 'react'
 import { Article } from '../render/Article'
 import { VIEWPORTS, type PreviewMode, type Viewport } from '../render/modes'
 
 interface Props {
-  blocks: Block[]
+  html: string
   frontmatter: Record<string, unknown>
   mode: PreviewMode
   viewport: Viewport
   onViewport: (v: Viewport) => void
+  articleRef: RefObject<HTMLElement>
 }
 
 function WeChatFrame({ title, children }: { title: string; children: ReactNode }) {
@@ -39,10 +39,12 @@ function MobileFrame({ children }: { children: ReactNode }) {
   )
 }
 
-export function PreviewPane({ blocks, frontmatter, mode, viewport, onViewport }: Props) {
+export function PreviewPane({ html, frontmatter, mode, viewport, onViewport, articleRef }: Props) {
   const info = VIEWPORTS[viewport]
   const title = frontmatter.title ? String(frontmatter.title) : ''
-  const article = <Article blocks={blocks} frontmatter={frontmatter} mode={mode} viewport={viewport} />
+  const article = (
+    <Article html={html} frontmatter={frontmatter} mode={mode} viewport={viewport} articleRef={articleRef} />
+  )
 
   return (
     <div className="pane pane-preview">

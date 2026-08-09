@@ -36,6 +36,12 @@ npm run dev
 
 `:::type` 开头的围栏块。见 [SEMANTIC_BLOCKS.md](./SEMANTIC_BLOCKS.md)。
 
+## 渲染引擎
+
+Markdown 解析与渲染由 `src/engine/` 驱动，UI 只依赖 `EditorialEngine` 接口，不直接碰引擎实现。默认使用 **Doocs-backed 引擎**（marked + front-matter + 语义扩展 + juice 微信剪贴板流水线）；V0.1 自研解析器保留为 `legacy` 引擎。dev 模式顶栏可切换 `LEGACY / DOOCS`（生产不渲染该控件）。
+
+引擎迁移的完整取舍见 [ENGINE_MIGRATION_REPORT.md](./ENGINE_MIGRATION_REPORT.md)，vendored 代码与依赖来源见 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
+
 ## 文档
 
 - [DESIGN_TOKENS.md](./DESIGN_TOKENS.md) — 颜色 / 字号 / 间距 token
