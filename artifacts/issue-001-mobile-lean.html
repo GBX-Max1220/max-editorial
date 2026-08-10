@@ -1,0 +1,759 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Issue 001 · Mobile lean</title><style>/* ═══════════════════════════════════════════════════════════════
+   文章排版（article.css）— V0.2 Cognitive / Epistemic Editorial System
+   预览与微信剪贴板共用：剪贴板通过 ?inline 读取本文件，把 inherit 解析成
+   tokens.css 的具体值后交给 juice 内联。
+
+   设计权威：canonical rev1
+     §12 Base Markdown 身份（正文承担 60–70% publication identity）
+     §9  五容器语法族（PROSE / QUOTATION / CONTRAST PAIR / PAUSE / ANNOTATION）
+     §13 7 组件；§11 spacing grammar；§6 salience 层级；§7 中断；§16 mobile-first
+   epistemic 边界：
+     - CSS class 只绑定 grammar identity；salience intensity 由 data-salience（派生状态）驱动。
+     - 反方（counterpoint）与证据（evidence）同一容器同一排版（legibility parity，INVARIANT A2）。
+     - 不依赖颜色承载身份（§15）：灰阶下标签/线/对齐仍可辨。
+   ═══════════════════════════════════════════════════════════════ */
+
+.article {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  color: #171612;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+/* ── 纸面 ─────────────────────────────────────────── */
+
+.paper {
+  --scale: 1;
+  font-size: calc(16px * inherit);
+  line-height: 1.8;
+  color: #171612;
+  background: #fdfcf9;
+  width: 100%;
+  max-width: 760px;
+  padding: 2.2em 1.3em;
+  border: 1px solid #e2e0d8;
+  box-shadow: 0 1px 2px rgba(23, 22, 18, 0.05), 0 12px 40px rgba(23, 22, 18, 0.07);
+}
+
+.paper[data-mode='editorial'] {
+  font-size: calc(17px * inherit);
+}
+
+.paper[data-mode='normal'] {
+  font-size: calc(15.5px * inherit);
+}
+
+/* ════════════════════════════════════════════════════
+   §12 Base Markdown — 正文是有身份的 ground（figure 不是贴上去的组件）
+   READ 状态安静：低对比、稳定节奏、无新对象（§2.3）
+   ════════════════════════════════════════════════════ */
+
+.article h1,
+.article h2,
+.article h3 {
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+}
+
+.article h1 {
+  font-size: 1.9em;
+  margin: 1.6em 0 0.6em;
+}
+
+/* §12.2 H2：结构导航，全篇唯一可靠 landmark，样式完全一致（禁止被块设计污染） */
+.article h2 {
+  font-size: 1.5em;
+  margin: 1.6em 0 0.6em;
+}
+
+/* §12.3 H3：子结构，明显轻于 H2（字号 + 间距双重区分） */
+.article h3 {
+  font-size: 1.18em;
+  margin: calc(1.6em * 0.85) 0 0.6em;
+}
+
+.article p {
+  margin: 0 0 1.1em;
+}
+
+.article p:last-child {
+  margin-bottom: 0;
+}
+
+/* §12.4 strong = claim 关键字（稀缺资源）；em = 语气微变 */
+.article strong {
+  font-weight: 600;
+}
+
+.article em {
+  font-style: italic;
+}
+
+/* §12.8 inline code：只用于代码/字面值；技术术语（calibration/logprobs）不是代码 → 普通样式 */
+.article code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.86em;
+  background: #f5f4ef;
+  border: 1px solid #e2e0d8;
+  padding: 0.12em 0.35em;
+  border-radius: 2px;
+}
+
+/* §12.10 link：统一样式，是"通向外部"的信号，不过度吸引注意 */
+.article a {
+  color: #576b95;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(87, 107, 149, 0.35);
+}
+
+/* §12.5 blockquote 语义化：引用条 + 来源名（来源必须可见；无来源 = 设计错误，lint 报） */
+.article blockquote {
+  margin: 1.5em 0 1em;
+  padding-left: 1em;
+  border-left: 2px solid #c6c4ba;
+  color: #7c7a72;
+  font-size: 0.98em;
+}
+
+/* §12.6 列表：同层枚举；不用于论证（论证用 EVIDENCE/COUNTERPOINT） */
+.article ul,
+.article ol {
+  margin: 0 0 1.1em;
+  padding-left: 1.4em;
+}
+
+.article li {
+  margin-bottom: 0.4em;
+}
+
+/* §12.9 code block：长代码可横滚；无高亮密集墙 */
+.article pre {
+  margin: 1.5em 0 1em;
+  padding: 14px 16px;
+  background: #f5f4ef;
+  border: 1px solid #e2e0d8;
+  border-radius: 2px;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.article pre code {
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+/* §12.11 horizontal rule：章节大分隔（major pause 的廉价替代），全篇 ≤2（lint） */
+.article hr {
+  border: none;
+  border-top: 1px solid #c6c4ba;
+  margin: 1.8em 0;
+}
+
+/* §12.12 image / caption：caption 用 ANNOTATION 语法，贴近图 */
+.article img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.1em auto;
+}
+
+.article .figure {
+  margin: 1.1em auto;
+}
+
+.article .figure img {
+  margin: 0 auto;
+}
+
+.article .figure-caption {
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: #7c7a72;
+  text-align: center;
+  margin-top: 0.5em;
+}
+
+/* §12.7 table：默认禁用（作者用对照列表）；必须表格时避免 spreadsheet 语法
+   → 去掉 cell grid，仅表头发丝线 + 上下边框（减少 perceived rigor） */
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0 1em;
+  font-size: 0.92em;
+  border-top: 1px solid #c6c4ba;
+  border-bottom: 1px solid #c6c4ba;
+}
+
+.article th,
+.article td {
+  padding: 0.5em 0.6em;
+  text-align: left;
+  vertical-align: top;
+  border: none;
+}
+
+.article th {
+  font-weight: 600;
+  border-bottom: 1px solid #e2e0d8;
+}
+
+.article tr + tr td {
+  border-top: 1px solid #e2e0d8;
+}
+
+.article .table-wrap {
+  overflow-x: auto;
+}
+
+/* ════════════════════════════════════════════════════
+   Label 系统（§9.4）
+   英文 label ≤4：AI OUTPUT / JUDGMENT / EVIDENCE / COUNTERPOINT
+   其余用中文（提问 / 实验注记）。label 是导航工具不是装饰。
+   ════════════════════════════════════════════════════ */
+
+.sblock-label {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #7c7a72;
+  margin-bottom: 1em;
+}
+
+.sblock-body {
+  color: #171612;
+}
+
+/* 次级 meta（来源/状态/角色声明）——注记级 */
+.sblock-meta {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  color: #7c7a72;
+  margin-top: 1em;
+  line-height: 1.7;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1em;
+}
+
+.meta-source,
+.meta-status {
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════════════════
+   §9.1 五容器语法族
+   ════════════════════════════════════════════════════ */
+
+/* ── PROSE 族：QUESTION（section opener，左对齐，底部 hairline） ──
+   §13.1：不与 JUDGMENT 的 PAUSE 语法混淆（不居中、不大 whitespace） */
+
+.sblock-question {
+  margin: 1.5em 0 1em;
+  padding: 0.2em 0 1.1em;
+  border-bottom: 1px solid #e2e0d8;
+}
+
+.sblock-question .sblock-body {
+  font-size: 1.12em;
+  line-height: 1.7;
+  color: #171612;
+}
+
+/* major QUESTION（PAUSE 特权成员，§9.2/§2.3-3）：居中、更大 */
+.sblock-question-major {
+  text-align: center;
+  padding: 2.4em 0.5em;
+  border-top: 1px solid #171612;
+  border-bottom: 1px solid #171612;
+  border-left: none;
+}
+
+.sblock-question-major .sblock-body {
+  font-size: 1.35em;
+  font-family: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+}
+
+/* ── QUOTATION 族：AI OUTPUT（引用条 + 来源/status 行，非气泡） ──
+   §13.2：surface 仅用于与正文分离；正文同字号或略小；confidence 数字降注记级 */
+
+.sblock-ai-output {
+  margin: 1.5em 0 1em;
+  border-left: 3px solid #c6c4ba;
+  padding: 0.2em 0 0.2em 1.1em;
+}
+
+.sblock-ai-output .sblock-label {
+  margin-bottom: 0.6em;
+}
+
+.sblock-ai-output .sblock-body {
+  font-size: 0.98em;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  color: #3b3a36;
+}
+
+/* ── CONTRAST PAIR 族：EVIDENCE ↔ COUNTERPOINT（同一容器同一排版，仅 label 不同）
+   §13.5 legibility parity：反方不得灰化/缩小/藏匿/警告样式（INVARIANT A2） ── */
+
+.sblock-evidence,
+.sblock-counterpoint {
+  margin: 1.5em 0 1em;
+  padding: 1.1em 0 0.2em;
+  border-top: 1px solid #e2e0d8;
+}
+
+.sblock-evidence .sblock-body,
+.sblock-counterpoint .sblock-body {
+  font-size: 1em;
+  line-height: 1.8;
+  color: #171612;
+}
+
+/* EVIDENCE §13.4：claim 引用行在最前（文本来自 claim_id 关系） */
+.evidence-claim {
+  display: flex;
+  gap: 0.5em;
+  align-items: baseline;
+  margin-bottom: 0.8em;
+}
+
+.evidence-claim-label {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.72em;
+  letter-spacing: 0.14em;
+  color: #7c7a72;
+  flex: none;
+}
+
+.evidence-claim-text {
+  color: #171612;
+}
+
+/* 对照列表：无 cell borders、无 spreadsheet */
+.evidence-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.evidence-row {
+  display: flex;
+  gap: 1em;
+  align-items: baseline;
+  padding: 0.35em 0;
+}
+
+.evidence-label {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.7em;
+  letter-spacing: 0.16em;
+  color: #7c7a72;
+  flex: none;
+  min-width: 6em;
+}
+
+.evidence-value {
+  font-size: 1em;
+  color: #171612;
+  line-height: 1.7;
+}
+
+/* ── PAUSE 族：JUDGMENT（居中 + 上下墨线 + 署名行；§13.3） ── */
+
+.sblock-judgment {
+  text-align: center;
+  margin: 2.4em 0;
+  padding: 2.2em 0.5em 1.6em;
+  border-top: 1px solid #171612;
+  border-bottom: 1px solid #171612;
+}
+
+.sblock-judgment .sblock-label {
+  margin-bottom: 1em;
+}
+
+.sblock-judgment .sblock-body {
+  font-family: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+  font-size: 1.24em;
+  line-height: 1.7;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* author-owned cue（INVARIANT A6）：署名行 */
+.sblock-judgment .judgment-author {
+  margin-top: 1.4em;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.72em;
+  letter-spacing: 0.18em;
+  color: #7c7a72;
+}
+
+.sblock-judgment .judgment-uncertainty {
+  margin-top: 1em;
+  font-size: 0.85em;
+  line-height: 1.7;
+  color: #7c7a72;
+}
+
+.sblock-judgment .judgment-anchor {
+  margin-top: 0.9em;
+  font-size: 0.72em;
+  letter-spacing: 0.06em;
+  color: #b2b0a7;
+}
+
+/* ── ANNOTATION 族：LAB NOTE（小字号、弱背景或无背景、数字平铺，不是 dashboard） ── */
+
+.sblock-lab-note {
+  margin: 1.5em 0 1em;
+  font-size: 0.82em;
+  line-height: 1.75;
+  color: #7c7a72;
+  background: #f5f4ef;
+  border-left: 2px solid #e2e0d8;
+  padding: 0.9em 1em;
+}
+
+.sblock-lab-note .sblock-label {
+  margin-bottom: 0.6em;
+  color: #b2b0a7;
+}
+
+.sblock-lab-note .lab-stats-flat {
+  color: #7c7a72;
+  margin-bottom: 0.5em;
+}
+
+.sblock-lab-note .lab-note-line {
+  color: #7c7a72;
+}
+
+/* ════════════════════════════════════════════════════
+   METRIC（§13.7）：两轴 → data-salience 派生
+   "放大检查对象，而非其权威"（§3.4）；覆盖标记权重 ≥ 数字
+   ════════════════════════════════════════════════════ */
+
+.sblock-metric {
+  text-align: center;
+  margin: 1.5em 0 1em;
+}
+
+.metric-label {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.68em;
+  letter-spacing: 0.3em;
+  color: #7c7a72;
+  margin-bottom: 1.1em;
+}
+
+.metric-value {
+  font-family: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: #171612;
+  font-weight: 600;
+}
+
+.metric-meta,
+.metric-provenance {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.7em;
+  letter-spacing: 0.06em;
+  color: #7c7a72;
+  margin-top: 0.8em;
+  line-height: 1.7;
+}
+
+/* specimen（检查对象）：放大 2–3×，覆盖标记权重 ≥ 数字 */
+.sblock-metric[data-salience='inspection_specimen'] {
+  margin: 2.4em 0;
+}
+
+.sblock-metric[data-salience='inspection_specimen'] .metric-value {
+  font-size: clamp(3em, 8vw, 4.6em);
+}
+
+.sblock-metric[data-salience='inspection_specimen'] .metric-cover {
+  margin-top: 1.6em;
+  padding-top: 1.2em;
+  border-top: 1px solid #c6c4ba;
+}
+
+.metric-cover-label {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.72em;
+  letter-spacing: 0.22em;
+  color: #171612;
+}
+
+.metric-cover-question {
+  margin-top: 0.7em;
+  font-size: 1em;
+  line-height: 1.7;
+  color: #171612;
+}
+
+.metric-cover-source {
+  margin-top: 0.5em;
+  font-size: 0.8em;
+  color: #7c7a72;
+}
+
+/* result（报告结果）：中等，不得放大，紧邻 denominator/boundary */
+.sblock-metric[data-salience='reported_result'] .metric-value {
+  font-size: 1.5em;
+}
+
+/* reference（上下文参考）：中低，引用式呈现 */
+.sblock-metric[data-salience='contextual_reference'] .metric-value {
+  font-size: 1.2em;
+}
+
+/* ── 降级渲染（结构无效关系不镀金，§14） ──────────── */
+
+.sblock-degraded {
+  opacity: 1; /* 不降低可读性 */
+}
+
+.sblock-degraded .evidence-claim-text {
+  color: #7c7a72;
+}
+
+.degraded-note {
+  margin-top: 0.7em;
+  font-size: 0.78em;
+  color: #b2b0a7;
+}
+
+.sblock-evidence.sblock-degraded .evidence-rows {
+  filter: none;
+}
+
+/* 未知语义块 */
+.sblock-unknown {
+  border: 1px dashed #c6c4ba;
+  border-radius: 2px;
+  padding: 14px 16px;
+  margin: 1.5em 0 1em;
+}
+
+.sblock-unknown .sblock-body {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 13px;
+  color: #7c7a72;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* ════════════════════════════════════════════════════
+   masthead / footer
+   ════════════════════════════════════════════════════ */
+
+.masthead {
+  padding-bottom: 1.8em;
+  margin-bottom: 1.8em;
+  border-bottom: 1px solid #e2e0d8;
+}
+
+.masthead-brand {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: #7c7a72;
+}
+
+.masthead-series {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  color: #b2b0a7;
+  margin-top: 8px;
+}
+
+.masthead-title {
+  font-family: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+  font-size: 2em;
+  line-height: 1.35;
+  letter-spacing: 0.005em;
+  margin: 20px 0 10px;
+  font-weight: 600;
+  overflow-wrap: break-word; /* §16.2 long title wrapping */
+}
+
+.masthead-date {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 11px;
+  color: #7c7a72;
+  letter-spacing: 0.14em;
+}
+
+.masthead-simple {
+  padding-bottom: 1.8em;
+  margin-bottom: 1.8em;
+  border-bottom: 1px solid #e2e0d8;
+}
+
+.masthead-simple .masthead-title {
+  margin-top: 14px;
+}
+
+.article-footer {
+  margin-top: 1.8em;
+  padding-top: 1.8em;
+  border-top: 1px solid #e2e0d8;
+}
+
+.footer-brand {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: #b2b0a7;
+}
+
+.footer-tagline {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #7c7a72;
+  line-height: 1.7;
+}
+
+.next {
+  margin-top: 2.2em;
+}
+
+.next-label {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  color: #7c7a72;
+}
+
+.next-title {
+  font-family: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+  font-size: 1.3em;
+  line-height: 1.55;
+  margin-top: 8px;
+}
+
+/* ════════════════════════════════════════════════════
+   NORMAL 模式：同一编辑语法的紧凑密度（§10 / §16）
+   认识论不变量不变：同容器、同 label、同降级
+   ════════════════════════════════════════════════════ */
+
+.article[data-mode='normal'] .sblock-question .sblock-body {
+  font-size: 1em;
+}
+
+.article[data-mode='normal'] .sblock-judgment {
+  padding: 1.4em 0.5em 1em;
+  margin: 1.5em 0;
+}
+
+.article[data-mode='normal'] .sblock-judgment .sblock-body {
+  font-size: 1.1em;
+}
+
+.article[data-mode='normal'] .sblock-metric[data-salience='inspection_specimen'] {
+  margin: 1.5em 0;
+}
+
+.article[data-mode='normal'] .sblock-metric[data-salience='inspection_specimen'] .metric-value {
+  font-size: clamp(2.4em, 6vw, 3.6em);
+}
+
+.article[data-mode='normal'] .sblock-question,
+.article[data-mode='normal'] .sblock-evidence,
+.article[data-mode='normal'] .sblock-counterpoint,
+.article[data-mode='normal'] .sblock-ai-output {
+  margin: calc(1.5em * 0.8) 0 calc(1em * 0.8);
+}
+
+/* ════════════════════════════════════════════════════
+   移动端（§16）：长英文断字、表格/代码横滚已在 base；
+   whitespace 减半由 tokens.css lean 基线承担，桌面由 app.css 恢复
+   ════════════════════════════════════════════════════ */
+
+.article .masthead-title,
+.article .sblock-body,
+.article .metric-cover-question {
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 480px) {
+  .paper {
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+  }
+}
+</style></head><body style="margin:0;background:#eceae5;padding:24px;"><article class="article paper" data-mode="editorial" style="margin:0 auto;font-size:17px;"><header class="masthead"><div class="masthead-brand">MAX大郭的判断局</div><div class="masthead-series">JUDGMENT / 001</div><h1 class="masthead-title">我本来只是想检查 AI 的健身建议，最后发现问题根本不在健身</h1><div class="masthead-date">2026 / 08</div></header><div class="article-body"><p>我买了一个便宜的运动手环，顺手让健身 App 帮我生成每周计划。App 说我的有氧能力“处于平均水平”，并且“建议每周三次、每次恰好 43 分钟的中等强度训练”。</p>
+<p>我一开始只是想确认一件事：这个 43 分钟，到底是科学，还是随口一说？这个问题指向一个更宽的判断：<strong>当 AI 给出一个精确数字，用户有没有途径知道它的依据、误差和边界。</strong></p>
+<p>AI 输出的精确数字，没有携带足够的依据、误差与边界信息。</p><h2>一个问题</h2>
+<section class="sblock sblock-question"><div class="sblock-label">提问</div><div class="sblock-body">AI 说自己 90% 确定，<br/>到底是什么意思？</div></section><h2>一个数字，两种含义</h2>
+<p>区别在 <strong>点估计</strong> 和 <strong>区间估计</strong>。手环只给了我一个点——43 分钟。它没有告诉我误差范围，没有告诉我置信区间，也没有告诉我这个数字是在什么人群、什么数据上算出来的。</p>
+<p>同样的数据集，换一个模型再问一遍，它回答得很干脆：</p>
+<section class="sblock sblock-ai-output"><div class="sblock-label">AI OUTPUT</div><div class="sblock-body">“建议每天恰好进行 43 分钟训练。”<br/><br/>Confidence: 90%</div><div class="sblock-meta"><span class="meta-source">来源：健身 App 内置 AI 助手 · 2026-08 输出</span><span class="meta-status">RAW OUTPUT</span></div></section><p>这是我截取的原始输出。Confidence 这个数字是模型声称的置信度，不是对“训练 43 分钟有效”这一结论的保证——这两种不确定性不是一回事。</p>
+<p>这正是需要被单独拉出来检查的东西：</p>
+<section class="sblock sblock-metric" data-salience="inspection_specimen"><div class="metric-label">MINUTES · EXACTLY?</div><div class="metric-value">43</div><div class="metric-cover"><div class="metric-cover-label">被检查对象 · 非结论</div><div class="metric-cover-question">这个 43 分钟，到底是科学，还是随口一说？</div><div class="metric-cover-source">上述 AI 输出的原文</div></div><div class="metric-meta">模型输出 · 检查对象</div><div class="metric-provenance">来源：健身 App 内置 AI 助手 · 方法：单次对话输出 · 边界：仅限该次输出；不含置信区间</div></section><p>用一套证据标准来看，什么被支持了，什么没有被支持：</p>
+<section class="sblock sblock-evidence"><div class="sblock-label">EVIDENCE</div><div class="evidence-claim"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">AI 输出的精确数字，没有携带足够的依据、误差与边界信息。</span></div><div class="evidence-rows"><div class="evidence-row"><span class="evidence-label">SUPPORTED</span><span class="evidence-value">30–60 分钟，中等强度，每周 3–5 次</span></div><div class="evidence-row"><span class="evidence-label">NOT SUPPORTED</span><span class="evidence-value">恰好 43 分钟；对个体给出置信度</span></div></div><div class="sblock-meta">来源：运动科学文献综述（示例） · 强度：40 例系统评估（示例） · 边界：支持到“范围”，不支持“精确点值”</div></section><p>当然，要公平一点——最强的反方是这样说的：</p>
+<section class="sblock sblock-counterpoint"><div class="sblock-label">COUNTERPOINT</div><div class="sblock-body">精确表达并不必然意味着误导。<br/>在医疗和工程场景里，精确是有价值的。</div></section><p>材料齐了，这是一个值得停一下的判断：</p>
+<section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">一个数字可以算得没错，<br/>但仍然没有资格精确到那个程度。</div><div class="judgment-uncertainty">这是关于“呈现方式”的判断，不是关于“训练时长”的科学结论。</div><div class="judgment-author">— Max</div><div class="judgment-anchor">证据与反方见后文</div></section><h2>系统评估，不是人类研究</h2>
+<p>随后我把这套材料整理成一个小的评估集，跑了一轮系统测试：</p>
+<section class="sblock sblock-lab-note"><div class="sblock-label">实验注记 · CHECKMYCOACH</div><div class="lab-body"><div class="lab-stats-flat">40 cases · 15 routed · 12 passed</div><div class="lab-note-line">System evaluation.</div><div class="lab-note-line">Not a human study.</div></div></section><p>这里的数字来自机器评估流程。你不能从“12 例通过”推出“真人用户也会这样判断”——这是两类完全不同的证据。</p>
+<h2>我看到的问题</h2>
+<p>跑完这轮测试，问题变得清楚：这不是健身建议准不准，而是呈现方式。校准研究早已发现：</p>
+<blockquote>
+<p>人们会对“表述自信”做出系统性反应，即使这种自信没有任何依据。
+—— 认知心理学研究综述（示例来源）</p>
+</blockquote>
+<p>这个问题并不新。<strong>Calibration</strong> 研究很早就发现，人们会对表述自信做出系统性反应。误差范围这种东西，英文里叫 margin of error，而在健身 App 里它完全缺席。</p>
+<p>一个点估计至少应该带上三样东西：</p>
+<ul>
+<li>依据：这个数字从哪里来（人群、数据、模型）</li>
+<li>误差：可能的范围有多大</li>
+<li>边界：它适用于谁、不适用于谁</li>
+</ul>
+<p>把范围拉回这件事本身：</p>
+<ol>
+<li>精确 ≠ 准确。</li>
+<li>准确 ≠ 可验证。</li>
+<li>可验证 ≠ 用户能判断。</li>
+</ol>
+<p>误差范围在实现里通常长这样（示意代码，不是真实 API）：</p>
+<pre><code class="language-python"># 点估计 vs 区间估计
+plan = suggest(duration=43, bounds=[30, 60])
+</code></pre>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>结果</th></tr></thead><tbody><tr><td>校准度</td><td>需要改进</td></tr><tr><td>置信度</td><td>90%（未校准）</td></tr><tr><td>误差信息</td><td>缺失</td></tr></tbody></table></div><p>点估计与区间估计的区别，可以用一张图说清：</p>
+<p><figure class="figure"><img src="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20width=&#39;480&#39;%20height=&#39;80&#39;%3E%3Crect%20x=&#39;60&#39;%20y=&#39;30&#39;%20width=&#39;300&#39;%20height=&#39;14&#39;%20fill=&#39;%23c6c4ba&#39;/%3E%3Ccircle%20cx=&#39;120&#39;%20cy=&#39;37&#39;%20r=&#39;9&#39;%20fill=&#39;%23171612&#39;/%3E%3C/svg%3E" alt="点估计与区间估计示意" title="43 分钟是点估计，不是区间" /><figcaption class="figure-caption">43 分钟是点估计，不是区间</figcaption></figure></p>
+<p>这就是一篇文章的起点。<a href="https://example.com/start">回到问题本身</a> 再想一想，下一期，我会写 AI 的置信度到底有没有意义。</p>
+</div><footer class="article-footer"><div class="footer-brand">MAX / JUDGMENT / 001</div><div class="footer-tagline">AI 越来越能干以后，人该如何判断？</div><div class="next"><div class="next-label">NEXT</div><div class="next-title">AI 说自己“90% 确定”，到底是什么意思？</div></div></footer></article></body></html>
