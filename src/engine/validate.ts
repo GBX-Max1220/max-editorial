@@ -7,12 +7,14 @@ import type { Token } from 'marked'
 import type { EditorialDiagnostic } from './governance'
 import { validateBlockIds } from './doocs/blockIds'
 import { validateRelations } from './doocs/relations'
+import { validateMetricSemantics } from './doocs/metric'
 import { heuristicPauseDensity } from './heuristics'
 
 export function validateDocument(tokens: readonly Token[]): EditorialDiagnostic[] {
   return [
     ...validateBlockIds(tokens),
     ...validateRelations(tokens),
+    ...validateMetricSemantics(tokens),
     ...heuristicPauseDensity(tokens),
   ]
 }
