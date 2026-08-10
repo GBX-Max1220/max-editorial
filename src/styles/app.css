@@ -476,6 +476,113 @@
   color: var(--muted);
 }
 
+/* ── dev-only WeChat copy-back 诊断（Phase 3 spike） ── */
+
+.compat-panel {
+  flex: none;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 10px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 34vh;
+  overflow-y: auto;
+}
+
+.compat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
+.compat-pre.ok {
+  color: #3d6b3d;
+}
+
+.compat-post {
+  width: 100%;
+  min-height: 64px;
+  resize: vertical;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  padding: 8px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.compat-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.compat-hint {
+  font-size: 11px;
+  color: var(--faint);
+}
+
+.compat-findings {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+}
+
+.compat-finding {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+}
+
+.compat-kind {
+  font-family: var(--mono);
+  font-weight: 600;
+  color: #8a6d1f;
+  flex: none;
+}
+
+.compat-path {
+  font-family: var(--mono);
+  color: var(--fg);
+}
+
+.compat-prop {
+  font-family: var(--mono);
+  color: var(--muted);
+}
+
+.compat-val {
+  font-family: var(--mono);
+  color: var(--muted);
+}
+
+.compat-val.before {
+  text-decoration: line-through;
+}
+
+.compat-val.after {
+  color: #8a6d1f;
+}
+
+.compat-clean {
+  color: #3d6b3d;
+}
+
+.compat-more {
+  color: var(--faint);
+  font-family: var(--mono);
+}
+
 @media (max-width: 1080px) {
   .app-main {
     grid-template-columns: minmax(320px, 40%) 1fr;

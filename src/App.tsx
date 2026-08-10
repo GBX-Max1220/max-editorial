@@ -6,6 +6,7 @@ import { EditorPane } from './components/EditorPane'
 import { PreviewPane } from './components/PreviewPane'
 import { StatusBar } from './components/StatusBar'
 import { CheckPanel } from './components/CheckPanel'
+import { CompatPanel } from './components/CompatPanel'
 import fixtureRaw from '../examples/issue-001.md?raw'
 
 /** 引擎切换仅开发模式可见；默认 Doocs-backed 引擎。 */
@@ -18,6 +19,8 @@ export default function App() {
   const [checkOpen, setCheckOpen] = useState(false)
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [engineName, setEngineName] = useState<EngineName>(DEFAULT_ENGINE)
+  const [compatOpen, setCompatOpen] = useState(false)
+  const [lastCopiedHtml, setLastCopiedHtml] = useState<string | null>(null)
 
   const engine = useMemo(() => createEditorialEngine(engineName), [engineName])
   const rendered = useMemo(() => engine.render(source), [engine, source])
@@ -34,6 +37,8 @@ export default function App() {
     try {
       const r = await engine.copyToWechat(source, { mode, previewEl: articleRef.current })
       setCopyState(r.ok ? 'copied' : 'error')
+      // Phase 3 spike：保存 PRE-WECHAT 剪贴板 HTML，供 dev-only copy-back 诊断比对。
+      if (r.ok) setLastCopiedHtml(r.html)
       setTimeout(() => setCopyState('idle'), 2000)
     } catch {
       setCopyState('error')
@@ -79,6 +84,9 @@ export default function App() {
         <CheckPanel result={checkResult} epistemic={rendered.epistemicDiagnostics} />
       )}
 
+      {/* Phase 3 spike：dev-only WeChat copy-back 诊断（非产品功能） */}
+      {import.meta.env.DEV && compatOpen && <CompatPanel preHtml={lastCopiedHtml} />}
+
       <StatusBar
         counts={rendered.wordCount}
         blockCount={rendered.blockCount}
@@ -86,6 +94,8 @@ export default function App() {
         mode={mode}
         onMode={setMode}
         onCheck={() => setCheckOpen((v) => !v)}
+        onCompat={import.meta.env.DEV ? () => setCompatOpen((v) => !v) : undefined}
+        compatOpen={compatOpen}
         onCopy={handleCopy}
         copyState={copyState}
       />

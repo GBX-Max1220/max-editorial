@@ -8,6 +8,8 @@ interface Props {
   mode: PreviewMode
   onMode: (m: PreviewMode) => void
   onCheck: () => void
+  onCompat?: () => void
+  compatOpen?: boolean
   onCopy: () => void
   copyState: 'idle' | 'copied' | 'error'
 }
@@ -19,6 +21,8 @@ export function StatusBar({
   mode,
   onMode,
   onCheck,
+  onCompat,
+  compatOpen,
   onCopy,
   copyState,
 }: Props) {
@@ -38,6 +42,11 @@ export function StatusBar({
       <button className="ghost" onClick={onCheck}>
         CHECK
       </button>
+      {onCompat && (
+        <button className={`ghost ${compatOpen ? 'active' : ''}`} onClick={onCompat}>
+          COMPAT
+        </button>
+      )}
       <button className="copy-btn" onClick={onCopy} disabled={copyState === 'copied'}>
         {copyState === 'copied' ? 'COPIED ✓' : copyState === 'error' ? 'COPY FAILED' : 'COPY → WECHAT'}
       </button>

@@ -1,0 +1,145 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WeChat Compat Probe</title></head><body style="margin:0;background:#eceae5;padding:24px;"><h1 style="font-family:monospace;font-size:14px;letter-spacing:.2em;color:#7c7a72;">WECHAT COMPAT PROBE · 999 · COPY → WECHAT 管线产物</h1><div id="probe"><style>
+@media (max-width: 480px) {
+  .paper {
+    border-left: none;
+    border-right: none;
+    box-shadow: none;
+  }
+}
+</style><p><strong>此文档不是文章，是兼容性探针。</strong> 每个编号块测试一个 CSS/layout primitive。复制 → 粘贴进微信公众号编辑器 → 截图 → 对照 <code>artifacts/wechat-compat-probe.html</code> 判定。</p>
+<h2>T01 BORDER-TOP</h2>
+<p>反方与证据共享顶部发丝线。下方是反方块（border-top）：</p>
+<section class="sblock sblock-counterpoint" style="margin: 1.5em 0 1em; padding: 1.1em 0 0.2em; border-top: 1px solid #e2e0d8;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">COUNTERPOINT</div><div class="sblock-body" style="font-size: 1em; line-height: 1.8; color: #171612;">T01 · 顶部发丝线应出现在本块上方。</div></section><h2>T02 BORDER-LEFT</h2>
+<p>引用条（border-left）。AI OUTPUT 是 3px 引用条：</p>
+<section class="sblock sblock-ai-output" style="margin: 1.5em 0 1em; border-left: 3px solid #c6c4ba; padding: 0.2em 0 0.2em 1.1em;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 0.6em;">AI OUTPUT</div><div class="sblock-body" style="font-size: 0.98em; line-height: 1.75; white-space: pre-wrap; color: #3b3a36;">“建议每天恰好进行 43 分钟训练。”<br><br>Confidence: 90%</div><div class="sblock-meta" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.04em; color: #7c7a72; margin-top: 1em; line-height: 1.7; display: flex; flex-wrap: wrap; gap: 0.4em 1em;"><span class="meta-source" style="white-space: nowrap;">来源：示例模型 · 2026-08</span><span class="meta-status" style="white-space: nowrap;">RAW OUTPUT</span></div></section><p>普通引用（blockquote，2px 左边线）：</p>
+<blockquote>
+<p>T02b · 普通引用的左边线应可见。
+—— 某来源</p>
+</blockquote>
+<h2>T03 BORDER-BOTTOM</h2>
+<p>QUESTION 底部发丝线：</p>
+<section class="sblock sblock-question" style="margin: 1.5em 0 1em; padding: 0.2em 0 1.1em; border-bottom: 1px solid #e2e0d8;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">提问</div><div class="sblock-body" style="font-size: 1.12em; line-height: 1.7; color: #171612;">T03 · 提问块底部应有发丝线。</div></section><h2>T04 BORDER-RADIUS</h2>
+<p>行内 code 应有 2px 圆角与浅底：<code>src/fitness/plan.py</code>；fenced code 同样：</p>
+<pre><code class="language-python"># T04 · code 块圆角 + 背景
+plan = suggest(duration=43)
+</code></pre>
+<h2>T05 FLEX</h2>
+<p>证据的 claim 引用行是 flex（<code>display:flex</code>）：</p>
+<p>T05 · flex 容器：这一行的 label 与文本。</p><section class="sblock sblock-evidence" style="margin: 1.5em 0 1em; padding: 1.1em 0 0.2em; border-top: 1px solid #e2e0d8;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">EVIDENCE</div><div class="evidence-claim" style="display: flex; gap: 0.5em; align-items: baseline; margin-bottom: 0.8em;"><span class="evidence-claim-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.14em; color: #7c7a72; flex: none;">支持：</span><span class="evidence-claim-text" style="color: #171612;">T05 · flex 容器：这一行的 label 与文本。</span></div><div class="evidence-rows" style="display: flex; flex-direction: column;"><div class="evidence-row" style="display: flex; gap: 1em; align-items: baseline; padding: 0.35em 0;"><span class="evidence-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.7em; letter-spacing: 0.16em; color: #7c7a72; flex: none; min-width: 6em;">SUPPORTED</span><span class="evidence-value" style="font-size: 1em; color: #171612; line-height: 1.7;">flex 行左对齐、label 固定宽</span></div></div></section><h2>T06 FLEX + GAP</h2>
+<p>AI OUTPUT 的 meta 行是 <code>flex</code> + <code>gap</code>（来源与状态左右并排且留空隙）：</p>
+<section class="sblock sblock-ai-output" style="margin: 1.5em 0 1em; border-left: 3px solid #c6c4ba; padding: 0.2em 0 0.2em 1.1em;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 0.6em;">AI OUTPUT</div><div class="sblock-body" style="font-size: 0.98em; line-height: 1.75; white-space: pre-wrap; color: #3b3a36;">T06 · meta 行应为 flex，来源与状态之间有 gap。</div><div class="sblock-meta" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.04em; color: #7c7a72; margin-top: 1em; line-height: 1.7; display: flex; flex-wrap: wrap; gap: 0.4em 1em;"><span class="meta-source" style="white-space: nowrap;">来源：这是一个很长的模型来源名称，用于测试 flex+gap+nowrap</span><span class="meta-status" style="white-space: nowrap;">RAW OUTPUT</span></div></section><h2>T07 FLEX-WRAP</h2>
+<p>meta 行 <code>flex-wrap:wrap</code>：来源很长时应换行而不是溢出。</p>
+<section class="sblock sblock-ai-output" style="margin: 1.5em 0 1em; border-left: 3px solid #c6c4ba; padding: 0.2em 0 0.2em 1.1em;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 0.6em;">AI OUTPUT</div><div class="sblock-body" style="font-size: 0.98em; line-height: 1.75; white-space: pre-wrap; color: #3b3a36;">T07 · 超长来源应换行，不应横向溢出。</div><div class="sblock-meta" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.04em; color: #7c7a72; margin-top: 1em; line-height: 1.7; display: flex; flex-wrap: wrap; gap: 0.4em 1em;"><span class="meta-source" style="white-space: nowrap;">来源：一个超长的来源字符串，超长超长超长超长超长超长超长超长，测试 flex-wrap 是否换行</span><span class="meta-status" style="white-space: nowrap;">EXCERPT</span></div></section><h2>T08 FLEX-DIRECTION COLUMN</h2>
+<p>证据 rows 是 <code>flex-direction:column</code>：</p>
+<section class="sblock sblock-evidence" style="margin: 1.5em 0 1em; padding: 1.1em 0 0.2em; border-top: 1px solid #e2e0d8;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">EVIDENCE</div><div class="evidence-claim" style="display: flex; gap: 0.5em; align-items: baseline; margin-bottom: 0.8em;"><span class="evidence-claim-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.14em; color: #7c7a72; flex: none;">支持：</span><span class="evidence-claim-text" style="color: #171612;">T05 · flex 容器：这一行的 label 与文本。</span></div><div class="evidence-rows" style="display: flex; flex-direction: column;"><div class="evidence-row" style="display: flex; gap: 1em; align-items: baseline; padding: 0.35em 0;"><span class="evidence-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.7em; letter-spacing: 0.16em; color: #7c7a72; flex: none; min-width: 6em;">SUPPORTED</span><span class="evidence-value" style="font-size: 1em; color: #171612; line-height: 1.7;">第一行</span></div><div class="evidence-row" style="display: flex; gap: 1em; align-items: baseline; padding: 0.35em 0;"><span class="evidence-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.7em; letter-spacing: 0.16em; color: #7c7a72; flex: none; min-width: 6em;">NOT SUPPORTED</span><span class="evidence-value" style="font-size: 1em; color: #171612; line-height: 1.7;">第二行</span></div></div></section><h2>T09 ALIGN-ITEMS BASELINE</h2>
+<p>证据行的 label 与 value 基线对齐：</p>
+<section class="sblock sblock-evidence" style="margin: 1.5em 0 1em; padding: 1.1em 0 0.2em; border-top: 1px solid #e2e0d8;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">EVIDENCE</div><div class="evidence-claim" style="display: flex; gap: 0.5em; align-items: baseline; margin-bottom: 0.8em;"><span class="evidence-claim-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.14em; color: #7c7a72; flex: none;">支持：</span><span class="evidence-claim-text" style="color: #171612;">T05 · flex 容器：这一行的 label 与文本。</span></div><div class="evidence-rows" style="display: flex; flex-direction: column;"><div class="evidence-row" style="display: flex; gap: 1em; align-items: baseline; padding: 0.35em 0;"><span class="evidence-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.7em; letter-spacing: 0.16em; color: #7c7a72; flex: none; min-width: 6em;">SUPPORTED</span><span class="evidence-value" style="font-size: 1em; color: #171612; line-height: 1.7;">30–60 分钟，中等强度，每周 3–5 次</span></div></div></section><h2>T10+T11 CLAMP FONT SIZE + VW UNIT</h2>
+<p>METRIC specimen 用 <code>clamp(3.1em, 7vw, 4.5em)</code>（含 vw）：</p>
+<section class="sblock sblock-metric" data-salience="inspection_specimen" style="text-align: center; margin: 2.4em 0;"><div class="metric-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.68em; letter-spacing: 0.3em; color: #7c7a72; margin-bottom: 1.1em;">T10 · CLAMP + VW</div><div class="metric-value" style="font-family: Georgia, 'Times New Roman', 'Songti SC', 'Noto Serif CJK SC',
+    'Source Han Serif SC', SimSun, serif; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: #171612; font-weight: 600; font-size: clamp(3em, 8vw, 4.6em);">43</div><div class="metric-cover" style="margin-top: 1.6em; padding-top: 1.2em; border-top: 1px solid #c6c4ba;"><div class="metric-cover-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.22em; color: #171612;">被检查对象 · 非结论</div><div class="metric-cover-question" style="margin-top: 0.7em; font-size: 1em; line-height: 1.7; color: #171612;">T10 · 数字应大而清晰</div><div class="metric-cover-source" style="margin-top: 0.5em; font-size: 0.8em; color: #7c7a72;">上述输出</div></div><div class="metric-meta" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.7em; letter-spacing: 0.06em; color: #7c7a72; margin-top: 0.8em; line-height: 1.7;">模型输出 · 检查对象</div><div class="metric-provenance" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.7em; letter-spacing: 0.06em; color: #7c7a72; margin-top: 0.8em; line-height: 1.7;">来源：示例模型 · 方法：样例 · 边界：仅限样例</div></section><h2>T12 CALC</h2>
+<p>纸面 <code>font-size: calc(16px * 1)</code> 与 h3 <code>calc(var(--heading-top) * 0.85)</code>：</p>
+<h3>T12 · 三级标题的 top margin 由 calc 得出</h3>
+<h2>T13 MEDIA QUERY</h2>
+<p><code>@media (max-width:480px)</code> 若存活，窄屏下纸面无左右边框。<strong>此条无法仅靠粘贴判定</strong>——在矩阵中单独记录管线是否丢弃 media query。</p>
+<h2>T14 WHITE-SPACE NOWRAP</h2>
+<p>meta 的 <code>white-space:nowrap</code>：</p>
+<section class="sblock sblock-ai-output" style="margin: 1.5em 0 1em; border-left: 3px solid #c6c4ba; padding: 0.2em 0 0.2em 1.1em;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 0.6em;">AI OUTPUT</div><div class="sblock-body" style="font-size: 0.98em; line-height: 1.75; white-space: pre-wrap; color: #3b3a36;">T14 · 状态与来源不应折行（nowrap）。</div><div class="sblock-meta" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.04em; color: #7c7a72; margin-top: 1em; line-height: 1.7; display: flex; flex-wrap: wrap; gap: 0.4em 1em;"><span class="meta-source" style="white-space: nowrap;">来源：来源</span><span class="meta-status" style="white-space: nowrap;">RAW OUTPUT</span></div></section><h2>T15 WHITE-SPACE PRE-WRAP</h2>
+<p>AI OUTPUT body <code>white-space:pre-wrap</code>：换行应保留：</p>
+<section class="sblock sblock-ai-output" style="margin: 1.5em 0 1em; border-left: 3px solid #c6c4ba; padding: 0.2em 0 0.2em 1.1em;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 0.6em;">AI OUTPUT</div><div class="sblock-body" style="font-size: 0.98em; line-height: 1.75; white-space: pre-wrap; color: #3b3a36;">第一行<br>第二行（应换行显示）</div><div class="sblock-meta" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.04em; color: #7c7a72; margin-top: 1em; line-height: 1.7; display: flex; flex-wrap: wrap; gap: 0.4em 1em;"><span class="meta-source" style="white-space: nowrap;">来源：模型</span><span class="meta-status" style="white-space: nowrap;">RAW OUTPUT</span></div></section><h2>T16 TEXT-ALIGN CENTER</h2>
+<p>JUDGMENT 与 METRIC 居中：</p>
+<section class="sblock sblock-judgment" style="text-align: center; margin: 2.4em 0; padding: 2.2em 0.5em 1.6em; border-top: 1px solid #171612; border-bottom: 1px solid #171612;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">JUDGMENT</div><div class="sblock-body" style="color: #171612; font-family: Georgia, 'Times New Roman', 'Songti SC', 'Noto Serif CJK SC',
+    'Source Han Serif SC', SimSun, serif; font-size: 1.24em; line-height: 1.7; font-weight: 500; letter-spacing: 0.01em;">T16 · 居中判断。</div><div class="judgment-author" style="margin-top: 1.4em; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.18em; color: #7c7a72;">— Max</div></section><h2>T17+T18 LETTER-SPACING + TEXT-TRANSFORM</h2>
+<p>label 用 <code>letter-spacing:0.28em</code> + <code>text-transform:uppercase</code>：</p>
+<section class="sblock sblock-question" style="margin: 1.5em 0 1em; padding: 0.2em 0 1.1em; border-bottom: 1px solid #e2e0d8;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">提问</div><div class="sblock-body" style="font-size: 1.12em; line-height: 1.7; color: #171612;">T17 · 「提问」label 的字距。</div></section><h2>T19 MARGIN + PADDING</h2>
+<p>语义块的外边距与内边距（em）：</p>
+<section class="sblock sblock-evidence" style="margin: 1.5em 0 1em; padding: 1.1em 0 0.2em; border-top: 1px solid #e2e0d8;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">EVIDENCE</div><div class="evidence-claim" style="display: flex; gap: 0.5em; align-items: baseline; margin-bottom: 0.8em;"><span class="evidence-claim-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.14em; color: #7c7a72; flex: none;">支持：</span><span class="evidence-claim-text" style="color: #171612;">T05 · flex 容器：这一行的 label 与文本。</span></div><div class="evidence-rows" style="display: flex; flex-direction: column;"><div class="evidence-row" style="display: flex; gap: 1em; align-items: baseline; padding: 0.35em 0;"><span class="evidence-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.7em; letter-spacing: 0.16em; color: #7c7a72; flex: none; min-width: 6em;">SUPPORTED</span><span class="evidence-value" style="font-size: 1em; color: #171612; line-height: 1.7;">T19 · 块的 margin/padding 应保持节奏。</span></div></div></section><h2>T20 EM RELATIVE</h2>
+<p>em 间距随字号缩放。切换 NORMAL 模式（15.5px）后整体收窄：</p>
+<section class="sblock sblock-judgment" style="text-align: center; margin: 2.4em 0; padding: 2.2em 0.5em 1.6em; border-top: 1px solid #171612; border-bottom: 1px solid #171612;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">JUDGMENT</div><div class="sblock-body" style="color: #171612; font-family: Georgia, 'Times New Roman', 'Songti SC', 'Noto Serif CJK SC',
+    'Source Han Serif SC', SimSun, serif; font-size: 1.24em; line-height: 1.7; font-weight: 500; letter-spacing: 0.01em;">T20 · em 相对缩放。</div><div class="judgment-author" style="margin-top: 1.4em; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.18em; color: #7c7a72;">— Max</div></section><h2>T21 MIN-WIDTH</h2>
+<p>证据 label <code>min-width:6em</code>：</p>
+<section class="sblock sblock-evidence" style="margin: 1.5em 0 1em; padding: 1.1em 0 0.2em; border-top: 1px solid #e2e0d8;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">EVIDENCE</div><div class="evidence-claim" style="display: flex; gap: 0.5em; align-items: baseline; margin-bottom: 0.8em;"><span class="evidence-claim-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.14em; color: #7c7a72; flex: none;">支持：</span><span class="evidence-claim-text" style="color: #171612;">T05 · flex 容器：这一行的 label 与文本。</span></div><div class="evidence-rows" style="display: flex; flex-direction: column;"><div class="evidence-row" style="display: flex; gap: 1em; align-items: baseline; padding: 0.35em 0;"><span class="evidence-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.7em; letter-spacing: 0.16em; color: #7c7a72; flex: none; min-width: 6em;">SUPPORTED</span><span class="evidence-value" style="font-size: 1em; color: #171612; line-height: 1.7;">T21 · label 固定最小宽度。</span></div></div></section><h2>T22 TABLE</h2>
+<p>表格 + <code>.table-wrap</code>（横向滚动容器）：</p>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>结果</th></tr></thead><tbody><tr><td>校准度</td><td>需要改进</td></tr><tr><td>置信度</td><td>90%（未校准）</td></tr><tr><td>误差信息</td><td>缺失</td></tr></tbody></table></div><h2>T23 FIGURE + FIGCAPTION</h2>
+<p>标题图片 → <code>figure + figcaption</code>：</p>
+<p></p><figure class="figure"><img src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='480'%20height='80'%3E%3Crect%20x='60'%20y='30'%20width='300'%20height='14'%20fill='%23c6c4ba'/%3E%3Ccircle%20cx='120'%20cy='37'%20r='9'%20fill='%23171612'/%3E%3C/svg%3E" alt="T23 · 图注" title="T23 · 点估计示意"><figcaption class="figure-caption">T23 · 点估计示意</figcaption></figure><p></p>
+<h2>T24 INLINE CODE</h2>
+<p><code>margin-of-error</code> 是术语（普通样式），<code>src/fitness/plan.py</code> 是代码（inline code 样式）。</p>
+<h2>T25 BACKGROUND</h2>
+<p>lab-note 弱背景 + 左边线：</p>
+<section class="sblock sblock-lab-note" style="margin: 1.5em 0 1em; font-size: 0.82em; line-height: 1.75; color: #7c7a72; background: #f5f4ef; border-left: 2px solid #e2e0d8; padding: 0.9em 1em;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; margin-bottom: 0.6em; color: #b2b0a7;">实验注记 · T25</div><div class="lab-body"><div class="lab-stats-flat" style="color: #7c7a72; margin-bottom: 0.5em;">40 cases</div><div class="lab-note-line" style="color: #7c7a72;">System evaluation.</div><div class="lab-note-line" style="color: #7c7a72;">Not a human study.</div></div></section><h2>T26 FONT-FAMILY</h2>
+<p>serif（判断/数字）、mono（label/数据）、sans（正文）：</p>
+<section class="sblock sblock-judgment" style="text-align: center; margin: 2.4em 0; padding: 2.2em 0.5em 1.6em; border-top: 1px solid #171612; border-bottom: 1px solid #171612;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">JUDGMENT</div><div class="sblock-body" style="color: #171612; font-family: Georgia, 'Times New Roman', 'Songti SC', 'Noto Serif CJK SC',
+    'Source Han Serif SC', SimSun, serif; font-size: 1.24em; line-height: 1.7; font-weight: 500; letter-spacing: 0.01em;">T26 · serif 判断。</div><div class="judgment-author" style="margin-top: 1.4em; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.18em; color: #7c7a72;">— Max</div></section><h2>T27 FONT-SIZE PX vs EM</h2>
+<p>label 10px（px）vs 正文 em：</p>
+<section class="sblock sblock-question" style="margin: 1.5em 0 1em; padding: 0.2em 0 1.1em; border-bottom: 1px solid #e2e0d8;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">提问</div><div class="sblock-body" style="font-size: 1.12em; line-height: 1.7; color: #171612;">T27 · 「提问」label 是 10px，正文是 em。</div></section><h2>T28 LINE-HEIGHT</h2>
+<p>正文 1.8 行高：</p>
+<p>一段用于观察行高的正文。行高 1.8 应让中文长段有松快的节奏，同时保持紧凑。这段文字会折行多次，以便观察行距是否在粘贴后被微信修改。</p>
+<h2>T29 FONT-WEIGHT</h2>
+<p><strong>600 加粗</strong>与 500 判断体：</p>
+<section class="sblock sblock-judgment" style="text-align: center; margin: 2.4em 0; padding: 2.2em 0.5em 1.6em; border-top: 1px solid #171612; border-bottom: 1px solid #171612;"><div class="sblock-label" style="font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: #7c7a72; margin-bottom: 1em;">JUDGMENT</div><div class="sblock-body" style="color: #171612; font-family: Georgia, 'Times New Roman', 'Songti SC', 'Noto Serif CJK SC',
+    'Source Han Serif SC', SimSun, serif; font-size: 1.24em; line-height: 1.7; font-weight: 500; letter-spacing: 0.01em;">T29 · 判断体 500。</div><div class="judgment-author" style="margin-top: 1.4em; font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace; font-size: 0.72em; letter-spacing: 0.18em; color: #7c7a72;">— Max</div></section><h2>T30 COLOR</h2>
+<p>墨色正文、muted 次级、faint 弱标签、链接色：</p>
+<p><a href="https://example.com">链接色示例</a> 与正文墨色对比。</p>
+<h2>T31 INLINE-BLOCK / BOX-SHADOW / OPACITY / REM / JUSTIFY-CONTENT</h2>
+<p>这些 primitive <strong>不出现</strong>在 Max 生产输出中（V0.2 base article.css 未用）。微信对它们的通用处理属于附加探针——见生成 HTML 的「EXTRA PRIMITIVE HARNESS」区段（该区段绕过 markdown 渲染器，仅用于理解微信通用行为，不属于 Max artifact）。</p>
+</div>
+<!-- ===== EXTRA PRIMITIVE HARNESS =====
+     以下 primitive 不出现在 Max 生产输出中；此区段直接内联样式，绕过 markdown 渲染器，
+     仅用于观察微信对通用 primitive 的处理。不属于 Max Editorial artifact。
+-->
+<div style="margin:32px 0;border:1px dashed #c6c4ba;padding:16px;">
+  <div style="font-family:monospace;font-size:11px;letter-spacing:.2em;color:#7c7a72;margin-bottom:12px;">EXTRA HARNESS（非 Max 产物）</div>
+
+  <div style="margin-bottom:8px;">E01 INLINE-BLOCK：<span style="display:inline-block;width:80px;height:20px;background:#e2e0d8;">A</span><span style="display:inline-block;width:80px;height:20px;background:#c6c4ba;">B</span></div>
+  <div style="margin-bottom:8px;">E02 BOX-SHADOW：<span style="box-shadow:0 4px 12px rgba(0,0,0,.2);">带阴影</span></div>
+  <div style="margin-bottom:8px;">E03 OPACITY：<span style="opacity:.4;">40% 透明度</span></div>
+  <div style="margin-bottom:8px;">E04 REM：<span style="font-size:1.25rem;">1.25rem 字号</span></div>
+  <div style="margin-bottom:8px;">E05 JUSTIFY-CONTENT：<span style="display:flex;justify-content:space-between;width:220px;">左<span>右</span></span></div>
+  <div style="margin-bottom:8px;">E06 VW 单独：<span style="font-size:5vw;">5vw 字号</span></div>
+  <div style="margin-bottom:8px;">E07 MAX-WIDTH 百分比：<span style="display:block;max-width:60%;background:#f5f4ef;">60% 宽</span></div>
+  <div style="margin-bottom:8px;">E08 FLOAT：<span style="float:left;margin-right:8px;">浮动左</span>后续文本</div>
+</div>
+</body></html>
