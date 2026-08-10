@@ -281,6 +281,15 @@
   margin: 10px;
 }
 
+/* V0.2.2：微信目标编译 artifact 预览容器（产物自带 inline style） */
+.wechat-artifact {
+  width: 100%;
+}
+
+.wechat-artifact .wechat-article {
+  box-sizing: border-box;
+}
+
 .wx-article .paper {
   border: none;
   box-shadow: none;

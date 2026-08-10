@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { AVAILABLE_ENGINES, createEditorialEngine } from './engine'
 import type { EngineName, PreviewMode, Viewport } from './engine'
 import { runCompatibilityCheck } from './compat/check'
+import { compileForWechat } from './engine/wechat/compiler'
 import { EditorPane } from './components/EditorPane'
 import { PreviewPane } from './components/PreviewPane'
 import { StatusBar } from './components/StatusBar'
@@ -24,6 +25,8 @@ export default function App() {
 
   const engine = useMemo(() => createEditorialEngine(engineName), [engineName])
   const rendered = useMemo(() => engine.render(source), [engine, source])
+  // V0.2.2：微信目标编译 artifact（与 COPY → WECHAT 同一产物；WECHAT/MOBILE 预览渲染它）。
+  const compiledWechat = useMemo(() => compileForWechat(source, { mode }), [source, mode])
   const articleRef = useRef<HTMLElement>(null)
 
   const checkResult = useMemo(
@@ -77,6 +80,7 @@ export default function App() {
           viewport={viewport}
           onViewport={setViewport}
           articleRef={articleRef}
+          compiledHtml={compiledWechat.html}
         />
       </div>
 

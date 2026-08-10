@@ -20,8 +20,8 @@ import { buildAnchorDirections, buildClaimIndex } from '../shared/semanticHtml'
 import { validateDocument } from '../validate'
 import readingTime from './vendor/readingTime'
 import { countWords } from '../../utils/words'
-import { processClipboardForWeChat } from './clipboard'
 import { copyHtml } from './vendor/browser-clipboard'
+import { compileForWechat } from '../wechat/compiler'
 import type {
   CopyOptions,
   CopyResult,
@@ -160,7 +160,8 @@ export const doocsEngine: EditorialEngine = {
 
   async copyToWechat(markdown: string, options?: CopyOptions): Promise<CopyResult> {
     try {
-      const { html, plainText } = await processClipboardForWeChat(markdown, options?.previewEl ?? null)
+      // V0.2.2：剪贴板消费【微信目标编译 artifact】（与微信预览同一产物），不再克隆浏览器预览 DOM。
+      const { html, plainText } = compileForWechat(markdown, { mode: options?.mode })
       await copyHtml(html, plainText)
       return { ok: true, html, plainText }
     } catch {

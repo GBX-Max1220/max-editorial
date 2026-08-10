@@ -9,6 +9,8 @@ interface Props {
   viewport: Viewport
   onViewport: (v: Viewport) => void
   articleRef: RefObject<HTMLElement>
+  /** V0.2.2：微信目标编译 artifact。WECHAT / MOBILE 预览渲染它，而非浏览器 article。 */
+  compiledHtml?: string
 }
 
 function WeChatFrame({ title, children }: { title: string; children: ReactNode }) {
@@ -39,12 +41,17 @@ function MobileFrame({ children }: { children: ReactNode }) {
   )
 }
 
-export function PreviewPane({ html, frontmatter, mode, viewport, onViewport, articleRef }: Props) {
+export function PreviewPane({ html, frontmatter, mode, viewport, onViewport, articleRef, compiledHtml }: Props) {
   const info = VIEWPORTS[viewport]
   const title = frontmatter.title ? String(frontmatter.title) : ''
-  const article = (
-    <Article html={html} frontmatter={frontmatter} mode={mode} viewport={viewport} articleRef={articleRef} />
-  )
+  // V0.2.2 核心原则：Preview what will survive。
+  // WECHAT / MOBILE 显示微信目标编译产物（与 COPY → WECHAT 同一 artifact）；DESKTOP 是浏览器阅读/调试预览。
+  const article =
+    viewport === 'wechat' || viewport === 'mobile' ? (
+      <div className="wechat-artifact" dangerouslySetInnerHTML={{ __html: compiledHtml ?? '' }} />
+    ) : (
+      <Article html={html} frontmatter={frontmatter} mode={mode} viewport={viewport} articleRef={articleRef} />
+    )
 
   return (
     <div className="pane pane-preview">
