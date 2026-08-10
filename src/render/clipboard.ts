@@ -100,10 +100,15 @@ function blockHtml(b: Block, mode: PreviewMode): string {
 }
 
 function semanticLabel(b: SemanticBlock): string {
+  if (b.type === 'claim') return ''
   return b.unknown ? `UNKNOWN · ${b.type}` : b.type.toUpperCase()
 }
 
 function semanticHtml(b: SemanticBlock): string {
+  // claim 是命题块，按 prose 渲染（与引擎渲染一致）。
+  if (b.type === 'claim') {
+    return b.lines.map((l) => `<p style="margin:0 0 1.15em;">${esc(l)}</p>`).join('')
+  }
   const label = `<div style="${LABEL_STYLE};margin-bottom:14px;">${esc(semanticLabel(b))}</div>`
   switch (b.type) {
     case 'question':
@@ -225,6 +230,7 @@ function blockPlain(b: Block): string[] {
     case 'table':
       return [b.headers.join(' | '), ...b.rows.map((r) => r.join(' | '))]
     case 'semantic': {
+      if (b.type === 'claim') return [...b.lines]
       const label = b.unknown ? `UNKNOWN ${b.type}` : b.type.toUpperCase()
       return [`[${label}]`, ...b.lines]
     }

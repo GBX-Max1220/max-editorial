@@ -157,9 +157,12 @@ export function validateHrFrequency(tokens: readonly Token[]): EditorialDiagnost
 /** §14.3：scope-limiting metadata（"你不能从它推出什么"）。文章 ≥1 条；含数字/结论块鼓励携带。 */
 export function validateScopeLimiting(tokens: readonly Token[]): EditorialDiagnostic[] {
   const out: EditorialDiagnostic[] = []
-  const scopeRe = /not a human study|system evaluation|非人类研究|系统评估|不能.*推出|无法.*推出|不代表|并非.*结论|does not|scope|边界|仅限|不得|不意味着/i
+  const scopeRe = /not a human study|system evaluation|非人类研究|系统评估|不能.*推出|无法.*推出|不代表|不支持|不适用|并非.*结论|does not|scope|边界|仅限|不得|不意味着/i
   const blocks = tokens.filter(isSemantic)
-  const whole = blocks.map(blockText).join(' ')
+  // 块文本 = 内容行 + 可承载 scope 的 props（boundary/uncertainty/notes）。
+  const blockScopeText = (t: SemanticBlockToken): string =>
+    [blockText(t), t.props.boundary ?? '', t.props.uncertainty ?? '', t.props.notes ?? ''].join(' ')
+  const whole = blocks.map(blockScopeText).join(' ')
 
   if (!scopeRe.test(whole)) {
     out.push({
@@ -175,14 +178,14 @@ export function validateScopeLimiting(tokens: readonly Token[]): EditorialDiagno
   )
   for (const b of numericBlocks) {
     if (suppressed(b.props, 'ep-scope-limiting')) continue
-    if (!scopeRe.test(blockText(b))) {
+    if (!scopeRe.test(blockScopeText(b))) {
       out.push({
         code: 'ep-scope-limiting',
         governance: 'heuristic',
         severity: 'info',
         blockId: b.id,
         blockType: b.sType,
-        message: '含数字/结论的块建议携带 scope-limiting 声明（§14.3）',
+        message: '含数字/结论的块建议携带 scope-limiting 声明（§14.3，如 boundary："仅限…/不支持…"）',
       })
     }
   }
