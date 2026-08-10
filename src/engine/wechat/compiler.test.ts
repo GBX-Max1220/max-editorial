@@ -58,6 +58,25 @@ describe('METRIC — fixed target size, no responsive scaling (§13.7)', () => {
     expect(html).toContain('font-size: 19px') // reference
     expect(html).not.toContain('font-size: 44px')
   })
+
+  it('V0.2.3: specimen numeral follows the H01 pattern (p + 44px + weight 600 + margin 10px 0, no line-height)', () => {
+    const html = compile(fixtureRaw)
+    const m = html.match(/<p class="metric-value"[^>]*>43<\/p>/)?.[0] ?? 'NOT FOUND'
+    expect(m.startsWith('<p')).toBe(true)
+    expect(m).toContain('font-size: 44px')
+    expect(m).toContain('font-weight: 600')
+    expect(m).toContain('margin: 10px 0')
+    expect(m).not.toContain('line-height')
+  })
+
+  it('V0.2.3: specimen numeral does NOT use heading-based rendering or nested span trickery', () => {
+    const html = compile(fixtureRaw)
+    const m = html.match(/<p class="metric-value"[^>]*>43<\/p>/)?.[0] ?? ''
+    expect(m).toMatch(/^<p class="metric-value"/)
+    expect(m).not.toMatch(/<h[1-6]/)
+    expect(m).not.toMatch(/<span/)
+    expect(checkWechatPolicy(html)).toEqual([])
+  })
 })
 
 describe('EVIDENCE — vertical block flow, not flex (§13.4/§13.5)', () => {

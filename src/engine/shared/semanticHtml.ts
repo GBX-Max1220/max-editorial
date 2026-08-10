@@ -188,7 +188,8 @@ function renderMetric(input: SemanticRenderInput): string {
     provLine = provParts.join(' · ')
   }
 
-  return `<section class="sblock sblock-metric" data-salience="${role}">${label ? `<div class="metric-label">${esc(label)}</div>` : ''}<div class="metric-value">${esc(value)}</div>${cover}${metaLine ? `<div class="metric-meta">${esc(metaLine)}</div>` : ''}${provLine ? `<div class="metric-provenance">${esc(provLine)}</div>` : ''}</section>`
+  // V0.2.3：数字行用 <p>（对齐 H01 探针的 P+44PX 结构）。所有 metric role 的 value 一致改 <p>（小重构，保持编译器一致）。
+  return `<section class="sblock sblock-metric" data-salience="${role}">${label ? `<div class="metric-label">${esc(label)}</div>` : ''}<p class="metric-value">${esc(value)}</p>${cover}${metaLine ? `<div class="metric-meta">${esc(metaLine)}</div>` : ''}${provLine ? `<div class="metric-provenance">${esc(provLine)}</div>` : ''}</section>`
 }
 
 function renderUnknown(input: SemanticRenderInput): string {

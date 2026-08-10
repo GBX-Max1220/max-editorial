@@ -110,7 +110,9 @@ export const WECHAT_SAFE_CSS = `
 
 .sblock-metric { text-align: center; margin: 32px 0; }
 .metric-label { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; font-size: 11px; letter-spacing: 3px; color: #7c7a72; margin-bottom: 14px; }
-.metric-value { font-family: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", SimSun, serif; font-weight: 600; line-height: 1.1; color: #171612; }
+/* V0.2.3：数字行对齐 H01（P + 固定 44px + weight 600 + margin 10px 0，无 line-height 覆盖，继承默认行高）。
+   特异性：.sblock-metric .metric-value（0,2,0）须压过 .article p（0,1,1），否则 p 的段距会覆盖 margin。 */
+.sblock-metric .metric-value { font-family: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", SimSun, serif; font-weight: 600; margin: 10px 0; color: #171612; }
 .sblock-metric[data-salience='inspection_specimen'] .metric-value { font-size: 44px; }
 .sblock-metric[data-salience='reported_result'] .metric-value { font-size: 22px; }
 .sblock-metric[data-salience='contextual_reference'] .metric-value { font-size: 19px; }

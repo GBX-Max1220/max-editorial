@@ -234,7 +234,8 @@ describe('legacy METRIC blocks', () => {
   it('legacy metric still parses and renders identically', () => {
     const html = renderDoocsHtml(legacy).html
     expect(html).toContain('sblock-metric')
-    expect(html).toContain('metric-value">43</div>')
+    // V0.2.3：数字行为 <p>（对齐 H01）。
+    expect(html).toContain('class="metric-value">43</p>')
   })
 
   it('legacy metric produces migration diagnostics, never specimen structural eligibility', () => {

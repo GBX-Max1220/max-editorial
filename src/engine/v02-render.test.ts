@@ -256,7 +256,8 @@ describe('V0.2.1 patch acceptance', () => {
   it('specimen metric: 43 stays high-salience and metadata is non-duplicative (Patch 3)', () => {
     const { html: out } = renderDoocsHtml(fixtureRaw)
     expect(out).toContain('data-salience="inspection_specimen"')
-    expect(out).toContain('class="metric-value">43</div>')
+    // V0.2.3：数字行为 <p>（对齐 H01 的 P+44PX 结构）。
+    expect(out).toContain('<p class="metric-value">43</p>')
     // 覆盖标记承担 role；provenance 单行（模型输出 · 来源 · 方法 · 边界），不再重复展示 source/role。
     expect(out).toContain('被检查对象 · 非结论')
     expect(out).toContain('模型输出 · 来源：健身 App 内置 AI 助手 · 方法：单次对话输出 · 边界：仅限该次输出；不含置信区间')

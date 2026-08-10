@@ -483,6 +483,8 @@
   font-variant-numeric: tabular-nums;
   color: var(--fg);
   font-weight: 600;
+  /* V0.2.3：value 为 <p>（对齐 H01），覆盖 .article p 段距，避免数字行多出下边距 */
+  margin: 0;
 }
 
 .metric-meta,
