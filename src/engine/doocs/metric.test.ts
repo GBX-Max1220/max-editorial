@@ -80,8 +80,7 @@ describe('METRIC two-axis semantic model', () => {
     const e = eligibility(specimenMd())
     expect(e.requestedOrigin).toBe('external_source')
     expect(e.requestedDisplayFunction).toBe('inspection_specimen')
-    expect(e.structurallyEligible).toBe(true)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(true)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(true)
     expect(e.effectiveDisplayFunction).toBe('inspection_specimen')
   })
 
@@ -91,7 +90,7 @@ describe('METRIC two-axis semantic model', () => {
     expect(e.requestedOrigin).toBe('author_computed')
     expect(e.requestedDisplayFunction).toBe('contextual_reference')
     expect(e.requestedSpecimen).toBe(false)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(e.effectiveDisplayFunction).toBe('contextual_reference')
   })
 
@@ -99,35 +98,35 @@ describe('METRIC two-axis semantic model', () => {
     const md = specimenMd({ origin: 'model_output', display_function: 'reported_result' })
     const e = eligibility(md)
     expect(e.requestedSpecimen).toBe(false)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(e.effectiveDisplayFunction).toBe('reported_result')
   })
 
   it('author-computed + reported_result stays a valid, non-specimen result', () => {
     const md = specimenMd({ origin: 'author_computed', display_function: 'reported_result' })
     expect(diags(md)).toEqual([]) // 无负向资格诊断：它不是 specimen 请求
-    expect(eligibility(md).canUseInspectionSpecimenTreatment).toBe(false)
+    expect(eligibility(md).structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(eligibility(md).effectiveDisplayFunction).toBe('reported_result')
   })
 })
 
 describe('missing / malformed axis declarations', () => {
-  it('missing origin: diagnostic, no specimen privilege, defaults DOWN', () => {
+  it('missing origin: diagnostic, no structural eligibility, defaults DOWN', () => {
     const md = specimenMd({ origin: undefined })
     expect(codes(md)).toContain('metric-origin-missing')
     const e = eligibility(md)
     expect(e.requestedOrigin).toBeNull()
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(e.effectiveDisplayFunction).toBe('reported_result')
   })
 
-  it('invalid origin enum: error diagnostic, no specimen privilege', () => {
+  it('invalid origin enum: error diagnostic, no structural eligibility', () => {
     const md = specimenMd({ origin: 'external' })
     const d = diags(md)
     expect(d.some((x) => x.code === 'metric-origin-invalid' && x.severity === 'error')).toBe(true)
     const e = eligibility(md)
     expect(e.requestedOrigin).toBeNull()
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
   })
 
   it('missing display function: diagnostic, defaults to lowest-salience contextual_reference', () => {
@@ -135,7 +134,7 @@ describe('missing / malformed axis declarations', () => {
     expect(codes(md)).toContain('metric-display-function-missing')
     const e = eligibility(md)
     expect(e.requestedSpecimen).toBe(false)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(e.effectiveDisplayFunction).toBe('contextual_reference')
   })
 
@@ -145,7 +144,7 @@ describe('missing / malformed axis declarations', () => {
     expect(d.some((x) => x.code === 'metric-display-function-invalid' && x.severity === 'error')).toBe(true)
     const e = eligibility(md)
     expect(e.requestedSpecimen).toBe(false) // 不是合法枚举，不按 specimen 处理
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(e.effectiveDisplayFunction).toBe('contextual_reference')
   })
 })
@@ -153,70 +152,67 @@ describe('missing / malformed axis declarations', () => {
 describe('inspection-specimen structural eligibility (INVARIANT A5)', () => {
   it('complete specimen evidence passes structural eligibility', () => {
     const e = eligibility(specimenMd())
-    expect(e.structurallyEligible).toBe(true)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(true)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(true)
   })
 
-  it('missing specimen_source: privilege denied, diagnostic', () => {
+  it('missing specimen_source: structural eligibility false, diagnostic', () => {
     const md = specimenMd({ specimen_source: undefined })
     expect(codes(md)).toContain('metric-specimen-source-missing')
     const e = eligibility(md)
-    expect(e.structurallyEligible).toBe(false)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(e.effectiveDisplayFunction).toBe('reported_result')
   })
 
-  it('missing inspection_question: privilege denied, diagnostic', () => {
+  it('missing inspection_question: structural eligibility false, diagnostic', () => {
     const md = specimenMd({ inspection_question: undefined })
     expect(codes(md)).toContain('metric-specimen-question-missing')
-    expect(eligibility(md).canUseInspectionSpecimenTreatment).toBe(false)
+    expect(eligibility(md).structurallyEligibleForInspectionSpecimen).toBe(false)
   })
 
-  it('exact_value_visible=false (aggregate): privilege denied, diagnostic', () => {
+  it('exact_value_visible=false (aggregate): structural eligibility false, diagnostic', () => {
     const md = specimenMd({ exact_value_visible: 'false' })
     expect(codes(md)).toContain('metric-specimen-exact-value-false')
-    expect(eligibility(md).canUseInspectionSpecimenTreatment).toBe(false)
+    expect(eligibility(md).structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(eligibility(md).effectiveDisplayFunction).toBe('reported_result')
   })
 
-  it('exact_value_visible malformed: privilege denied, diagnostic', () => {
+  it('exact_value_visible malformed: structural eligibility false, diagnostic', () => {
     const md = specimenMd({ exact_value_visible: 'yes' })
     expect(codes(md)).toContain('metric-specimen-exact-value-invalid')
-    expect(eligibility(md).canUseInspectionSpecimenTreatment).toBe(false)
+    expect(eligibility(md).structurallyEligibleForInspectionSpecimen).toBe(false)
   })
 
   it('requested specimen but incomplete evidence defaults DOWN', () => {
     const md = specimenMd({ specimen_source: undefined, inspection_question: undefined })
     const e = eligibility(md)
     expect(e.requestedSpecimen).toBe(true)
-    expect(e.structurallyEligible).toBe(false)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(e.effectiveDisplayFunction).toBe('reported_result')
   })
 
   it('missing origin while requesting specimen: not structurally eligible', () => {
     const md = specimenMd({ origin: undefined })
-    expect(eligibility(md).structurallyEligible).toBe(false)
+    expect(eligibility(md).structurallyEligibleForInspectionSpecimen).toBe(false)
   })
 })
 
 describe('negative specimen eligibility (rev1 §13.7)', () => {
-  it('author_computed + specimen request: privilege denied, negative diagnostic', () => {
+  it('author_computed + specimen request: negative condition hit, structural eligibility false', () => {
     const md = specimenMd({ origin: 'author_computed' })
     expect(codes(md)).toContain('metric-specimen-negative-provenance')
     const e = eligibility(md)
     expect(e.negativeConditionHit).toBe(true)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(e.effectiveDisplayFunction).toBe('reported_result')
   })
 })
 
 describe('provenance requirements (rev1 §13.7: SOURCE; METHOD/BOUNDARY)', () => {
-  it('complete specimen without general provenance: warning, but salience untouched (divorce)', () => {
+  it('complete specimen without general provenance: warning, but structural eligibility untouched (divorce)', () => {
     const md = specimenMd({ source: undefined, method: undefined, boundary: undefined })
     expect(codes(md)).toContain('metric-provenance-missing')
-    // 两轴分治：provenance 缺失不收回已合法派生的 specimen salience。
-    expect(eligibility(md).canUseInspectionSpecimenTreatment).toBe(true)
+    // 两轴分治：provenance 缺失不影响 specimen 结构资格（provenance ≠ salience）。
+    expect(eligibility(md).structurallyEligibleForInspectionSpecimen).toBe(true)
   })
 
   it('source present with method/boundary: no provenance diagnostic', () => {
@@ -241,14 +237,14 @@ describe('legacy METRIC blocks', () => {
     expect(html).toContain('metric-value">43</div>')
   })
 
-  it('legacy metric produces migration diagnostics, never specimen privilege', () => {
+  it('legacy metric produces migration diagnostics, never specimen structural eligibility', () => {
     const c = codes(legacy)
     expect(c).toContain('metric-origin-missing')
     expect(c).toContain('metric-display-function-missing')
     expect(c).toContain('metric-provenance-missing')
     const e = eligibility(legacy)
     expect(e.requestedSpecimen).toBe(false)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
     expect(e.effectiveDisplayFunction).toBe('contextual_reference')
   })
 })
@@ -283,26 +279,48 @@ describe('render neutrality / pure validation', () => {
   })
 })
 
-describe('classification-laundering regression (author request ≠ derived privilege)', () => {
-  it('raw inspection-specimen request alone cannot grant specimen treatment', () => {
+describe('classification-laundering regression (author request ≠ machine structural eligibility)', () => {
+  it('raw inspection-specimen request alone cannot yield structural eligibility', () => {
     const md = specimenMd({ specimen_source: undefined })
     const e = eligibility(md)
     expect(e.requestedSpecimen).toBe(true)
-    expect(e.canUseInspectionSpecimenTreatment).toBe(false)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(false)
   })
 
-  it('author props never contain specimen_eligible or any derived privilege field', () => {
+  it('author props never contain specimen_eligible or any derived result field', () => {
     const props = metricToken(specimenMd()).props
     expect(props.specimen_eligible).toBeUndefined()
     expect(props.canUseInspectionSpecimenTreatment).toBeUndefined()
     expect(props.specimenEligible).toBeUndefined()
+    expect(props.structurallyEligibleForInspectionSpecimen).toBeUndefined()
   })
 
-  it('parsed request exposes only requested* inputs, not derived privilege', () => {
+  it('parsed request exposes only requested* inputs, not derived results', () => {
     const req = parseMetricRequest(metricToken(specimenMd({ specimen_source: undefined })))
     expect(req.requestedSpecimen).toBe(true)
-    expect(req).not.toHaveProperty('canUseInspectionSpecimenTreatment')
+    expect(req).not.toHaveProperty('structurallyEligibleForInspectionSpecimen')
     expect(req).not.toHaveProperty('specimenEligible')
+    expect(req).not.toHaveProperty('canUseInspectionSpecimenTreatment')
+  })
+
+  it('structural eligibility does NOT create any final visual-authorization field', () => {
+    // 结构资格全满足（external_source + inspection_specimen + 完整证据 + provenance）。
+    const md = specimenMd()
+    const e = eligibility(md)
+    expect(e.structurallyEligibleForInspectionSpecimen).toBe(true)
+    // 三层分离：没有任何字段承诺"最终视觉待遇已授权"。
+    expect(e).not.toHaveProperty('canUseInspectionSpecimenTreatment')
+    expect(e).not.toHaveProperty('renderPrivilege')
+    expect(e).not.toHaveProperty('canRenderInspectionSpecimen')
+    expect(e).not.toHaveProperty('editoriallyApproved')
+    expect(e).not.toHaveProperty('visualAuthorization')
+    // 作者 props 同样无授权字段。
+    const props = metricToken(md).props
+    expect(props.specimen_approved).toBeUndefined()
+    expect(props.specimen_eligible).toBeUndefined()
+    // 渲染输出与普通 metric 完全相同。
+    const plain = ':::metric value="73"\n73%\n:::'
+    expect(renderDoocsHtml(md).html).toBe(renderDoocsHtml(plain).html)
   })
 
   it('governance mapping: invalid enums are machine-lint errors, missing evidence warnings', () => {
