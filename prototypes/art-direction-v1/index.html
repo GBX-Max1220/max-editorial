@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAX EDITORIAL — V0.3 Art Direction Study</title>
+<style>
+:root{
+  --paper:#F7F5EF;--ink:#191918;--secondary:#6A6862;--hairline:#D8D4CA;--cobalt:#3157D5;--deep:#243F9E;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--mono);background:#DDD8CA;color:var(--ink);-webkit-font-smoothing:antialiased}
+.top{background:var(--paper);border-bottom:1px solid var(--ink);padding:14px 20px;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.top .brand{font-size:12px;letter-spacing:.26em;text-transform:uppercase}
+.top .brand .dot{color:var(--cobalt)}
+.top .sub{font-size:10px;letter-spacing:.2em;color:var(--secondary)}
+.controls{background:var(--paper);border-bottom:1px solid var(--hairline);padding:10px 20px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.controls .group{display:flex;align-items:center;gap:8px}
+.controls .lbl{font-size:9px;letter-spacing:.22em;color:var(--secondary);text-transform:uppercase}
+.controls button{font-family:var(--mono);font-size:10px;letter-spacing:.14em;border:1px solid var(--hairline);background:transparent;color:var(--secondary);padding:6px 14px;cursor:pointer}
+.controls button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.controls button:hover{color:var(--ink)}
+.controls .ed-link a{font-size:10px;letter-spacing:.14em;color:var(--cobalt);text-decoration:none;border-bottom:1px solid rgba(49,87,213,.35);margin-right:10px}
+.stage{display:flex;justify-content:center;padding:28px 12px 60px;min-height:80vh}
+.frame-shell{background:#fff;border:1px solid var(--hairline);box-shadow:0 2px 14px rgba(25,25,24,.08);overflow:hidden}
+.frame-shell .frame-head{font-size:9px;letter-spacing:.2em;color:var(--secondary);text-align:center;padding:5px 0;border-bottom:1px solid var(--hairline);background:var(--paper)}
+iframe{display:block;width:100%;height:calc(100vh - 210px);border:none;min-height:600px}
+.tip{max-width:760px;margin:0 auto;padding:20px;font-size:11px;line-height:1.8;color:var(--secondary);letter-spacing:.02em}
+.tip b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><span class="dot">●</span> MAX EDITORIAL — V0.3 ART DIRECTION STUDY</div>
+  <div class="sub">Issue 001 · 同一篇文章 · 三个方向 · 不选赢家</div>
+</header>
+
+<div class="controls">
+  <div class="group">
+    <span class="lbl">Concept</span>
+    <button data-c="a" class="on">A · Research Magazine</button>
+    <button data-c="b">B · Precision Editorial</button>
+    <button data-c="c">C · Hybrid 70/30</button>
+  </div>
+  <div class="group">
+    <span class="lbl">Viewport</span>
+    <button data-v="375">375px</button>
+    <button data-v="430">430px</button>
+    <button data-v="desktop" class="on">Desktop</button>
+  </div>
+  <div class="group ed-link">
+    <span class="lbl">Editor UI</span>
+    <a href="a-editor-ui.html">A</a>
+    <a href="b-editor-ui.html">B</a>
+    <a href="c-editor-ui.html">C</a>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="frame-shell" id="frame">
+    <div class="frame-head" id="frame-head"></div>
+    <iframe id="frame-iframe" src="a-research-magazine.html"></iframe>
+  </div>
+</div>
+
+<div class="tip">
+  <b>怎么比：</b>用上方标签在 A / B / C 之间切换；用视口预设模拟 375px / 430px 手机宽与桌面。
+  问自己：哪个标题最好？哪段正文读起来最舒服？哪个 H2 最有节奏？哪个 Judgment 最像 Max？哪个 Metric 最好？
+  哪个像技术报告？哪个像文学杂志？哪个你会真的发布？<br>
+  <b>编辑器：</b>顶部 Editor UI 链接可单独打开三个方向的工作台外壳。
+</div>
+
+<script>
+const frames = { a: 'a-research-magazine.html', b: 'b-precision-editorial.html', c: 'c-hybrid.html' };
+const labels = { a: 'A · Research Magazine', b: 'B · Precision Editorial', c: 'C · Hybrid 70/30' };
+const widths = { '375': 375, '430': 430, desktop: '100%' };
+let cur = 'a', vp = 'desktop';
+
+function apply() {
+  document.querySelectorAll('.controls [data-c]').forEach(b => b.classList.toggle('on', b.dataset.c === cur));
+  document.querySelectorAll('.controls [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === vp));
+  const iframe = document.getElementById('frame-iframe');
+  iframe.src = frames[cur];
+  document.getElementById('frame-head').textContent = labels[cur] + ' · ' + (vp === 'desktop' ? 'desktop' : vp + 'px');
+  const shell = document.getElementById('frame');
+  shell.style.width = typeof widths[vp] === 'number' ? widths[vp] + 'px' : 'min(100%, 760px)';
+  document.getElementById('frame').style.margin = '0 auto';
+}
+document.querySelectorAll('[data-c]').forEach(b => b.addEventListener('click', () => { cur = b.dataset.c; apply(); }));
+document.querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => { vp = b.dataset.v; apply(); }));
+apply();
+</script>
+</body>
+</html>

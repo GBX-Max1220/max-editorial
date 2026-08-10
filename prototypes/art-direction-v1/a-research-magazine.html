@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A · Research Magazine — Issue 001</title>
+<style>
+/* ═══════════════════════════════════════════════════════════
+   PROTOTYPE A — RESEARCH MAGAZINE
+   独立科技/研究杂志。serif display + 安静 sans body。
+   BLACK & WHITE 做结构；COLOR（Max Cobalt）做身份，≈3–5% 面积。
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --paper: #F7F5EF;
+  --ink: #191918;
+  --secondary: #6A6862;
+  --hairline: #D8D4CA;
+  --surface: #EFEEE8;
+  --cobalt: #3157D5;
+  --deep-cobalt: #243F9E;
+  --serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC", SimSun, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #E7E3D8;
+  color: var(--ink);
+  font-family: var(--sans);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.article {
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--paper);
+  padding: 0 52px 72px;
+}
+
+/* ── Masthead ─────────────────────────────────────────── */
+
+.masthead {
+  padding: 30px 0 22px;
+  border-bottom: 1px solid var(--ink);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+
+.masthead-brand {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+.masthead-brand .dot { color: var(--cobalt); }
+
+.masthead-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--secondary);
+}
+
+/* ── Title / deck ─────────────────────────────────────── */
+
+.cover {
+  margin-bottom: 48px;
+}
+
+.cover-kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-bottom: 16px;
+}
+
+.cover-kicker b { color: var(--cobalt); font-weight: 400; }
+
+.cover-title {
+  font-family: var(--serif);
+  font-size: 44px;
+  line-height: 1.28;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  max-width: 20em;
+  margin-bottom: 18px;
+}
+
+.cover-deck {
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--secondary);
+  max-width: 34em;
+  margin-bottom: 22px;
+}
+
+.cover-rule {
+  border: none;
+  border-top: 1px solid var(--ink);
+  margin: 0 0 10px;
+}
+
+.cover-byline {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--secondary);
+  text-transform: uppercase;
+}
+
+/* ── Prose ────────────────────────────────────────────── */
+
+p {
+  font-size: 16px;
+  line-height: 1.85;
+  margin: 0 0 1.4em;
+  max-width: 36em;
+  color: var(--ink);
+}
+
+p.lede {
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+em {
+  font-style: italic;
+}
+
+a {
+  color: var(--cobalt);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(49, 87, 213, 0.35);
+}
+
+/* ── Section opener (H2) ──────────────────────────────── */
+
+h2 {
+  font-family: var(--serif);
+  font-size: 27px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+  margin: 3.2em 0 1.1em;
+  position: relative;
+}
+
+h2 .sec-num {
+  display: block;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  color: var(--secondary);
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+h2::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 1px;
+  background: var(--ink);
+  margin-top: 14px;
+}
+
+h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 2.2em 0 0.8em;
+  color: var(--ink);
+}
+
+/* ── Blockquote ───────────────────────────────────────── */
+
+blockquote {
+  margin: 2.4em 0;
+  padding: 4px 0 4px 22px;
+  border-left: 1px solid var(--ink);
+  font-family: var(--serif);
+  font-size: 19px;
+  line-height: 1.8;
+  color: var(--ink);
+  font-style: normal;
+}
+
+blockquote .q-source {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  font-style: normal;
+}
+
+/* ── Lists ────────────────────────────────────────────── */
+
+ul {
+  list-style: none;
+  margin: 0 0 1.6em;
+  padding: 0;
+}
+
+ul li {
+  padding-left: 1.6em;
+  position: relative;
+  margin-bottom: 0.5em;
+  font-size: 16px;
+  max-width: 36em;
+}
+
+ul li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--secondary);
+}
+
+ol {
+  list-style: none;
+  margin: 0 0 1.6em;
+  padding: 0;
+  counter-reset: sec;
+}
+
+ol li {
+  counter-increment: sec;
+  padding-left: 3em;
+  position: relative;
+  margin-bottom: 0.55em;
+  font-size: 16px;
+  max-width: 36em;
+}
+
+ol li::before {
+  content: counter(sec, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--secondary);
+  top: 0.35em;
+}
+
+/* ── Code ─────────────────────────────────────────────── */
+
+code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  padding: 0.12em 0.4em;
+  color: var(--ink);
+}
+
+pre {
+  margin: 2em 0;
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+pre code { background: none; border: none; padding: 0; }
+
+/* ── Table ────────────────────────────────────────────── */
+
+.table-wrap { margin: 2.2em 0; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+
+th, td {
+  padding: 11px 8px;
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+}
+
+th {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  border-bottom: 1px solid var(--hairline);
+}
+
+tr + tr td { border-top: 1px solid var(--hairline); }
+
+/* ── Figure ───────────────────────────────────────────── */
+
+figure {
+  margin: 2.6em 0;
+}
+
+figure img {
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+figure .fig-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--secondary);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+figure figcaption {
+  font-size: 13px;
+  color: var(--secondary);
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 10px;
+}
+
+figure .fig-source {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--secondary);
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* ── AI OUTPUT — document specimen ────────────────────── */
+
+.ai-output {
+  margin: 2.6em 0;
+  padding: 6px 0 6px 24px;
+  border-left: 2px solid var(--ink);
+}
+
+.ai-output .ai-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-bottom: 12px;
+}
+
+.ai-output .ai-label b { color: var(--ink); font-weight: 400; }
+
+.ai-output .ai-body {
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+.ai-output .ai-annotate {
+  margin-top: 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--secondary);
+  line-height: 1.8;
+}
+
+/* ── Metric ───────────────────────────────────────────── */
+
+.metric {
+  margin: 3.2em 0;
+  text-align: center;
+  padding: 2.4em 0;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.metric .m-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.metric .m-value {
+  font-family: var(--serif);
+  font-size: 88px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 14px 0 6px;
+}
+
+.metric .m-unit {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.metric .m-qualifier {
+  margin-top: 22px;
+  font-size: 14px;
+  color: var(--secondary);
+  line-height: 1.7;
+}
+
+/* ── Evidence / Counterpoint — quiet structure ────────── */
+
+.evidence, .counterpoint {
+  margin: 2.4em 0;
+}
+
+.evidence .e-label, .counterpoint .cp-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-bottom: 14px;
+}
+
+.evidence .e-row {
+  margin-bottom: 14px;
+  max-width: 36em;
+}
+
+.evidence .e-verdict {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--secondary);
+  margin-bottom: 4px;
+}
+
+.evidence .e-verdict.supported { color: var(--ink); }
+
+.evidence .e-text {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+.evidence .e-text .muted { color: var(--secondary); }
+
+.counterpoint .cp-body {
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--ink);
+  max-width: 36em;
+  border-top: 1px solid var(--hairline);
+  padding-top: 18px;
+}
+
+/* ── Judgment — signature editorial moment ────────────── */
+
+.judgment {
+  margin: 4em 0;
+  text-align: center;
+  padding: 3em 12px 2.4em;
+  border-top: 1px solid var(--ink);
+}
+
+.judgment .j-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-bottom: 26px;
+}
+
+.judgment .j-label b { color: var(--cobalt); font-weight: 400; }
+
+.judgment .j-body {
+  font-family: var(--serif);
+  font-size: 26px;
+  line-height: 1.7;
+  color: var(--ink);
+  font-weight: 400;
+  max-width: 22em;
+  margin: 0 auto;
+}
+
+.judgment .j-uncertainty {
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--secondary);
+  line-height: 1.7;
+  max-width: 30em;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.judgment .j-author {
+  margin-top: 26px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* ── Lab Note — notebook insert ───────────────────────── */
+
+.lab-note {
+  margin: 2.6em 0;
+  background: var(--surface);
+  border-left: 2px solid var(--hairline);
+  padding: 18px 22px;
+}
+
+.lab-note .lab-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-bottom: 12px;
+}
+
+.lab-note .lab-stats {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.9;
+  margin-bottom: 12px;
+}
+
+.lab-note .lab-scope {
+  font-size: 13px;
+  color: var(--secondary);
+  line-height: 1.7;
+}
+
+/* ── Question ─────────────────────────────────────────── */
+
+.question {
+  margin: 2.4em 0 2.8em;
+}
+
+.question .q-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-bottom: 10px;
+}
+
+.question .q-body {
+  font-family: var(--serif);
+  font-size: 21px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+/* ── Claim (prose) ────────────────────────────────────── */
+
+.claim {
+  margin: 2em 0;
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--ink);
+  border-left: 1px solid var(--hairline);
+  padding-left: 20px;
+}
+
+/* ── Specimen section ─────────────────────────────────── */
+
+.specimen { margin: 4em 0 2em; padding-top: 26px; border-top: 1px solid var(--hairline); }
+.specimen-label { font-family: var(--mono); font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: var(--secondary); margin-bottom: 18px; }
+
+/* ── Footer ───────────────────────────────────────────── */
+
+.footer {
+  margin-top: 4em;
+  padding-top: 28px;
+  border-top: 1px solid var(--ink);
+}
+
+.footer-brand {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.footer-tagline {
+  margin-top: 12px;
+  font-size: 15px;
+  color: var(--secondary);
+  line-height: 1.7;
+}
+
+.footer-next {
+  margin-top: 30px;
+}
+
+.footer-next .next-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.footer-next .next-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  line-height: 1.55;
+  margin-top: 8px;
+  color: var(--ink);
+}
+
+@media (max-width: 600px) {
+  .article { padding: 0 22px 56px; }
+  .cover-title { font-size: 34px; }
+  .masthead { flex-direction: column; gap: 6px; }
+  .metric .m-value { font-size: 68px; }
+  .judgment .j-body { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<article class="article">
+
+  <header class="masthead">
+    <div class="masthead-brand"><span class="dot">●</span> MAX 大郭的判断局</div>
+    <div class="masthead-meta">JUDGMENT / 001 · 2026-08</div>
+  </header>
+
+  <section class="cover">
+    <div class="cover-kicker">A 系列 · <b>判断</b> · 独立研究刊物</div>
+    <h1 class="cover-title">我本来只是想检查 AI 的健身建议，<br>最后发现问题根本不在健身</h1>
+    <p class="cover-deck">AI 越来越能干以后，人该如何判断？这篇是从一个 43 分钟开始的调查。</p>
+    <hr class="cover-rule">
+    <div class="cover-byline">MAX · ISSUE 001 · 2026-08</div>
+  </section>
+
+  <p class="lede">我买了一个便宜的运动手环，顺手让健身 App 帮我生成每周计划。App 说我的有氧能力“处于平均水平”，并且“建议每周三次、每次恰好 43 分钟的中等强度训练”。</p>
+
+  <p>我一开始只是想确认一件事：这个 43 分钟，到底是科学，还是随口一说？这个问题指向一个更宽的判断：<strong>当 AI 给出一个精确数字，用户有没有途径知道它的依据、误差和边界。</strong></p>
+
+  <div class="claim">AI 输出的精确数字，没有携带足够的依据、误差与边界信息。</div>
+
+  <p>先放下手环，回到那个更基本的问题：</p>
+
+  <div class="question">
+    <div class="q-label">提问</div>
+    <div class="q-body">AI 说自己 90% 确定，<br>到底是什么意思？</div>
+  </div>
+
+  <h2><span class="sec-num">01</span>一个数字，两种含义</h2>
+
+  <p>区别在 <strong>点估计</strong> 和 <strong>区间估计</strong>。手环只给了我一个点——43 分钟。它没有告诉我误差范围，没有告诉我置信区间，也没有告诉我这个数字是在什么人群、什么数据上算出来的。</p>
+
+  <p>同样的数据集，换一个模型再问一遍，它回答得很干脆：</p>
+
+  <div class="ai-output">
+    <div class="ai-label"><b>AI 原话</b> · RAW OUTPUT · 健身 App 内置 AI 助手</div>
+    <div class="ai-body">“建议每天恰好进行 43 分钟训练。”
+
+Confidence: 90%</div>
+    <div class="ai-annotate">Confidence 是模型声称的置信度，不是对“有效”的保证。</div>
+  </div>
+
+  <p>这是我截取的原始输出。Confidence 这个数字是模型声称的置信度，不是对“训练 43 分钟有效”这一结论的保证——这两种不确定性不是一回事。</p>
+
+  <p>这正是需要被单独拉出来检查的东西：</p>
+
+  <div class="metric">
+    <div class="m-label">MODEL CLAIM / PRECISION</div>
+    <div class="m-value">43</div>
+    <div class="m-unit">MINUTES</div>
+    <div class="m-qualifier">被检查的点值 · 非结论<br>这个 43 分钟，到底是科学，还是随口一说？</div>
+  </div>
+
+  <p>用一套证据标准来看，什么被支持了，什么没有被支持：</p>
+
+  <div class="evidence">
+    <div class="e-label">EVIDENCE</div>
+    <div class="e-row">
+      <div class="e-verdict supported">SUPPORTED</div>
+      <div class="e-text">30–60 分钟，中等强度，每周 3–5 次</div>
+    </div>
+    <div class="e-row">
+      <div class="e-verdict">NOT SUPPORTED</div>
+      <div class="e-text">恰好 43 分钟；对个体给出置信度</div>
+    </div>
+  </div>
+
+  <p>当然，要公平一点——最强的反方是这样说的：</p>
+
+  <div class="counterpoint">
+    <div class="cp-label">COUNTERPOINT</div>
+    <div class="cp-body">精确表达并不必然意味着误导。在医疗和工程场景里，精确是有价值的。</div>
+  </div>
+
+  <p>材料齐了，这是一个值得停一下的判断：</p>
+
+  <div class="judgment">
+    <div class="j-label"><b>MAX</b> / JUDGMENT · 01</div>
+    <div class="j-body">一个数字可以算得没错，<br>但仍然没有资格精确到那个程度。</div>
+    <div class="j-uncertainty">这是关于“呈现方式”的判断，不是关于“训练时长”的科学结论。</div>
+    <div class="j-author">— MAX</div>
+  </div>
+
+  <h2><span class="sec-num">02</span>系统评估，不是人类研究</h2>
+
+  <p>随后我把这套材料整理成一个小的评估集，跑了一轮系统测试：</p>
+
+  <div class="lab-note">
+    <div class="lab-label">LAB / CHECKMYCOACH</div>
+    <div class="lab-stats">40 cases · 15 routed · 12 passed</div>
+    <div class="lab-scope">System evaluation. Not a human study.</div>
+  </div>
+
+  <p>这里的数字来自机器评估流程。你不能从“12 例通过”推出“真人用户也会这样判断”——这是两类完全不同的证据。</p>
+
+  <h2><span class="sec-num">03</span>我看到的问题</h2>
+
+  <p>跑完这轮测试，问题变得清楚：这不是健身建议准不准，而是呈现方式。校准研究早已发现：</p>
+
+  <blockquote>人们会对“表述自信”做出系统性反应，即使这种自信没有任何依据。
+    <span class="q-source">—— 认知心理学研究综述</span>
+  </blockquote>
+
+  <p>这个问题并不新。<strong>Calibration</strong> 研究很早就发现，人们会对表述自信做出系统性反应。误差范围这种东西，英文里叫 margin of error，而在健身 App 里它完全缺席。</p>
+
+  <p>一个点估计至少应该带上三样东西：</p>
+
+  <ul>
+    <li>依据：这个数字从哪里来（人群、数据、模型）</li>
+    <li>误差：可能的范围有多大</li>
+    <li>边界：它适用于谁、不适用于谁</li>
+  </ul>
+
+  <p>把范围拉回这件事本身：</p>
+
+  <ol>
+    <li>精确 ≠ 准确。</li>
+    <li>准确 ≠ 可验证。</li>
+    <li>可验证 ≠ 用户能判断。</li>
+  </ol>
+
+  <p>误差范围在实现里通常长这样（示意代码，不是真实 API）：</p>
+
+  <pre><code># 点估计 vs 区间估计
+plan = suggest(duration=43, bounds=[30, 60])</code></pre>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>维度</th><th>结果</th></tr></thead>
+      <tbody>
+        <tr><td>校准度</td><td>需要改进</td></tr>
+        <tr><td>置信度</td><td>90%（未校准）</td></tr>
+        <tr><td>误差信息</td><td>缺失</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <figure>
+    <div class="fig-label">FIG / 01</div>
+    <img src="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='480'%20height='80'%3E%3Crect%20x='60'%20y='30'%20width='300'%20height='14'%20fill='%23D8D4CA'/%3E%3Ccircle%20cx='120'%20cy='37'%20r='9'%20fill='%23191918'/%3E%3C/svg%3E" alt="点估计与区间估计示意">
+    <figcaption>43 分钟是点估计，不是区间。竖点是被检查的精确值，横条是它应当携带的范围。</figcaption>
+    <div class="fig-source">FIG / 01 · 示意</div>
+  </figure>
+
+  <p>这就是一篇文章的起点。<a href="https://example.com/start">回到问题本身</a> 再想一想，下一期，我会写 AI 的置信度到底有没有意义。</p>
+
+  <div class="specimen">
+    <div class="specimen-label">附录 · 排版样本（非正文）</div>
+    <h3>三级标题 · 子结构示例</h3>
+    <p>这是一段含行内代码 <code>src/fitness/plan.py</code> 与术语 margin of error 的普通段落，用于检验三级标题、行内代码与正文的排版关系。</p>
+    <blockquote>独立的旁注引用也可以在这里出现，检验引用语法的另一种形态。
+      <span class="q-source">—— 排版样本</span>
+    </blockquote>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-brand">MAX / JUDGMENT / 001</div>
+    <div class="footer-tagline">AI 越来越能干以后，人该如何判断？</div>
+    <div class="footer-next">
+      <div class="next-label">NEXT</div>
+      <div class="next-title">AI 说自己“90% 确定”，到底是什么意思？</div>
+    </div>
+  </footer>
+
+</article>
+</body>
+</html>
