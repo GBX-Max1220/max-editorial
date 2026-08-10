@@ -16,7 +16,7 @@ import { markedSemanticBlocks, setRenderCtx, type SemanticBlockToken } from './s
 import { markedAlert } from './vendor/alert'
 import { markedFootnotes } from './vendor/footnotes'
 import { escapeHtml } from './vendor/basicHelpers'
-import { buildClaimIndex } from '../shared/semanticHtml'
+import { buildAnchorDirections, buildClaimIndex } from '../shared/semanticHtml'
 import { validateDocument } from '../validate'
 import readingTime from './vendor/readingTime'
 import { countWords } from '../../utils/words'
@@ -89,14 +89,14 @@ export function renderDoocsHtml(markdown: string): DoocsRenderOutcome {
   const md = createMarked()
   const tokens = md.lexer(body)
 
-  // claim 索引在完整 lex 后、parser 前构建并注入渲染上下文（render 同步，无交错）。
-  // doocs token 用 sType 表示块类型；buildClaimIndex 期待 type 字段，这里映射。
-  const { claimMap, ambiguousIds } = buildClaimIndex(
-    tokens
-      .filter((t): t is SemanticBlockToken => t.type === 'semanticBlock')
-      .map((t) => ({ type: t.sType, props: t.props, lines: t.lines })),
-  )
-  setRenderCtx({ claimMap, ambiguousIds })
+  // claim/锚点索引在完整 lex 后、parser 前构建并注入渲染上下文（render 同步，无交错）。
+  // doocs token 用 sType 表示块类型；共享索引期待 type 字段，这里映射。
+  const blocks = tokens
+    .filter((t): t is SemanticBlockToken => t.type === 'semanticBlock')
+    .map((t) => ({ type: t.sType, props: t.props, lines: t.lines }))
+  const { claimMap, ambiguousIds } = buildClaimIndex(blocks)
+  const anchorDirections = buildAnchorDirections(blocks)
+  setRenderCtx({ claimMap, ambiguousIds, anchorDirections })
 
   const html = md.parser(tokens)
   return { html, frontmatter: attributes, tokens }

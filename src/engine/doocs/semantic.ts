@@ -15,7 +15,7 @@
 import type { MarkedExtension, RendererThis, Token, Tokens } from 'marked'
 import { escapeHtml } from './vendor/basicHelpers'
 import { parseRelations, type Relation } from './relations'
-import { renderSemanticHtml } from '../shared/semanticHtml'
+import { renderSemanticHtml, type AnchorDirection } from '../shared/semanticHtml'
 
 export const SEMANTIC_TYPES = [
   'claim',
@@ -71,15 +71,16 @@ function lineInlineHtml(this: RendererThis, token: SemanticBlockToken): string[]
 }
 
 /**
- * marked 扩展的 renderer 需要 claimMap / ambiguousIds。
+ * marked 扩展的 renderer 需要 claimMap / ambiguousIds / anchorDirections。
  * 用模块内上下文承载（render 同步：lexer 后、parser 前由 engine.ts 一次性注入，无并发交错）。
  */
 type RenderCtx = {
   claimMap: ReadonlyMap<string, string>
   ambiguousIds: ReadonlySet<string>
+  anchorDirections: ReadonlyMap<string, AnchorDirection>
 }
 
-let currentCtx: RenderCtx = { claimMap: new Map(), ambiguousIds: new Set() }
+let currentCtx: RenderCtx = { claimMap: new Map(), ambiguousIds: new Set(), anchorDirections: new Map() }
 
 export function setRenderCtx(ctx: RenderCtx): void {
   currentCtx = ctx
@@ -138,6 +139,7 @@ export function markedSemanticBlocks(): MarkedExtension {
             rawText: escapeHtml(t.lines.join('\n')),
             claimMap: ctx.claimMap,
             ambiguousIds: ctx.ambiguousIds,
+            anchorDirections: ctx.anchorDirections,
           })
         },
       },

@@ -2,16 +2,16 @@
  * V0.2 共享语义块 HTML 渲染（legacy 与 doocs 两个引擎共用，禁止各自实现漂移）。
  *
  * 权威：canonical rev1 §9（五容器语法族）、§13（7 组件）、§14（认识论 lint 的渲染边界）。
+ * V0.2.1 polish（基于人工视觉验收）：
+ *  - JUDGMENT 锚点文本方向感知（修复 "证据与反方见后文" 指向错误 —— §7.5 referential integrity）
+ *  - METRIC specimen 去 provenance 重复（覆盖标记承担 role；provenance 收敛单行；不缩 salience）
+ *  - EVIDENCE 二元判定是变体而非默认：无对比 verdict 结构时用 quiet relation grammar
  *
  * 设计约束（本模块的 epistemic 边界）：
- *  - 渲染器只消费【派生状态】（claimMap 存在性、deriveMetricEligibility 的 effectiveDisplayFunction），
- *    绝不直接按作者 props 里的强度词/枚举分支给 salience（§6.2 / §13.7 防 classification laundering）。
- *  - 结构上无效的关系【降级渲染，不镀金】：Evidence 无有效 claim 目标 → 中性引用 + `sblock-degraded`；
- *    AI OUTPUT 无 source → 降为普通引用（§14 degradation）。
- *  - stale/unversioned（文本已变更但关系快照没更新）属于【编辑复核】问题（relations.ts 语义），
- *    由 lint 标记；渲染层仍显示当前 claim 文本（live text），不额外镀金也不隐藏。
- *  - label 文案：英文 label 总数 ≤4（AI OUTPUT / JUDGMENT / EVIDENCE / COUNTERPOINT，§9.4），
- *    QUESTION / LAB NOTE 用中文（提问 / 实验注记）。label 不含任何评价词（§14.6-3）。
+ *  - 渲染器只消费【派生状态】（claimMap 存在性、deriveMetricEligibility 的 effectiveDisplayFunction、
+ *    anchorDirections），绝不直接按作者 props 里的强度词/枚举分支给 salience（§6.2 / §13.7）。
+ *  - 结构上无效的关系【降级渲染，不镀金】；AI OUTPUT 无 source 降为普通引用。
+ *  - label 文案：英文 ≤4（AI OUTPUT / JUDGMENT / EVIDENCE / COUNTERPOINT），其余中文；无评价词。
  */
 
 import { parseEvidence, parseLabNote } from './blockParse'
@@ -24,6 +24,9 @@ export function esc(s: string): string {
 export function escAttr(s: string): string {
   return esc(s).replace(/"/g, '&quot;')
 }
+
+/** 锚点目标相对判断块的方向（§7.5 epistemic adjacency）。missing = 目标不存在（lint 已报）。 */
+export type AnchorDirection = 'above' | 'below' | 'mixed' | 'missing'
 
 export interface SemanticRenderInput {
   sType: string
@@ -38,6 +41,8 @@ export interface SemanticRenderInput {
   claimMap: ReadonlyMap<string, string>
   /** 文档内重复的 claim id（关系目标有歧义 → 降级）。 */
   ambiguousIds: ReadonlySet<string>
+  /** judgment id → 其 anchor 目标相对位置（方向感知，修复 referential-integrity）。 */
+  anchorDirections: ReadonlyMap<string, AnchorDirection>
 }
 
 const ORIGIN_LABELS: Record<string, string> = {
@@ -91,8 +96,15 @@ function renderJudgment(input: SemanticRenderInput): string {
   const author = (input.props.author ?? 'Max').trim()
   const uncertainty = (input.props.uncertainty ?? '').trim()
   const anchor = (input.props.anchor ?? '').trim()
-  // §13.3：居中 + 双发丝线 + 署名行（author-owned cue，INVARIANT A6）；uncertainty cue 在 weak evidence 时默认显示。
-  return `<section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">${input.lineHtml.join('<br/>')}</div>${uncertainty ? `<div class="judgment-uncertainty">${esc(uncertainty)}</div>` : ''}<div class="judgment-author">— ${esc(author)}</div>${anchor ? `<div class="judgment-anchor">证据与反方见后文</div>` : ''}</section>`
+  // §13.3：居中 + 双发丝线 + 署名行（author-owned cue，INVARIANT A6）。
+  // V0.2.1：锚点文本按目标实际相对位置生成（§7.5 referential integrity —— 修复硬编码"见后文"指错方向）。
+  let anchorHtml = ''
+  if (anchor) {
+    const dir = input.anchorDirections.get((input.props.id ?? '').trim())
+    const text = dir === 'above' ? '证据与反方见上方' : dir === 'below' ? '证据与反方见下' : '证据与反方见上下文'
+    anchorHtml = `<div class="judgment-anchor">${text}</div>`
+  }
+  return `<section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">${input.lineHtml.join('<br/>')}</div>${uncertainty ? `<div class="judgment-uncertainty">${esc(uncertainty)}</div>` : ''}<div class="judgment-author">— ${esc(author)}</div>${anchorHtml}</section>`
 }
 
 function renderEvidence(input: SemanticRenderInput): string {
@@ -100,23 +112,37 @@ function renderEvidence(input: SemanticRenderInput): string {
   const claimText = supports ? input.claimMap.get(supports) : undefined
   const ambiguous = supports ? input.ambiguousIds.has(supports) : false
   const degraded = !supports || claimText === undefined || ambiguous
-  const rows = parseEvidence(input.lines)
-  const rowsHtml = rows
-    .map(
-      (r) =>
-        `<div class="evidence-row"><span class="evidence-label">${esc(r.label || ' ')}</span><span class="evidence-value">${esc(r.value)}</span></div>`,
-    )
-    .join('')
+
   // §13.4 强制：被支持的 claim 引用行在最前，文本来自 claim_id 关系（live claim text），非作者复制的旧文本。
   const claimRef = degraded
     ? `<div class="evidence-claim is-degraded"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">${supports ? '〈引用目标待复核〉' : '〈未声明 claim_id〉'}</span></div>`
     : `<div class="evidence-claim"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">${esc(claimText!)}</span></div>`
-  const metaParts = [
+
+  // V0.2.1：二元对比判定（SUPPORTED / NOT SUPPORTED 等 verdict label）是变体而非默认。
+  // 结构推断：parseEvidence 产出非空 label 行 → 作者用了对比 label 结构 → 保持二元呈现；
+  // 否则 → quiet relation grammar（内容按 prose 排，不自动制造 SUPPORTED / NOT SUPPORTED 行）。
+  const rows = parseEvidence(input.lines)
+  const hasVerdict = rows.some((r) => r.label.trim() !== '')
+  const contentHtml = hasVerdict
+    ? `<div class="evidence-rows">${rows
+        .map(
+          (r) =>
+            `<div class="evidence-row"><span class="evidence-label">${esc(r.label || ' ')}</span><span class="evidence-value">${esc(r.value)}</span></div>`,
+        )
+        .join('')}</div>`
+    : `<div class="evidence-prose">${input.lineHtml.join('<br/>')}</div>`
+
+  // quiet relation grammar 字段行（边界/来源/强度），二元与关系态共用。
+  const fields = [
+    input.props.boundary ? `边界：${input.props.boundary}` : '',
     input.props.source ? `来源：${input.props.source}` : '',
     input.props.evidence_strength ? `强度：${input.props.evidence_strength}` : '',
-    input.props.boundary ? `边界：${input.props.boundary}` : '',
   ].filter(Boolean)
-  return `<section class="sblock sblock-evidence${degraded ? ' sblock-degraded' : ''}"><div class="sblock-label">EVIDENCE</div>${claimRef}<div class="evidence-rows">${rowsHtml}</div>${metaParts.length ? `<div class="sblock-meta">${esc(metaParts.join(' · '))}</div>` : ''}</section>`
+  const fieldsHtml = fields.length
+    ? `<div class="evidence-fields">${fields.map((f) => `<div class="evidence-field">${esc(f)}</div>`).join('')}</div>`
+    : ''
+
+  return `<section class="sblock sblock-evidence${degraded ? ' sblock-degraded' : ''}"><div class="sblock-label">EVIDENCE</div>${claimRef}${contentHtml}${fieldsHtml}</section>`
 }
 
 function renderCounterpoint(input: SemanticRenderInput): string {
@@ -143,19 +169,26 @@ function renderMetric(input: SemanticRenderInput): string {
   const originLabel = el.requestedOrigin ? ORIGIN_LABELS[el.requestedOrigin] : undefined
   const roleLabel = ROLE_LABELS[role]
 
-  let cover = ''
-  if (role === 'inspection_specimen') {
-    cover = `<div class="metric-cover"><div class="metric-cover-label">被检查对象 · 非结论</div>${input.props.inspection_question ? `<div class="metric-cover-question">${esc(input.props.inspection_question)}</div>` : ''}${input.props.specimen_source ? `<div class="metric-cover-source">${esc(input.props.specimen_source)}</div>` : ''}</div>`
-  }
-
-  const roleMeta = [originLabel, roleLabel].filter(Boolean).join(' · ')
   const provParts = [
     input.props.source ? `来源：${input.props.source}` : '',
     input.props.method ? `方法：${input.props.method}` : '',
     input.props.boundary ? `边界：${input.props.boundary}` : '',
   ].filter(Boolean)
 
-  return `<section class="sblock sblock-metric" data-salience="${role}">${label ? `<div class="metric-label">${esc(label)}</div>` : ''}<div class="metric-value">${esc(value)}</div>${cover}${roleMeta ? `<div class="metric-meta">${esc(roleMeta)}</div>` : ''}${provParts.length ? `<div class="metric-provenance">${esc(provParts.join(' · '))}</div>` : ''}</section>`
+  let cover = ''
+  let metaLine = ''
+  let provLine = ''
+  if (role === 'inspection_specimen') {
+    // V0.2.1：覆盖标记承担 role 声明（被检查对象），provenance 收敛为单行（模型输出 · 来源 · 方法 · 边界），
+    // 不再重复展示 source/role。salience（大数字）保持不变。
+    cover = `<div class="metric-cover"><div class="metric-cover-label">被检查对象 · 非结论</div>${input.props.inspection_question ? `<div class="metric-cover-question">${esc(input.props.inspection_question)}</div>` : ''}</div>`
+    provLine = [originLabel, ...provParts].filter(Boolean).join(' · ')
+  } else {
+    metaLine = [originLabel, roleLabel].filter(Boolean).join(' · ')
+    provLine = provParts.join(' · ')
+  }
+
+  return `<section class="sblock sblock-metric" data-salience="${role}">${label ? `<div class="metric-label">${esc(label)}</div>` : ''}<div class="metric-value">${esc(value)}</div>${cover}${metaLine ? `<div class="metric-meta">${esc(metaLine)}</div>` : ''}${provLine ? `<div class="metric-provenance">${esc(provLine)}</div>` : ''}</section>`
 }
 
 function renderUnknown(input: SemanticRenderInput): string {
@@ -185,12 +218,14 @@ export function renderSemanticHtml(input: SemanticRenderInput): string {
   }
 }
 
+type BlockLike = { type: string; props: Record<string, string>; lines: string[] }
+
 /**
  * 从语义块列表构建 claim 索引（claim id → 展示文本）与歧义集合。
  * 供 legacy/doocs 两个引擎复用，保证 claimMap 一致 → 渲染一致。
  */
 export function buildClaimIndex(
-  blocks: readonly { type: string; props: Record<string, string>; lines: string[] }[],
+  blocks: readonly BlockLike[],
 ): { claimMap: Map<string, string>; ambiguousIds: Set<string> } {
   const claimMap = new Map<string, string>()
   const ambiguousIds = new Set<string>()
@@ -202,4 +237,44 @@ export function buildClaimIndex(
     else claimMap.set(id, b.lines.join(' '))
   }
   return { claimMap, ambiguousIds }
+}
+
+/**
+ * 构建 JUDGMENT anchor 方向（§7.5 方向感知）。
+ * anchor 目标相对该判断块的位置：全部在上方 → 'above'，全部在下方 → 'below'，
+ * 混合 → 'mixed'，目标不存在 → 'missing'。legacy/doocs 共用，保证方向一致。
+ */
+export function buildAnchorDirections(blocks: readonly BlockLike[]): Map<string, AnchorDirection> {
+  const idPos = new Map<string, number>()
+  const judgments: { id: string; index: number; anchorIds: string[] }[] = []
+  blocks.forEach((b, i) => {
+    const id = (b.props.id ?? '').trim()
+    if (!id) return
+    if (b.type === 'judgment') {
+      idPos.set(id, i)
+      judgments.push({
+        id,
+        index: i,
+        anchorIds: (b.props.anchor ?? '').split(',').map((s) => s.trim()).filter(Boolean),
+      })
+    } else {
+      idPos.set(id, i)
+    }
+  })
+
+  const out = new Map<string, AnchorDirection>()
+  for (const j of judgments) {
+    let above = 0
+    let below = 0
+    let found = 0
+    for (const a of j.anchorIds) {
+      const pos = idPos.get(a)
+      if (pos === undefined) continue
+      found++
+      if (pos < j.index) above++
+      else if (pos > j.index) below++
+    }
+    out.set(j.id, found === 0 ? 'missing' : below === 0 ? 'above' : above === 0 ? 'below' : 'mixed')
+  }
+  return out
 }

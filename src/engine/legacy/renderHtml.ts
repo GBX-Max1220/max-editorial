@@ -6,7 +6,7 @@
 
 import type { Block, InlineNode, SemanticBlock } from '../../markdown/types'
 import { parseInline } from '../../markdown/inline'
-import { renderSemanticHtml, buildClaimIndex } from '../shared/semanticHtml'
+import { buildAnchorDirections, buildClaimIndex, renderSemanticHtml, type AnchorDirection } from '../shared/semanticHtml'
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -43,7 +43,12 @@ function imageHtml(img: { alt: string; src: string; title?: string }): string {
     : `<img src="${escAttr(img.src)}" alt="${escAttr(img.alt)}" />`
 }
 
-function semanticHtml(b: SemanticBlock, claimMap: ReadonlyMap<string, string>, ambiguousIds: ReadonlySet<string>): string {
+function semanticHtml(
+  b: SemanticBlock,
+  claimMap: ReadonlyMap<string, string>,
+  ambiguousIds: ReadonlySet<string>,
+  anchorDirections: ReadonlyMap<string, AnchorDirection>,
+): string {
   return renderSemanticHtml({
     sType: b.type,
     props: b.props,
@@ -52,10 +57,16 @@ function semanticHtml(b: SemanticBlock, claimMap: ReadonlyMap<string, string>, a
     rawText: esc(b.lines.join('\n')),
     claimMap,
     ambiguousIds,
+    anchorDirections,
   })
 }
 
-function blockHtml(b: Block, claimMap: ReadonlyMap<string, string>, ambiguousIds: ReadonlySet<string>): string {
+function blockHtml(
+  b: Block,
+  claimMap: ReadonlyMap<string, string>,
+  ambiguousIds: ReadonlySet<string>,
+  anchorDirections: ReadonlyMap<string, AnchorDirection>,
+): string {
   switch (b.kind) {
     case 'heading': {
       const tag = Math.min(b.level, 3)
@@ -83,13 +94,13 @@ function blockHtml(b: Block, claimMap: ReadonlyMap<string, string>, ambiguousIds
         .map((r) => `<tr>${r.map((c) => `<td>${renderInlineHtml(parseInline(c))}</td>`).join('')}</tr>`)
         .join('')}</tbody></table></div>`
     case 'semantic':
-      return semanticHtml(b, claimMap, ambiguousIds)
+      return semanticHtml(b, claimMap, ambiguousIds, anchorDirections)
   }
 }
 
 export function renderLegacyHtml(blocks: Block[]): string {
-  const { claimMap, ambiguousIds } = buildClaimIndex(
-    blocks.filter((b): b is SemanticBlock => b.kind === 'semantic'),
-  )
-  return blocks.map((b) => blockHtml(b, claimMap, ambiguousIds)).join('\n')
+  const semanticBlocks = blocks.filter((b): b is SemanticBlock => b.kind === 'semantic')
+  const { claimMap, ambiguousIds } = buildClaimIndex(semanticBlocks)
+  const anchorDirections = buildAnchorDirections(semanticBlocks)
+  return blocks.map((b) => blockHtml(b, claimMap, ambiguousIds, anchorDirections)).join('\n')
 }

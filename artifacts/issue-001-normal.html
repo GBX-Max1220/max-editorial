@@ -372,14 +372,38 @@
   line-height: 1.7;
 }
 
-/* ── PAUSE 族：JUDGMENT（居中 + 上下墨线 + 署名行；§13.3） ── */
+/* V0.2.1：无对比 verdict 结构时 → quiet relation grammar（内容按 prose，不制造二元行） */
+.evidence-prose {
+  font-size: 1em;
+  line-height: 1.8;
+  color: #171612;
+}
+
+.evidence-fields {
+  margin-top: 0.7em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.evidence-field {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  color: #7c7a72;
+  line-height: 1.7;
+}
+
+/* ── PAUSE 族：JUDGMENT（居中 + 单条墨线 + 署名行；§13.3）
+   V0.2.1：双规则（上下墨线）过于接近杂志 pull quote / persuasion device → 只保留一条 top rule，
+   保留 deliberate-pause 间距；不加 card/背景/边框、不改左对齐、不改排版。 ── */
 
 .sblock-judgment {
   text-align: center;
   margin: 3.6em 0;
   padding: 2.2em 0.5em 1.6em;
   border-top: 1px solid #171612;
-  border-bottom: 1px solid #171612;
 }
 
 .sblock-judgment .sblock-label {
@@ -513,12 +537,6 @@
   font-size: 1em;
   line-height: 1.7;
   color: #171612;
-}
-
-.metric-cover-source {
-  margin-top: 0.5em;
-  font-size: 0.8em;
-  color: #7c7a72;
 }
 
 /* result（报告结果）：中等，不得放大，紧邻 denominator/boundary */
@@ -718,16 +736,16 @@
 }
 </style></head><body style="margin:0;background:#eceae5;padding:24px;"><article class="article paper" data-mode="normal" style="margin:0 auto;font-size:15.5px;"><header class="masthead"><div class="masthead-brand">MAX大郭的判断局</div><div class="masthead-series">JUDGMENT / 001</div><h1 class="masthead-title">我本来只是想检查 AI 的健身建议，最后发现问题根本不在健身</h1><div class="masthead-date">2026 / 08</div></header><div class="article-body"><p>我买了一个便宜的运动手环，顺手让健身 App 帮我生成每周计划。App 说我的有氧能力“处于平均水平”，并且“建议每周三次、每次恰好 43 分钟的中等强度训练”。</p>
 <p>我一开始只是想确认一件事：这个 43 分钟，到底是科学，还是随口一说？这个问题指向一个更宽的判断：<strong>当 AI 给出一个精确数字，用户有没有途径知道它的依据、误差和边界。</strong></p>
-<p>AI 输出的精确数字，没有携带足够的依据、误差与边界信息。</p><h2>一个问题</h2>
+<p>AI 输出的精确数字，没有携带足够的依据、误差与边界信息。</p><p>先放下手环，回到那个更基本的问题：</p>
 <section class="sblock sblock-question"><div class="sblock-label">提问</div><div class="sblock-body">AI 说自己 90% 确定，<br/>到底是什么意思？</div></section><h2>一个数字，两种含义</h2>
 <p>区别在 <strong>点估计</strong> 和 <strong>区间估计</strong>。手环只给了我一个点——43 分钟。它没有告诉我误差范围，没有告诉我置信区间，也没有告诉我这个数字是在什么人群、什么数据上算出来的。</p>
 <p>同样的数据集，换一个模型再问一遍，它回答得很干脆：</p>
 <section class="sblock sblock-ai-output"><div class="sblock-label">AI OUTPUT</div><div class="sblock-body">“建议每天恰好进行 43 分钟训练。”<br/><br/>Confidence: 90%</div><div class="sblock-meta"><span class="meta-source">来源：健身 App 内置 AI 助手 · 2026-08 输出</span><span class="meta-status">RAW OUTPUT</span></div></section><p>这是我截取的原始输出。Confidence 这个数字是模型声称的置信度，不是对“训练 43 分钟有效”这一结论的保证——这两种不确定性不是一回事。</p>
 <p>这正是需要被单独拉出来检查的东西：</p>
-<section class="sblock sblock-metric" data-salience="inspection_specimen"><div class="metric-label">MINUTES · EXACTLY?</div><div class="metric-value">43</div><div class="metric-cover"><div class="metric-cover-label">被检查对象 · 非结论</div><div class="metric-cover-question">这个 43 分钟，到底是科学，还是随口一说？</div><div class="metric-cover-source">上述 AI 输出的原文</div></div><div class="metric-meta">模型输出 · 检查对象</div><div class="metric-provenance">来源：健身 App 内置 AI 助手 · 方法：单次对话输出 · 边界：仅限该次输出；不含置信区间</div></section><p>用一套证据标准来看，什么被支持了，什么没有被支持：</p>
-<section class="sblock sblock-evidence"><div class="sblock-label">EVIDENCE</div><div class="evidence-claim"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">AI 输出的精确数字，没有携带足够的依据、误差与边界信息。</span></div><div class="evidence-rows"><div class="evidence-row"><span class="evidence-label">SUPPORTED</span><span class="evidence-value">30–60 分钟，中等强度，每周 3–5 次</span></div><div class="evidence-row"><span class="evidence-label">NOT SUPPORTED</span><span class="evidence-value">恰好 43 分钟；对个体给出置信度</span></div></div><div class="sblock-meta">来源：运动科学文献综述（示例） · 强度：40 例系统评估（示例） · 边界：支持到“范围”，不支持“精确点值”</div></section><p>当然，要公平一点——最强的反方是这样说的：</p>
+<section class="sblock sblock-metric" data-salience="inspection_specimen"><div class="metric-label">MINUTES · EXACTLY?</div><div class="metric-value">43</div><div class="metric-cover"><div class="metric-cover-label">被检查对象 · 非结论</div><div class="metric-cover-question">这个 43 分钟，到底是科学，还是随口一说？</div></div><div class="metric-provenance">模型输出 · 来源：健身 App 内置 AI 助手 · 方法：单次对话输出 · 边界：仅限该次输出；不含置信区间</div></section><p>用一套证据标准来看，什么被支持了，什么没有被支持：</p>
+<section class="sblock sblock-evidence"><div class="sblock-label">EVIDENCE</div><div class="evidence-claim"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">AI 输出的精确数字，没有携带足够的依据、误差与边界信息。</span></div><div class="evidence-rows"><div class="evidence-row"><span class="evidence-label">SUPPORTED</span><span class="evidence-value">30–60 分钟，中等强度，每周 3–5 次</span></div><div class="evidence-row"><span class="evidence-label">NOT SUPPORTED</span><span class="evidence-value">恰好 43 分钟；对个体给出置信度</span></div></div><div class="evidence-fields"><div class="evidence-field">边界：支持到“范围”，不支持“精确点值”</div><div class="evidence-field">来源：运动科学文献综述（示例）</div><div class="evidence-field">强度：40 例系统评估（示例）</div></div></section><p>当然，要公平一点——最强的反方是这样说的：</p>
 <section class="sblock sblock-counterpoint"><div class="sblock-label">COUNTERPOINT</div><div class="sblock-body">精确表达并不必然意味着误导。<br/>在医疗和工程场景里，精确是有价值的。</div></section><p>材料齐了，这是一个值得停一下的判断：</p>
-<section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">一个数字可以算得没错，<br/>但仍然没有资格精确到那个程度。</div><div class="judgment-uncertainty">这是关于“呈现方式”的判断，不是关于“训练时长”的科学结论。</div><div class="judgment-author">— Max</div><div class="judgment-anchor">证据与反方见后文</div></section><h2>系统评估，不是人类研究</h2>
+<section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">一个数字可以算得没错，<br/>但仍然没有资格精确到那个程度。</div><div class="judgment-uncertainty">这是关于“呈现方式”的判断，不是关于“训练时长”的科学结论。</div><div class="judgment-author">— Max</div><div class="judgment-anchor">证据与反方见上方</div></section><h2>系统评估，不是人类研究</h2>
 <p>随后我把这套材料整理成一个小的评估集，跑了一轮系统测试：</p>
 <section class="sblock sblock-lab-note"><div class="sblock-label">实验注记 · CHECKMYCOACH</div><div class="lab-body"><div class="lab-stats-flat">40 cases · 15 routed · 12 passed</div><div class="lab-note-line">System evaluation.</div><div class="lab-note-line">Not a human study.</div></div></section><p>这里的数字来自机器评估流程。你不能从“12 例通过”推出“真人用户也会这样判断”——这是两类完全不同的证据。</p>
 <h2>我看到的问题</h2>

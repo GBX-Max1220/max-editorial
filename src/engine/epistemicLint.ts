@@ -247,6 +247,32 @@ function blockquoteText(bq: Tokens.Blockquote): string {
   return s
 }
 
+/**
+ * V0.2.1 启发式：H2/H3 后紧跟 QUESTION，orientation 层级可能冗余。
+ * §13.1：QUESTION 自身可作为 section opener / orientation landmark，不需要 H2 仅用于预告一个 Question。
+ * 纯结构性检测（heading → 紧邻 question），不做语义/NLP 等价判断；非阻断、可豁免。
+ */
+export function validateHeadingQuestionRedundancy(tokens: readonly Token[]): EditorialDiagnostic[] {
+  const out: EditorialDiagnostic[] = []
+  // marked 会在块之间插入 space token（空白行）；语义相邻 ≠ 数组相邻，过滤后判断。
+  const meaningful = tokens.filter((t) => t.type !== 'space')
+  for (let i = 0; i < meaningful.length - 1; i++) {
+    if (meaningful[i].type !== 'heading') continue
+    const next = meaningful[i + 1]
+    if (!isSemantic(next) || next.sType !== 'question') continue
+    if (suppressed(next.props, 'ep-heading-question-redundancy')) continue
+    out.push({
+      code: 'ep-heading-question-redundancy',
+      governance: 'heuristic',
+      severity: 'info',
+      blockId: next.id,
+      blockType: 'question',
+      message: 'H2/H3 后紧跟 QUESTION，orientation 层级可能冗余（§13.1：QUESTION 可作为独立 landmark）——仅提示，可带理由豁免',
+    })
+  }
+  return out
+}
+
 /** §7.4 / 17-B-C4：连续 HIGH 中断 ≤2，第 3 个前必须插入 prose。editorial-constraint warning。 */
 export function validateInterruptDensity(tokens: readonly Token[]): EditorialDiagnostic[] {
   const out: EditorialDiagnostic[] = []
@@ -310,5 +336,6 @@ export function runEpistemicLint(tokens: readonly Token[]): EditorialDiagnostic[
     ...validateBlockquoteSource(tokens),
     ...validateInterruptDensity(tokens),
     ...validateUncertainty(tokens),
+    ...validateHeadingQuestionRedundancy(tokens),
   ]
 }

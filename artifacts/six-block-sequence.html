@@ -372,14 +372,38 @@
   line-height: 1.7;
 }
 
-/* ── PAUSE 族：JUDGMENT（居中 + 上下墨线 + 署名行；§13.3） ── */
+/* V0.2.1：无对比 verdict 结构时 → quiet relation grammar（内容按 prose，不制造二元行） */
+.evidence-prose {
+  font-size: 1em;
+  line-height: 1.8;
+  color: #171612;
+}
+
+.evidence-fields {
+  margin-top: 0.7em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.evidence-field {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  color: #7c7a72;
+  line-height: 1.7;
+}
+
+/* ── PAUSE 族：JUDGMENT（居中 + 单条墨线 + 署名行；§13.3）
+   V0.2.1：双规则（上下墨线）过于接近杂志 pull quote / persuasion device → 只保留一条 top rule，
+   保留 deliberate-pause 间距；不加 card/背景/边框、不改左对齐、不改排版。 ── */
 
 .sblock-judgment {
   text-align: center;
   margin: 3.6em 0;
   padding: 2.2em 0.5em 1.6em;
   border-top: 1px solid #171612;
-  border-bottom: 1px solid #171612;
 }
 
 .sblock-judgment .sblock-label {
@@ -513,12 +537,6 @@
   font-size: 1em;
   line-height: 1.7;
   color: #171612;
-}
-
-.metric-cover-source {
-  margin-top: 0.5em;
-  font-size: 0.8em;
-  color: #7c7a72;
 }
 
 /* result（报告结果）：中等，不得放大，紧邻 denominator/boundary */
@@ -716,4 +734,4 @@
     box-shadow: none;
   }
 }
-</style></head><body style="margin:0;background:#eceae5;padding:24px;"><article class="article paper" data-mode="editorial" style="margin:0 auto;font-size:17px;"><div class="article-body"><section class="sblock sblock-ai-output"><div class="sblock-label">AI OUTPUT</div><div class="sblock-body">输出片段 A</div><div class="sblock-meta"><span class="meta-source">来源：模型 X</span><span class="meta-status">RAW OUTPUT</span></div></section><section class="sblock sblock-metric" data-salience="reported_result"><div class="metric-value">42</div><div class="metric-meta">内部评估 · 报告结果</div><div class="metric-provenance">来源：内部测试 · 方法：样例流程 · 边界：仅限样例</div></section><section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">判断 B</div><div class="judgment-author">— Max</div></section><section class="sblock sblock-evidence"><div class="sblock-label">EVIDENCE</div><div class="evidence-claim"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">命题 D</span></div><div class="evidence-rows"><div class="evidence-row"><span class="evidence-label">SUPPORTED</span><span class="evidence-value">x</span></div></div></section><section class="sblock sblock-counterpoint"><div class="sblock-label">COUNTERPOINT</div><div class="sblock-body">反方 C</div></section><section class="sblock sblock-lab-note"><div class="sblock-label">实验注记</div><div class="lab-body"><div class="lab-note-line">System evaluation.</div><div class="lab-note-line">Not a human study.</div></div></section><p>命题 D</p></div></article></body></html>
+</style></head><body style="margin:0;background:#eceae5;padding:24px;"><article class="article paper" data-mode="editorial" style="margin:0 auto;font-size:17px;"><div class="article-body"><section class="sblock sblock-ai-output"><div class="sblock-label">AI OUTPUT</div><div class="sblock-body">输出片段 A</div><div class="sblock-meta"><span class="meta-source">来源：模型 X</span><span class="meta-status">RAW OUTPUT</span></div></section><section class="sblock sblock-metric" data-salience="inspection_specimen"><div class="metric-value">42</div><div class="metric-cover"><div class="metric-cover-label">被检查对象 · 非结论</div><div class="metric-cover-question">这个 42 值得被单独检查吗？</div></div><div class="metric-provenance">模型输出 · 来源：模型 X · 方法：样例 · 边界：仅限样例</div></section><section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">判断 B</div><div class="judgment-author">— Max</div></section><section class="sblock sblock-evidence"><div class="sblock-label">EVIDENCE</div><div class="evidence-claim"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">命题 D</span></div><div class="evidence-rows"><div class="evidence-row"><span class="evidence-label">SUPPORTED</span><span class="evidence-value">x</span></div></div></section><section class="sblock sblock-counterpoint"><div class="sblock-label">COUNTERPOINT</div><div class="sblock-body">反方 C</div></section><section class="sblock sblock-lab-note"><div class="sblock-label">实验注记</div><div class="lab-body"><div class="lab-note-line">System evaluation.</div><div class="lab-note-line">Not a human study.</div></div></section><p>命题 D</p></div></article></body></html>

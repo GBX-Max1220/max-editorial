@@ -364,14 +364,37 @@
   line-height: 1.7;
 }
 
-/* ── PAUSE 族：JUDGMENT（居中 + 上下墨线 + 署名行；§13.3） ── */
+/* V0.2.1：无对比 verdict 结构时 → quiet relation grammar（内容按 prose，不制造二元行） */
+.evidence-prose {
+  font-size: 1em;
+  line-height: 1.8;
+  color: var(--fg);
+}
+
+.evidence-fields {
+  margin-top: 0.7em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.evidence-field {
+  font-family: var(--mono);
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ── PAUSE 族：JUDGMENT（居中 + 单条墨线 + 署名行；§13.3）
+   V0.2.1：双规则（上下墨线）过于接近杂志 pull quote / persuasion device → 只保留一条 top rule，
+   保留 deliberate-pause 间距；不加 card/背景/边框、不改左对齐、不改排版。 ── */
 
 .sblock-judgment {
   text-align: center;
   margin: var(--pause-gap) 0;
   padding: 2.2em 0.5em 1.6em;
   border-top: 1px solid var(--fg);
-  border-bottom: 1px solid var(--fg);
 }
 
 .sblock-judgment .sblock-label {
@@ -499,12 +522,6 @@
   font-size: 1em;
   line-height: 1.7;
   color: var(--fg);
-}
-
-.metric-cover-source {
-  margin-top: 0.5em;
-  font-size: 0.8em;
-  color: var(--muted);
 }
 
 /* result（报告结果）：中等，不得放大，紧邻 denominator/boundary */
