@@ -249,18 +249,32 @@ describe('legacy METRIC blocks', () => {
   })
 })
 
-describe('render neutrality / pure validation', () => {
-  it('two-axis metadata changes nothing in rendered HTML', () => {
-    const plain = ':::metric value="73"\n73%\n:::'
-    const rich = specimenMd()
-    expect(renderDoocsHtml(plain).html).toBe(renderDoocsHtml(rich).html)
+describe('renderer consumes derived eligibility (V0.2)', () => {
+  it('specimen with full structural eligibility renders specimen treatment (data-salience + cover mark)', () => {
+    const html = renderDoocsHtml(specimenMd()).html
+    expect(html).toContain('data-salience="inspection_specimen"')
+    expect(html).toContain('metric-cover')
+    expect(html).toContain('被检查对象 · 非结论')
+    expect(html).toContain('metric-cover-question')
   })
 
-  it('structurally eligible specimen renders exactly like a plain metric (no salience CSS yet)', () => {
-    const html = renderDoocsHtml(specimenMd()).html
-    expect(html).toContain('sblock-metric')
-    // 本提交零视觉变化：没有任何 specimen/salience/放大通道。
-    expect(html).not.toMatch(/data-salience|specimen-eligible|inspection-specimen|salience/i)
+  it('requested specimen WITHOUT full eligibility never gets specimen treatment (anti-laundering)', () => {
+    const html = renderDoocsHtml(specimenMd({ specimen_source: undefined })).html
+    expect(html).not.toContain('data-salience="inspection_specimen"')
+    expect(html).not.toContain('metric-cover')
+    // ambiguous 一律 defaults DOWN：请求 specimen 但资格缺 → reported_result。
+    expect(html).toContain('data-salience="reported_result"')
+  })
+
+  it('plain legacy metric defaults DOWN to contextual_reference', () => {
+    const html = renderDoocsHtml(':::metric value="73"\n73%\n:::').html
+    expect(html).toContain('data-salience="contextual_reference"')
+    expect(html).not.toContain('metric-cover')
+  })
+
+  it('author_computed specimen request (negative provenance) never gets specimen treatment', () => {
+    const html = renderDoocsHtml(specimenMd({ origin: 'author_computed' })).html
+    expect(html).not.toContain('data-salience="inspection_specimen"')
   })
 
   it('validateMetricSemantics does not mutate tokens', () => {
@@ -314,13 +328,14 @@ describe('classification-laundering regression (author request ≠ machine struc
     expect(e).not.toHaveProperty('canRenderInspectionSpecimen')
     expect(e).not.toHaveProperty('editoriallyApproved')
     expect(e).not.toHaveProperty('visualAuthorization')
-    // 作者 props 同样无授权字段。
+    // 作者 props 同样无授权字段（渲染层的 specimen 视觉只能来自派生状态）。
     const props = metricToken(md).props
     expect(props.specimen_approved).toBeUndefined()
     expect(props.specimen_eligible).toBeUndefined()
-    // 渲染输出与普通 metric 完全相同。
-    const plain = ':::metric value="73"\n73%\n:::'
-    expect(renderDoocsHtml(md).html).toBe(renderDoocsHtml(plain).html)
+    // 渲染层的 specimen 视觉由 deriveMetricEligibility 的 effectiveDisplayFunction 驱动，
+    // 不是作者枚举直通（见上方 anti-laundering 用例）。
+    expect(renderDoocsHtml(md).html).toContain('data-salience="inspection_specimen"')
+    expect(renderDoocsHtml(md).html).toContain('metric-cover')
   })
 
   it('governance mapping: invalid enums are machine-lint errors, missing evidence warnings', () => {

@@ -3,6 +3,7 @@ import { parseFrontmatter } from './frontmatter'
 import type { Block, ListItem, ParserDiagnostic, ParseResult, SemanticBlock } from './types'
 
 const KNOWN_SEMANTIC = new Set([
+  'claim',
   'question',
   'ai-output',
   'judgment',

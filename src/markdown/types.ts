@@ -7,6 +7,7 @@ export type InlineNode =
   | { type: 'image'; alt: string; src: string; title?: string }
 
 export const SEMANTIC_TYPES = [
+  'claim',
   'question',
   'ai-output',
   'judgment',

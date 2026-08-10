@@ -144,6 +144,31 @@ const STATE_TO_CODE: Record<RelationState, RelationDiagnosticCode | null> = {
   unversioned: 'relation-target-unversioned',
 }
 
+/**
+ * 按【块自身 id】给出每个带关系块的状态（取该块第一条关系）。
+ * 供渲染层在渲染时区分 valid / stale / broken，而不用重算整个诊断集。
+ * 仍是纯函数：不 mutate token。
+ */
+export function relationStatesByBlock(tokens: readonly Token[]): Map<string, RelationState> {
+  const blocks = tokens.filter((t): t is SemanticBlockToken => t.type === 'semanticBlock')
+
+  const idIndex = new Map<string, SemanticBlockToken[]>()
+  for (const b of blocks) {
+    if (!b.id) continue
+    const key = b.id.trim()
+    idIndex.set(key, [...(idIndex.get(key) ?? []), b])
+  }
+
+  const map = new Map<string, RelationState>()
+  for (const block of blocks) {
+    const rels = block.relations ?? []
+    if (rels.length === 0) continue
+    const state = relationState(rels[0], idIndex.get(rels[0].targetId.trim()) ?? [])
+    map.set(block.id ?? '', state)
+  }
+  return map
+}
+
 const STATE_MESSAGE: Record<RelationState, string> = {
   valid: '',
   missing: '关系目标不存在',

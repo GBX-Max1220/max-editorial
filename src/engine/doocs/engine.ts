@@ -12,10 +12,12 @@
 
 import { Marked, type Token, type Tokens } from 'marked'
 import frontMatter from 'front-matter'
-import { markedSemanticBlocks, type SemanticBlockToken } from './semantic'
+import { markedSemanticBlocks, setRenderCtx, type SemanticBlockToken } from './semantic'
 import { markedAlert } from './vendor/alert'
 import { markedFootnotes } from './vendor/footnotes'
 import { escapeHtml } from './vendor/basicHelpers'
+import { buildClaimIndex } from '../shared/semanticHtml'
+import { validateDocument } from '../validate'
 import readingTime from './vendor/readingTime'
 import { countWords } from '../../utils/words'
 import { processClipboardForWeChat } from './clipboard'
@@ -43,6 +45,15 @@ function createMarked(): Marked {
       // 原始 HTML 只转义、不注入。
       html(this: unknown, token: { text: string }) {
         return escapeHtml(token.text)
+      },
+      // §12.12：图片 title 属性作为 caption（ANNOTATION 语法），与 legacy 引擎一致。
+      image(this: unknown, token: Tokens.Image) {
+        const src = escapeHtml(token.href)
+        const alt = escapeHtml(token.text)
+        const title = token.title ? escapeHtml(token.title) : ''
+        return title
+          ? `<figure class="figure"><img src="${src}" alt="${alt}" title="${title}" /><figcaption class="figure-caption">${title}</figcaption></figure>`
+          : `<img src="${src}" alt="${alt}" />`
       },
       // 表格结构与 V0.1 对齐：.table-wrap 包裹，无 align 属性。
       table(this: { parser: { parseInline(t: Token[]): string } }, token: Tokens.Table) {
@@ -77,6 +88,16 @@ export function renderDoocsHtml(markdown: string): DoocsRenderOutcome {
 
   const md = createMarked()
   const tokens = md.lexer(body)
+
+  // claim 索引在完整 lex 后、parser 前构建并注入渲染上下文（render 同步，无交错）。
+  // doocs token 用 sType 表示块类型；buildClaimIndex 期待 type 字段，这里映射。
+  const { claimMap, ambiguousIds } = buildClaimIndex(
+    tokens
+      .filter((t): t is SemanticBlockToken => t.type === 'semanticBlock')
+      .map((t) => ({ type: t.sType, props: t.props, lines: t.lines })),
+  )
+  setRenderCtx({ claimMap, ambiguousIds })
+
   const html = md.parser(tokens)
   return { html, frontmatter: attributes, tokens }
 }
@@ -132,6 +153,8 @@ export const doocsEngine: EditorialEngine = {
       diagnostics: structure.semanticBlocks
         .filter((b) => b.invalid || b.unknown)
         .map((b) => (b.invalid ? `:::${b.type} 未闭合` : `未知语义块 ${b.type}`)),
+      // V0.2 认识论诊断（作者时 lint；渲染路径与 validator 隔离，不改 HTML/tokens）。
+      epistemicDiagnostics: validateDocument(tokens),
     }
   },
 

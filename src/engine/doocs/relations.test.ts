@@ -115,9 +115,41 @@ describe('validateRelations', () => {
     expect(JSON.stringify(tokens)).toBe(before)
   })
 
-  it('does not change rendered html when relations are added', () => {
-    const withRel = ':::evidence id="ev-1" supports="claim-a"\nSUPPORTED\nx\n:::'
-    const withoutRel = ':::evidence id="ev-1"\nSUPPORTED\nx\n:::'
-    expect(renderDoocsHtml(withRel).html).toBe(renderDoocsHtml(withoutRel).html)
+  it('renders the live claim text in the claim-ref line when a supports relation resolves', () => {
+    const md = [
+      ':::claim id="claim-a"',
+      'AI 输出的 90% 置信度需要检查。',
+      ':::',
+      '',
+      ':::evidence id="ev-1" supports="claim-a"',
+      'SUPPORTED',
+      'x',
+      ':::',
+    ].join('\n')
+    const html = renderDoocsHtml(md).html
+    expect(html).toContain(
+      '<div class="evidence-claim"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">AI 输出的 90% 置信度需要检查。</span></div>',
+    )
+    expect(html).not.toContain('sblock-degraded')
+  })
+
+  it('degrades a missing relation target instead of gilding it (no referential laundering)', () => {
+    const html = renderDoocsHtml(':::evidence id="ev-1" supports="ghost"\nSUPPORTED\nx\n:::').html
+    expect(html).toContain('sblock-degraded')
+    expect(html).toContain('引用目标待复核')
+  })
+
+  it('degrades an evidence block that declares no claim_id at all', () => {
+    const html = renderDoocsHtml(':::evidence id="ev-1"\nSUPPORTED\nx\n:::').html
+    expect(html).toContain('sblock-degraded')
+    expect(html).toContain('未声明 claim_id')
+  })
+
+  it('keeps validators pure: validateRelations does not touch rendered html', () => {
+    const md = [claimMd(), '', ':::evidence id="ev-1" supports="claim-a"\nSUPPORTED\nx\n:::'].join('\n')
+    const tokens = renderDoocsHtml(md).tokens
+    const before = renderDoocsHtml(md).html
+    validateRelations(tokens)
+    expect(renderDoocsHtml(md).html).toBe(before)
   })
 })

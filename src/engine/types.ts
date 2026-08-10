@@ -1,5 +1,7 @@
 /** Engine 契约：UI 只依赖这个接口，不关心哪个引擎实现它。 */
 
+import type { EditorialDiagnostic } from './governance'
+
 export type EngineName = 'legacy' | 'doocs'
 
 export type PreviewMode = 'normal' | 'editorial'
@@ -34,6 +36,8 @@ export interface RenderResult {
   readingTime: { words: number; minutes: number }
   blockCount: number
   diagnostics: string[]
+  /** V0.2 认识论诊断（作者时 lint）。doocs 引擎填充；legacy 引擎不提供（dev A/B 路径）。 */
+  epistemicDiagnostics?: EditorialDiagnostic[]
 }
 
 export interface CopyResult {

@@ -21,7 +21,7 @@ const ALL_BLOCKS = `:::question
 问题一，用 **加粗** 测试
 :::
 
-:::ai-output
+:::ai-output source="模型 X" status="raw"
 raw output line
 :::
 

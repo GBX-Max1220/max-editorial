@@ -1,8 +1,8 @@
 :root {
-  /* ── color：中性暖纸系统 ───────────────────────── */
+  /* ── color：中性暖纸系统（V0.2 不在本 sprint 花时间改色，§15 灰阶/forced-colors 下身份可辨） ─ */
   --bg: #eceae5;            /* 预览区外框 / 页面底色 */
   --surface: #fdfcf9;       /* 纸面 */
-  --surface-subtle: #f5f4ef; /* 代码/证据等次级面 */
+  --surface-subtle: #f5f4ef; /* 代码/次级面 */
   --fg: #171612;            /* 墨色正文 */
   --muted: #7c7a72;         /* 次级文字 */
   --faint: #b2b0a7;         /* 弱标签 */
@@ -18,21 +18,38 @@
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 
-  --lh-body: 1.85;
+  --lh-body: 1.8;
   --lh-heading: 1.4;
 
-  /* ── spacing：em 为单位 → 随纸面字号整体缩放 ─────── */
-  --paragraph-gap: 1.15em;
-  --heading-top: 2.1em;
-  --heading-bottom: 0.7em;
-  --section: 2.8em;
-  --block-gap: 2.5em;
-  --block-pad: 1.5em 1.7em;
-  --block-pad-lg: 2.4em 0.6em;
-  --metric-size: clamp(3.1em, 7vw, 4.5em);
+  /* ── spacing grammar（rev1 §11，em 随纸面字号缩放）──
+     基线 = 移动端 lean（微信粘贴/移动预览直接用；§16 mobile-first）。
+     桌面完整 editorial whitespace 由 app.css `.vp-desktop .paper` 覆盖恢复（§11.3 whitespace 减半）。
+     gap 层级与认知作用（§11.1）：
+       paragraph gap  — 阅读连续性，全篇统一
+       H2 top/bottom  — 结构边界；bottom < top（proximity 分组）
+       block before   — 语义块与上文分离（≥ H2 bottom）
+       block after    — 语义块回程（≈ paragraph gap，不过大，否则丢失连续性）
+       block inner    — 块内元素分组
+       pause gap      — PAUSE 特权（只属于 JUDGMENT / METRIC-specimen / major QUESTION）
+       image / caption— 图与文 = 段落 gap；caption < image（贴近图） */
+  --paragraph-gap: 1.1em;
+  --heading-top: 1.6em;
+  --heading-bottom: 0.6em;
+  --section: 1.8em;
+  --block-before: 1.5em;
+  --block-after: 1em;
+  --block-inner: 1em;
+  --pause-gap: 2.4em;
+  --image-gap: 1.1em;
+  --caption-gap: 0.5em;
 
-  /* ── paper ──────────────────────────────────────── */
+  /* ── metric 数字（§10.1 relational：2–3× specimen / 1.3–1.6× result / 中低 reference） ── */
+  --metric-size-specimen: clamp(3em, 8vw, 4.6em);
+  --metric-size-result: 1.5em;
+  --metric-size-reference: 1.2em;
+
+  /* ── paper（移动 lean；桌面由 app.css 覆盖） ──────── */
   --paper-width: 760px;
-  --paper-pad-x: 3.4em;
-  --paper-pad-y: 4.4em;
+  --paper-pad-x: 1.3em;
+  --paper-pad-y: 2.2em;
 }

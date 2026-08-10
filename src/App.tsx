@@ -75,7 +75,9 @@ export default function App() {
         />
       </div>
 
-      {checkOpen && checkResult && <CheckPanel result={checkResult} />}
+      {checkOpen && checkResult && (
+        <CheckPanel result={checkResult} epistemic={rendered.epistemicDiagnostics} />
+      )}
 
       <StatusBar
         counts={rendered.wordCount}

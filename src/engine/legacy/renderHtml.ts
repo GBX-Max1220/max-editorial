@@ -6,7 +6,7 @@
 
 import type { Block, InlineNode, SemanticBlock } from '../../markdown/types'
 import { parseInline } from '../../markdown/inline'
-import { parseEvidence, parseLabNote } from '../shared/blockParse'
+import { renderSemanticHtml, buildClaimIndex } from '../shared/semanticHtml'
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -30,67 +30,39 @@ export function renderInlineHtml(nodes: InlineNode[]): string {
         case 'link':
           return `<a href="${escAttr(n.href)}">${renderInlineHtml(n.children)}</a>`
         case 'image':
-          return `<img src="${escAttr(n.src)}" alt="${escAttr(n.alt)}" />`
+          return imageHtml(n)
       }
     })
     .join('')
 }
 
-function linesHtml(lines: string[]): string {
-  return lines
-    .map((l, i) => `${renderInlineHtml(parseInline(l))}${i < lines.length - 1 ? '<br/>' : ''}`)
-    .join('')
+/** §12.12：图片 title 属性作为 caption（ANNOTATION 语法）。与 doocs 引擎一致。 */
+function imageHtml(img: { alt: string; src: string; title?: string }): string {
+  return img.title
+    ? `<figure class="figure"><img src="${escAttr(img.src)}" alt="${escAttr(img.alt)}" title="${escAttr(img.title)}" /><figcaption class="figure-caption">${esc(img.title)}</figcaption></figure>`
+    : `<img src="${escAttr(img.src)}" alt="${escAttr(img.alt)}" />`
 }
 
-function semanticHtml(b: SemanticBlock): string {
-  switch (b.type) {
-    case 'question':
-      return `<section class="sblock sblock-question"><div class="sblock-label">QUESTION</div><div class="sblock-body">${linesHtml(b.lines)}</div></section>`
-    case 'ai-output':
-      return `<section class="sblock sblock-ai-output"><div class="sblock-label">AI OUTPUT</div><pre class="sblock-body">${esc(b.lines.join('\n'))}</pre></section>`
-    case 'judgment':
-      return `<section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">${linesHtml(b.lines)}</div></section>`
-    case 'evidence': {
-      const rows = parseEvidence(b.lines)
-      const html = rows
-        .map(
-          (r) =>
-            `<div class="evidence-row"><span class="evidence-label">${esc(r.label || ' ')}</span><span class="evidence-value">${esc(r.value)}</span></div>`,
-        )
-        .join('')
-      return `<section class="sblock sblock-evidence"><div class="sblock-label">EVIDENCE</div><div class="evidence-rows">${html}</div></section>`
-    }
-    case 'counterpoint':
-      return `<section class="sblock sblock-counterpoint"><div class="sblock-label">COUNTERPOINT</div><div class="sblock-body">${linesHtml(b.lines)}</div></section>`
-    case 'lab-note': {
-      const { stats, notes } = parseLabNote(b.lines)
-      const title = b.props.title
-      const statRows = stats
-        .map(
-          (s) =>
-            `<span class="lab-stat-value">${esc(s.value)}</span><span class="lab-stat-label">${esc(s.label || ' ')}</span>`,
-        )
-        .join('')
-      const notesHtml = notes.length ? `<div class="lab-notes">${esc(notes.join('  ·  '))}</div>` : ''
-      return `<section class="sblock sblock-lab-note"><div class="lab-title">LAB NOTE${title ? ` · ${esc(title)}` : ''}</div>${stats.length > 0 ? `<div class="lab-stats">${statRows}</div>` : ''}${notesHtml}</section>`
-    }
-    case 'metric': {
-      const value = b.props.value ?? ''
-      const label = b.props.label
-      return `<section class="sblock sblock-metric"><div class="metric-value">${esc(value)}</div>${label ? `<div class="metric-label">${esc(label)}</div>` : ''}</section>`
-    }
-    default:
-      return `<section class="sblock sblock-unknown"><div class="sblock-label">UNKNOWN · ${esc(b.type)}</div><pre class="sblock-body">${esc(b.lines.join('\n'))}</pre></section>`
-  }
+function semanticHtml(b: SemanticBlock, claimMap: ReadonlyMap<string, string>, ambiguousIds: ReadonlySet<string>): string {
+  return renderSemanticHtml({
+    sType: b.type,
+    props: b.props,
+    lines: b.lines,
+    lineHtml: b.lines.map((l) => renderInlineHtml(parseInline(l))),
+    rawText: esc(b.lines.join('\n')),
+    claimMap,
+    ambiguousIds,
+  })
 }
 
-function blockHtml(b: Block): string {
+function blockHtml(b: Block, claimMap: ReadonlyMap<string, string>, ambiguousIds: ReadonlySet<string>): string {
   switch (b.kind) {
     case 'heading': {
       const tag = Math.min(b.level, 3)
       return `<h${tag}>${renderInlineHtml(b.inline)}</h${tag}>`
     }
     case 'paragraph':
+      // marked 会把独立图片行包在 <p> 里；legacy 保持相同结构（含 title → figure）以保证 regression 等价。
       return `<p>${renderInlineHtml(b.inline)}</p>`
     case 'blockquote':
       return `<blockquote>${renderInlineHtml(b.inline)}</blockquote>`
@@ -103,7 +75,7 @@ function blockHtml(b: Block): string {
     case 'hr':
       return '<hr>'
     case 'image':
-      return `<img src="${escAttr(b.src)}" alt="${escAttr(b.alt)}" />`
+      return imageHtml(b)
     case 'table':
       return `<div class="table-wrap"><table><thead><tr>${b.headers
         .map((h) => `<th>${renderInlineHtml(parseInline(h))}</th>`)
@@ -111,10 +83,13 @@ function blockHtml(b: Block): string {
         .map((r) => `<tr>${r.map((c) => `<td>${renderInlineHtml(parseInline(c))}</td>`).join('')}</tr>`)
         .join('')}</tbody></table></div>`
     case 'semantic':
-      return semanticHtml(b)
+      return semanticHtml(b, claimMap, ambiguousIds)
   }
 }
 
 export function renderLegacyHtml(blocks: Block[]): string {
-  return blocks.map(blockHtml).join('\n')
+  const { claimMap, ambiguousIds } = buildClaimIndex(
+    blocks.filter((b): b is SemanticBlock => b.kind === 'semantic'),
+  )
+  return blocks.map((b) => blockHtml(b, claimMap, ambiguousIds)).join('\n')
 }

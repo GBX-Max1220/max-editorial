@@ -5,17 +5,17 @@ const SAMPLE = `:::question
 问题
 :::
 
-:::ai-output
+:::ai-output source="测试模型 v1" status="raw"
 输出
-:::
-
-:::judgment
-判断
 :::
 
 :::evidence
 SUPPORTED
 30–60 min
+:::
+
+:::judgment
+判断
 :::
 
 :::counterpoint
