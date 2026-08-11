@@ -217,22 +217,6 @@
   --paper-width: 100%;
 }
 
-/* 桌面预览：恢复完整 editorial whitespace（§11.3 移动端 whitespace 减半由 tokens lean 基线承担） */
-.vp-desktop .paper {
-  --heading-top: 2.2em;
-  --heading-bottom: 0.7em;
-  --paragraph-gap: 1.15em;
-  --section: 2.8em;
-  --block-before: 2.2em;
-  --block-after: 1.3em;
-  --block-inner: 1.1em;
-  --pause-gap: 3.6em;
-  --image-gap: 1.15em;
-  --caption-gap: 0.5em;
-  --paper-pad-x: 3.4em;
-  --paper-pad-y: 4.4em;
-}
-
 /* ── WeChat 阅读器 chrome ─────────────────────────── */
 
 .wx-chrome {

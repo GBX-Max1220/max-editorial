@@ -17,6 +17,7 @@ import { markedAlert } from './vendor/alert'
 import { markedFootnotes } from './vendor/footnotes'
 import { escapeHtml } from './vendor/basicHelpers'
 import { buildAnchorDirections, buildClaimIndex } from '../shared/semanticHtml'
+import { createV03HeadingRenderer } from '../shared/v03Heading'
 import { validateDocument } from '../validate'
 import readingTime from './vendor/readingTime'
 import { countWords } from '../../utils/words'
@@ -35,6 +36,9 @@ function createMarked(): Marked {
   const md = new Marked()
   md.setOptions({ gfm: true, breaks: false })
 
+  // V0.3 渲染层 H2 编号（D1）：闭包按文档重置；序号为真实文本。
+  const headings = createV03HeadingRenderer()
+
   // 语义扩展是 `:::` 的唯一认领者（alert 关闭 container，见 vendor/alert.ts）。
   md.use(markedSemanticBlocks())
   md.use(markedAlert({ container: false }))
@@ -42,6 +46,10 @@ function createMarked(): Marked {
 
   md.use({
     renderer: {
+      // V0.3：H2 自动编号 01/02/03（H3 不编号；intro 无 00）。
+      heading(this: { parser: { parseInline(t: Token[]): string } }, token: Tokens.Heading) {
+        return headings.renderHeading(token.depth, this.parser.parseInline(token.tokens))
+      },
       // 原始 HTML 只转义、不注入。
       html(this: unknown, token: { text: string }) {
         return escapeHtml(token.text)

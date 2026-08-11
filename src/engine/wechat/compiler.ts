@@ -40,10 +40,11 @@ function esc(s: unknown): string {
 
 function mastheadHtml(fm: Record<string, unknown>, mode: PreviewMode): string {
   const issue = fm.issue !== undefined ? String(fm.issue).padStart(3, '0') : null
+  const brand = `<div class="masthead-brand"><span class="dot">●</span> MAX大郭的判断局</div>`
   if (mode === 'normal') {
-    return `<header class="masthead masthead-simple"><div class="masthead-brand">MAX大郭的判断局</div>${fm.title ? `<h1 class="masthead-title">${esc(fm.title)}</h1>` : ''}${fm.date ? `<div class="masthead-date">${esc(String(fm.date).replace(/-/g, ' / '))}</div>` : ''}</header>`
+    return `<header class="masthead masthead-simple">${brand}${fm.title ? `<h1 class="masthead-title">${esc(fm.title)}</h1>` : ''}${fm.date ? `<div class="masthead-date">${esc(String(fm.date).replace(/-/g, ' / '))}</div>` : ''}</header>`
   }
-  return `<header class="masthead"><div class="masthead-brand">MAX大郭的判断局</div>${fm.series ? `<div class="masthead-series">${esc(fm.series)}${issue ? ` / ${issue}` : ''}</div>` : ''}${fm.title ? `<h1 class="masthead-title">${esc(fm.title)}</h1>` : ''}${fm.date ? `<div class="masthead-date">${esc(String(fm.date).replace(/-/g, ' / '))}</div>` : ''}</header>`
+  return `<header class="masthead">${brand}${fm.series ? `<div class="masthead-series">${esc(fm.series)}${issue ? ` / ${issue}` : ''}</div>` : ''}${fm.title ? `<h1 class="masthead-title">${esc(fm.title)}</h1>` : ''}${fm.tagline ? `<div class="masthead-deck">${esc(fm.tagline)}</div>` : ''}${fm.date ? `<div class="masthead-date">${esc(String(fm.date).replace(/-/g, ' / '))}</div>` : ''}</header>`
 }
 
 function footerHtml(fm: Record<string, unknown>): string {

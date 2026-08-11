@@ -18,7 +18,9 @@ function Masthead({ fm }: { fm: Record<string, unknown> }) {
   const issue = fm.issue ? String(fm.issue).padStart(3, '0') : null
   return (
     <header className="masthead">
-      <div className="masthead-brand">MAX大郭的判断局</div>
+      <div className="masthead-brand">
+        <span className="dot">●</span> MAX大郭的判断局
+      </div>
       {fm.series ? (
         <div className="masthead-series">
           {String(fm.series)}
@@ -26,6 +28,7 @@ function Masthead({ fm }: { fm: Record<string, unknown> }) {
         </div>
       ) : null}
       {fm.title ? <h1 className="masthead-title">{String(fm.title)}</h1> : null}
+      {fm.tagline ? <div className="masthead-deck">{String(fm.tagline)}</div> : null}
       {fm.date ? <div className="masthead-date">{String(fm.date).replace(/-/g, ' / ')}</div> : null}
     </header>
   )
@@ -34,7 +37,9 @@ function Masthead({ fm }: { fm: Record<string, unknown> }) {
 function SimpleHeader({ fm }: { fm: Record<string, unknown> }) {
   return (
     <header className="masthead masthead-simple">
-      <div className="masthead-brand">MAX大郭的判断局</div>
+      <div className="masthead-brand">
+        <span className="dot">●</span> MAX大郭的判断局
+      </div>
       {fm.title ? <h1 className="masthead-title">{String(fm.title)}</h1> : null}
       {fm.date ? <div className="masthead-date">{String(fm.date).replace(/-/g, ' / ')}</div> : null}
     </header>

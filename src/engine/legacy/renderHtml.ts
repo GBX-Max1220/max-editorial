@@ -7,6 +7,7 @@
 import type { Block, InlineNode, SemanticBlock } from '../../markdown/types'
 import { parseInline } from '../../markdown/inline'
 import { buildAnchorDirections, buildClaimIndex, renderSemanticHtml, type AnchorDirection } from '../shared/semanticHtml'
+import { createV03HeadingRenderer, type V03HeadingRenderer } from '../shared/v03Heading'
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -66,11 +67,12 @@ function blockHtml(
   claimMap: ReadonlyMap<string, string>,
   ambiguousIds: ReadonlySet<string>,
   anchorDirections: ReadonlyMap<string, AnchorDirection>,
+  headings: V03HeadingRenderer,
 ): string {
   switch (b.kind) {
     case 'heading': {
-      const tag = Math.min(b.level, 3)
-      return `<h${tag}>${renderInlineHtml(b.inline)}</h${tag}>`
+      // V0.3：H2 自动编号（渲染层，与 doocs 引擎一致，保证 A/B 结构等价）。
+      return headings.renderHeading(b.level, renderInlineHtml(b.inline))
     }
     case 'paragraph':
       // marked 会把独立图片行包在 <p> 里；legacy 保持相同结构（含 title → figure）以保证 regression 等价。
@@ -102,5 +104,7 @@ export function renderLegacyHtml(blocks: Block[]): string {
   const semanticBlocks = blocks.filter((b): b is SemanticBlock => b.kind === 'semantic')
   const { claimMap, ambiguousIds } = buildClaimIndex(semanticBlocks)
   const anchorDirections = buildAnchorDirections(semanticBlocks)
-  return blocks.map((b) => blockHtml(b, claimMap, ambiguousIds, anchorDirections)).join('\n')
+  // 渲染层 H2 编号闭包按文档重置（V0.3 D1）。
+  const headings = createV03HeadingRenderer()
+  return blocks.map((b) => blockHtml(b, claimMap, ambiguousIds, anchorDirections, headings)).join('\n')
 }

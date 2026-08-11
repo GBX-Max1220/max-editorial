@@ -1,55 +1,104 @@
-:root {
-  /* ── color：中性暖纸系统（V0.2 不在本 sprint 花时间改色，§15 灰阶/forced-colors 下身份可辨） ─ */
-  --bg: #eceae5;            /* 预览区外框 / 页面底色 */
-  --surface: #fdfcf9;       /* 纸面 */
-  --surface-subtle: #f5f4ef; /* 代码/次级面 */
-  --fg: #171612;            /* 墨色正文 */
-  --muted: #7c7a72;         /* 次级文字 */
-  --faint: #b2b0a7;         /* 弱标签 */
-  --border: #e2e0d8;        /* 发丝线 */
-  --border-strong: #c6c4ba; /* 更实在的线 */
-  --accent: #a03a24;        /* 唯一 accent token — 换主题只需改这一个 */
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — V0.3 · MAX EDITORIAL ART DIRECTION
+   设计权威：MAX_EDITORIAL_V03_ART_DIRECTION_LOCK.md §2–§5（SPEC ONLY → 生产实现）
 
-  /* ── type：安全字体栈，不加载任何字体文件 ───────── */
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+   纪律（P0）：黑白做结构，颜色做身份。
+   - 去掉 accent 后页面仍成立（grayscale 自检）。
+   - cobalt/deep 覆盖率 ≈3–5% 视觉面积；不给全部标题染色，不建蓝色组件框。
+
+   token 命名：V0.3 canonical 为准；下方保留 V0.2 别名，供编辑器 chrome
+   （app.css / base.css）与既有语义块规则引用，值已对齐 V0.3。
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── color：V0.3 canonical ─────────────────────────── */
+  --paper: #F7F5EF;            /* 纸面（文章 canvas） */
+  --ink: #191918;              /* 墨色正文 / 主结构线 */
+  --secondary: #6A6862;        /* 次级文字 / 注记 */
+  --hairline: #D8D4CA;         /* 发丝线 */
+  --surface: #EFEEE8;          /* 浅面（code / lab-note 底色） */
+  --cobalt: #3157D5;           /* 身份 accent（序号、链接、Fig、Judgment 的 MAX、圆点） */
+  --deep: #243F9E;             /* 深 cobalt（SUPPORTED 判词、ai-output 引用条可选） */
+
+  /* 派生辅助（不在 LOCK 清单，用于弱标签，低于 secondary） */
+  --faint: #B7B4AB;
+
+  /* ── color：V0.2 别名（编辑器 chrome / 既有语义块，值对齐 V0.3） ── */
+  --bg: #E7E3D8;               /* 预览区工作台（quiet neutral workspace，低于 paper） */
+  --fg: var(--ink);
+  --muted: var(--secondary);
+  --border: var(--hairline);
+  --border-strong: #B7B4AB;    /* 旧"更实在的线"→ 中灰（组件边框）；V0.3 的墨线显式用 --ink */
+  --surface-subtle: var(--surface);
+  --accent: var(--cobalt);     /* V0.3 唯一 accent = cobalt */
+
+  /* ── type：三角色分工（LOCK §3）── serif = 编辑时刻/标题；sans = 阅读主体；mono = 系统/标签 ── */
   --serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
     "Source Han Serif SC", SimSun, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 
-  --lh-body: 1.8;
-  --lh-heading: 1.4;
+  /* ── type scale（LOCK §4，固定 px；微信编译另行收敛） ── */
+  --t-title: 42px;
+  --t-title-m: 33px;           /* mobile cover 标题 */
+  --t-h2: 26px;
+  --t-h3: 20px;
+  --t-body: 16px;
+  --t-lede: 17.5px;            /* 开篇段 */
+  --t-quote: 19px;
+  --t-judgment: 23px;
+  --t-judgment-m: 21px;        /* mobile judgment */
+  --t-metric: 84px;
+  --t-metric-m: 66px;          /* mobile metric */
+  --t-label: 10px;             /* mono 标签 / 序号 / 元数据（10–11） */
+  --t-note: 13px;              /* 次级说明 / qualifier */
+  --t-next: 20px;
 
-  /* ── spacing grammar（rev1 §11，em 随纸面字号缩放）──
-     基线 = 移动端 lean（微信粘贴/移动预览直接用；§16 mobile-first）。
-     桌面完整 editorial whitespace 由 app.css `.vp-desktop .paper` 覆盖恢复（§11.3 whitespace 减半）。
-     gap 层级与认知作用（§11.1）：
-       paragraph gap  — 阅读连续性，全篇统一
-       H2 top/bottom  — 结构边界；bottom < top（proximity 分组）
-       block before   — 语义块与上文分离（≥ H2 bottom）
-       block after    — 语义块回程（≈ paragraph gap，不过大，否则丢失连续性）
-       block inner    — 块内元素分组
-       pause gap      — PAUSE 特权（只属于 JUDGMENT / METRIC-specimen / major QUESTION）
-       image / caption— 图与文 = 段落 gap；caption < image（贴近图） */
-  --paragraph-gap: 1.1em;
-  --heading-top: 1.6em;
-  --heading-bottom: 0.6em;
-  --section: 1.8em;
-  --block-before: 1.5em;
-  --block-after: 1em;
+  /* ── line-height ── */
+  --lh-body: 1.85;
+  --lh-heading: 1.35;
+  --lh-h3: 1.45;
+  --lh-quote: 1.8;
+  --lh-judgment: 1.7;
+  --lh-mono: 1.85;
+
+  /* ── letter-spacing ── */
+  --ls-label: 0.32em;          /* mono 标签（英文大写） */
+  --ls-title: -0.005em;        /* 标题 */
+
+  /* ── rhythm（LOCK §5，垂直节奏；长文不喘不挤） ── */
+  --s-para: 1.4em;             /* 段距（正文为主，不过度空） */
+  --s-h2-top: 3.4em;           /* section 转换 */
+  --s-h2-bottom: 1.1em;        /* 标题亲近内容 */
+  --s-h3-top: 2.2em;           /* 子结构 */
+  --s-block: 2.5em;            /* 语义块/引用/图与上下文 */
+  --s-pause: 4.2em;            /* Judgment 暂停特权 */
+  --s-metric: 3.2em;           /* Metric 隔离 */
+  --s-cover: 42px;             /* cover 后到正文 */
+  --s-footer: 4em;             /* 页脚 */
+
+  /* ── paper canvas（桌面 publication 列；移动端由 article.css @media 收敛） ── */
+  --paper-width: 740px;
+  --paper-pad-x: 54px;
+  --paper-pad-y: 56px;
+
+  /* ── V0.2 spacing / metric 别名（既有语义块规则仍引用；值对齐 V0.3 节奏） ── */
+  --paragraph-gap: var(--s-para);
+  --heading-top: 2.2em;
+  --heading-bottom: 0.7em;
+  --section: 2.6em;
+  --block-before: 2.2em;
+  --block-after: 1.2em;
   --block-inner: 1em;
-  --pause-gap: 2.4em;
-  --image-gap: 1.1em;
-  --caption-gap: 0.5em;
+  --pause-gap: var(--s-pause);
+  --image-gap: 1.3em;
+  --caption-gap: 0.55em;
 
-  /* ── metric 数字（§10.1 relational：2–3× specimen / 1.3–1.6× result / 中低 reference） ── */
-  --metric-size-specimen: clamp(3em, 8vw, 4.6em);
+  /* metric 数字（V0.3 LOCK §18：specimen 84px serif 400；桌面/mobile 显式收敛） */
+  --metric-size-specimen: 84px;
+  --metric-size-specimen-m: 66px;
   --metric-size-result: 1.5em;
   --metric-size-reference: 1.2em;
-
-  /* ── paper（移动 lean；桌面由 app.css 覆盖） ──────── */
-  --paper-width: 760px;
-  --paper-pad-x: 1.3em;
-  --paper-pad-y: 2.2em;
 }

@@ -1,3 +1,146 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>我本来只是想检查 AI 的健身建议，最后发现问题根本不在健身 · MAX EDITORIAL V0.3 Phase 1</title>
+<style>
+/* ═══ tokens.css ═══ */
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — V0.3 · MAX EDITORIAL ART DIRECTION
+   设计权威：MAX_EDITORIAL_V03_ART_DIRECTION_LOCK.md §2–§5（SPEC ONLY → 生产实现）
+
+   纪律（P0）：黑白做结构，颜色做身份。
+   - 去掉 accent 后页面仍成立（grayscale 自检）。
+   - cobalt/deep 覆盖率 ≈3–5% 视觉面积；不给全部标题染色，不建蓝色组件框。
+
+   token 命名：V0.3 canonical 为准；下方保留 V0.2 别名，供编辑器 chrome
+   （app.css / base.css）与既有语义块规则引用，值已对齐 V0.3。
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── color：V0.3 canonical ─────────────────────────── */
+  --paper: #F7F5EF;            /* 纸面（文章 canvas） */
+  --ink: #191918;              /* 墨色正文 / 主结构线 */
+  --secondary: #6A6862;        /* 次级文字 / 注记 */
+  --hairline: #D8D4CA;         /* 发丝线 */
+  --surface: #EFEEE8;          /* 浅面（code / lab-note 底色） */
+  --cobalt: #3157D5;           /* 身份 accent（序号、链接、Fig、Judgment 的 MAX、圆点） */
+  --deep: #243F9E;             /* 深 cobalt（SUPPORTED 判词、ai-output 引用条可选） */
+
+  /* 派生辅助（不在 LOCK 清单，用于弱标签，低于 secondary） */
+  --faint: #B7B4AB;
+
+  /* ── color：V0.2 别名（编辑器 chrome / 既有语义块，值对齐 V0.3） ── */
+  --bg: #E7E3D8;               /* 预览区工作台（quiet neutral workspace，低于 paper） */
+  --fg: var(--ink);
+  --muted: var(--secondary);
+  --border: var(--hairline);
+  --border-strong: #B7B4AB;    /* 旧"更实在的线"→ 中灰（组件边框）；V0.3 的墨线显式用 --ink */
+  --surface-subtle: var(--surface);
+  --accent: var(--cobalt);     /* V0.3 唯一 accent = cobalt */
+
+  /* ── type：三角色分工（LOCK §3）── serif = 编辑时刻/标题；sans = 阅读主体；mono = 系统/标签 ── */
+  --serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* ── type scale（LOCK §4，固定 px；微信编译另行收敛） ── */
+  --t-title: 42px;
+  --t-title-m: 33px;           /* mobile cover 标题 */
+  --t-h2: 26px;
+  --t-h3: 20px;
+  --t-body: 16px;
+  --t-lede: 17.5px;            /* 开篇段 */
+  --t-quote: 19px;
+  --t-judgment: 23px;
+  --t-judgment-m: 21px;        /* mobile judgment */
+  --t-metric: 84px;
+  --t-metric-m: 66px;          /* mobile metric */
+  --t-label: 10px;             /* mono 标签 / 序号 / 元数据（10–11） */
+  --t-note: 13px;              /* 次级说明 / qualifier */
+  --t-next: 20px;
+
+  /* ── line-height ── */
+  --lh-body: 1.85;
+  --lh-heading: 1.35;
+  --lh-h3: 1.45;
+  --lh-quote: 1.8;
+  --lh-judgment: 1.7;
+  --lh-mono: 1.85;
+
+  /* ── letter-spacing ── */
+  --ls-label: 0.32em;          /* mono 标签（英文大写） */
+  --ls-title: -0.005em;        /* 标题 */
+
+  /* ── rhythm（LOCK §5，垂直节奏；长文不喘不挤） ── */
+  --s-para: 1.4em;             /* 段距（正文为主，不过度空） */
+  --s-h2-top: 3.4em;           /* section 转换 */
+  --s-h2-bottom: 1.1em;        /* 标题亲近内容 */
+  --s-h3-top: 2.2em;           /* 子结构 */
+  --s-block: 2.5em;            /* 语义块/引用/图与上下文 */
+  --s-pause: 4.2em;            /* Judgment 暂停特权 */
+  --s-metric: 3.2em;           /* Metric 隔离 */
+  --s-cover: 42px;             /* cover 后到正文 */
+  --s-footer: 4em;             /* 页脚 */
+
+  /* ── paper canvas（桌面 publication 列；移动端由 article.css @media 收敛） ── */
+  --paper-width: 740px;
+  --paper-pad-x: 54px;
+  --paper-pad-y: 56px;
+
+  /* ── V0.2 spacing / metric 别名（既有语义块规则仍引用；值对齐 V0.3 节奏） ── */
+  --paragraph-gap: var(--s-para);
+  --heading-top: 2.2em;
+  --heading-bottom: 0.7em;
+  --section: 2.6em;
+  --block-before: 2.2em;
+  --block-after: 1.2em;
+  --block-inner: 1em;
+  --pause-gap: var(--s-pause);
+  --image-gap: 1.3em;
+  --caption-gap: 0.55em;
+
+  /* metric 数字（V0.3 LOCK §18：specimen 84px serif 400；桌面/mobile 显式收敛） */
+  --metric-size-specimen: 84px;
+  --metric-size-specimen-m: 66px;
+  --metric-size-result: 1.5em;
+  --metric-size-reference: 1.2em;
+}
+
+/* ═══ base.css ═══ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(49, 87, 213, 0.14);
+}
+
+/* ═══ article.css ═══ */
 /* ═══════════════════════════════════════════════════════════════
    文章排版（article.css）— V0.3 · MAX EDITORIAL ART DIRECTION
    预览与微信剪贴板共用：剪贴板通过 ?inline 读取本文件，把 var(--x) 解析成
@@ -866,3 +1009,56 @@
     font-size: var(--metric-size-specimen-m);
   }
 }
+
+/* ═══ artifact shell：quiet neutral workspace，paper 居中 ═══ */
+body { background: var(--bg); }
+.stage { padding: 36px 28px 80px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <article class="article paper" data-mode="editorial">
+<header class="masthead"><div class="masthead-brand"><span class="dot">●</span> MAX大郭的判断局</div><div class="masthead-series">FIELD NOTES / 002</div><h1 class="masthead-title">我本来只是想检查 AI 的健身建议，最后发现问题根本不在健身</h1><div class="masthead-deck">一篇关于精确、误差与呈现的现场记录</div><div class="masthead-date">2026 / 08</div></header>
+    <div class="article-body">
+<p>我买了一只便宜的运动手环，顺手让健身 App 帮我生成每周计划。App 说我的有氧能力处于平均水平，并且建议每周三次、每次恰好 43 分钟的中等强度训练。</p>
+<p>我一开始只想确认一件事：这个 43 分钟到底是科学，还是随口一说。<strong>当 AI 给出一个精确数字，用户有没有途径知道它的依据、误差和边界。</strong> 后来我发现，问题不在健身，也不在数字本身，而在于这个数字被呈现出来的方式——它穿着一件不属于它的衣服。</p>
+<h2><span class="sec-num">01</span><span class="sec-title">起点：一个 43 分钟</span></h2><p>区别在点估计和区间估计。手环只给了我一个点——43 分钟。它没有告诉我误差范围，没有告诉我置信区间，也没有告诉我这个数字是在什么人群、什么数据上算出来的。</p>
+<p>同样的数据，换一个模型再问一遍，回答同样干脆。<strong>精确的表达会让它显得比实际知道的多。</strong> 这不是某一个模型的毛病，而是整套交互在奖励&quot;笃定&quot;。</p>
+<h3>点估计与区间估计</h3><p>在统计学里，<code>point estimate</code> 和 <code>interval estimate</code> 是两回事。前者给一个数，后者给一个范围。健身 App 只给了前者，然后把后者的缺席隐藏了起来。</p>
+<p>这里的 <em>margin of error</em> 并不是一个晦涩的学术词——它就是&quot;误差范围&quot;的英文，而它在绝大多数消费级建议里完全缺席。</p>
+<h3>精确的代价</h3><p>一个数字可以算得没错，但仍然没有资格精确到那个程度。这不是对健身科学的质疑，而是对呈现方式的质疑。</p>
+<h2><span class="sec-num">02</span><span class="sec-title">我的检查方式</span></h2><p>我把这套材料整理成一个小的检查集，逐项记录每个输出携带了哪些信息。规则很简单：只看它说了什么，不看它&quot;好像知道什么&quot;。</p>
+<blockquote>
+<p>人们会对表述自信做出系统性反应，即使这种自信没有任何依据。
+—— 认知心理学研究综述（示例来源）</p>
+</blockquote>
+<p>检查的顺序如下：</p>
+<ol>
+<li>先记录模型的原始输出，不去解释它。</li>
+<li>再问这个输出有没有带误差或边界。</li>
+<li>最后问：一个普通用户，能否从界面上看出前两步的答案。</li>
+</ol>
+<h2><span class="sec-num">03</span><span class="sec-title">我看到的模式</span></h2><p>跑完这一轮，问题变得清楚。几乎每一个精确数字都缺了三样东西：</p>
+<ul>
+<li>依据：这个数字从哪里来（人群、数据、模型）</li>
+<li>误差：可能的范围有多大</li>
+<li>边界：它适用于谁、不适用于谁</li>
+</ul>
+<p>最值得注意的是第三点。同一个输出，在不同的用户面前含义完全不同——但界面从不区分。</p>
+<hr>
+<h3>一个对照</h3><p>把&quot;43 分钟&quot;放进它的上下文，你会看到它其实站在一个很宽的区间中间：</p>
+<div class="table-wrap"><table><thead><tr><th>维度</th><th>输出呈现</th><th>携带的信息</th></tr></thead><tbody><tr><td>校准度</td><td>未显示</td><td>无</td></tr><tr><td>置信度</td><td>90%</td><td>一个数字，无解释</td></tr><tr><td>误差信息</td><td>缺失</td><td>无</td></tr></tbody></table></div><h2><span class="sec-num">04</span><span class="sec-title">误差去哪了</span></h2><p>在实现里，误差范围通常长这样——示意代码，不是真实 API：</p>
+<pre><code class="language-python"># 点估计 vs 区间估计
+plan = suggest(duration=43, bounds=[30, 60])
+</code></pre>
+<p><code>bounds</code> 这一行在 API 里存在，但到了用户界面就消失了。点估计与区间估计的区别，可以用一张图说清：</p>
+<p><figure class="figure"><img src="data:image/svg+xml,%3Csvg%20xmlns=&#39;http://www.w3.org/2000/svg&#39;%20width=&#39;480&#39;%20height=&#39;80&#39;%3E%3Crect%20x=&#39;60&#39;%20y=&#39;30&#39;%20width=&#39;300&#39;%20height=&#39;14&#39;%20fill=&#39;%23D8D4CA&#39;/%3E%3Ccircle%20cx=&#39;120&#39;%20cy=&#39;37&#39;%20r=&#39;9&#39;%20fill=&#39;%23191918&#39;/%3E%3C/svg%3E" alt="点估计与区间估计示意" title="43 分钟是点估计，不是区间" /><figcaption class="figure-caption">43 分钟是点估计，不是区间</figcaption></figure></p>
+<p>这不是健身建议准不准的问题。校准研究早就发现，误差范围这种东西在消费级产品里常常缺席——而正是它的缺席，让一个本来合理的数字显得格外可疑。</p>
+<p>这就是一篇现场记录的起点。<a href="https://example.com/start">回到问题本身</a> 再想一遍：下一次收到一个精确数字，值得问一句它的依据、误差和边界。下一期，我会写 AI 的置信度到底有没有意义。</p>
+
+    </div>
+<footer class="article-footer"><div class="footer-brand">MAX / FIELD NOTES / 002</div><div class="footer-tagline">一篇关于精确、误差与呈现的现场记录</div><div class="next"><div class="next-label">NEXT</div><div class="next-title">训练计划里的每个数字，都该有自己的证件照</div></div></footer>
+  </article>
+</div>
+</body>
+</html>
