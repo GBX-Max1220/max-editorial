@@ -5,8 +5,12 @@
  * Source:   apps/web/src/lib/browser/clipboard.ts
  * License:  WTFPL v2
  * Modifications: removed i18n / toast coupling and the read-from-clipboard helper;
- *   kept the copy pipeline (ClipboardItem html+plain, execCommand fallback).
+ *   kept the copy pipeline (ClipboardItem html+plain, execCommand fallback);
+ *   added dev diagnostic error recording (recordClipboardError) at each catch —
+ *   control flow unchanged, only surfaces the otherwise-swallowed DOMException.
  */
+
+import { recordClipboardError } from '../../../clipboard/errors'
 
 function legacyCopy(text: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -22,9 +26,15 @@ function legacyCopy(text: string): Promise<void> {
       const ok = document.execCommand(`copy`)
       document.body.removeChild(textarea)
 
-      ok ? resolve() : reject(new Error(`execCommand failed`))
+      if (ok) {
+        resolve()
+      } else {
+        recordClipboardError(`legacyCopy → execCommand returned false`, new Error(`execCommand failed`))
+        reject(new Error(`execCommand failed`))
+      }
     }
     catch (err) {
+      recordClipboardError(`legacyCopy → execCommand threw`, err)
       reject(err)
     }
   })
@@ -36,8 +46,8 @@ export async function copyPlain(text: string): Promise<void> {
       await navigator.clipboard.writeText(text)
       return
     }
-    catch {
-      // fall through to legacy
+    catch (err) {
+      recordClipboardError(`copyPlain → navigator.clipboard.writeText`, err)
     }
   }
   await legacyCopy(text)
@@ -54,8 +64,8 @@ export async function copyHtml(html: string, fallback?: string): Promise<void> {
       await navigator.clipboard.write([item])
       return
     }
-    catch {
-      // fall through to legacy
+    catch (err) {
+      recordClipboardError(`copyHtml → ClipboardItem/clipboard.write`, err)
     }
   }
   await copyPlain(plain)

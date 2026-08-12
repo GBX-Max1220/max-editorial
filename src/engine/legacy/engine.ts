@@ -9,6 +9,7 @@ import readingTime from '../doocs/vendor/readingTime'
 import { renderLegacyHtml } from './renderHtml'
 import { structureFromBlocks } from './structure'
 import { copyWechat, toPlainText, toWechatHtml } from '../../render/clipboard'
+import { recordClipboardError } from '../../clipboard/errors'
 import type { CopyOptions, CopyResult, EditorialEngine, RenderResult } from '../types'
 
 export const legacyEngine: EditorialEngine = {
@@ -38,7 +39,8 @@ export const legacyEngine: EditorialEngine = {
       const parsed = parseMarkdown(markdown)
       await copyWechat(parsed, mode)
       return { ok: true, html: toWechatHtml(parsed, mode), plainText: toPlainText(parsed) }
-    } catch {
+    } catch (err) {
+      recordClipboardError(`legacyEngine.copyToWechat`, err)
       return { ok: false, html: '', plainText: '' }
     }
   },

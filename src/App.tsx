@@ -8,6 +8,7 @@ import { PreviewPane } from './components/PreviewPane'
 import { StatusBar } from './components/StatusBar'
 import { CheckPanel } from './components/CheckPanel'
 import { CompatPanel } from './components/CompatPanel'
+import { ClipboardDiagPanel } from './components/ClipboardDiagPanel'
 import fixtureRaw from '../examples/issue-001.md?raw'
 
 /** 引擎切换仅开发模式可见；默认 Doocs-backed 引擎。 */
@@ -21,6 +22,7 @@ export default function App() {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
   const [engineName, setEngineName] = useState<EngineName>(DEFAULT_ENGINE)
   const [compatOpen, setCompatOpen] = useState(false)
+  const [cbDiagOpen, setCbDiagOpen] = useState(false)
   const [lastCopiedHtml, setLastCopiedHtml] = useState<string | null>(null)
 
   const engine = useMemo(() => createEditorialEngine(engineName), [engineName])
@@ -91,6 +93,9 @@ export default function App() {
       {/* Phase 3 spike：dev-only WeChat copy-back 诊断（非产品功能） */}
       {import.meta.env.DEV && compatOpen && <CompatPanel preHtml={lastCopiedHtml} />}
 
+      {/* 剪贴板传输层诊断（dev-only）：环境快照 + A/B/C/D 隔离测试 + 生产错误日志 */}
+      {import.meta.env.DEV && cbDiagOpen && <ClipboardDiagPanel source={source} mode={mode} />}
+
       <StatusBar
         counts={rendered.wordCount}
         blockCount={rendered.blockCount}
@@ -100,6 +105,8 @@ export default function App() {
         onCheck={() => setCheckOpen((v) => !v)}
         onCompat={import.meta.env.DEV ? () => setCompatOpen((v) => !v) : undefined}
         compatOpen={compatOpen}
+        onClipboardDiag={import.meta.env.DEV ? () => setCbDiagOpen((v) => !v) : undefined}
+        clipboardDiagOpen={cbDiagOpen}
         onCopy={handleCopy}
         copyState={copyState}
       />

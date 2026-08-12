@@ -1,6 +1,7 @@
 import type { Block, InlineNode, ParseResult, SemanticBlock } from '../markdown/types'
 import { parseInline } from '../markdown/inline'
 import { parseEvidence, parseLabNote } from './parseHelpers'
+import { recordClipboardError } from '../clipboard/errors'
 import type { PreviewMode } from './modes'
 
 /**
@@ -260,7 +261,10 @@ function copyLegacy(plain: string): void {
   ta.select()
   const ok = document.execCommand('copy')
   ta.remove()
-  if (!ok) throw new Error('clipboard copy failed')
+  if (!ok) {
+    recordClipboardError(`render.copyLegacy → execCommand returned false`, new Error('clipboard copy failed'))
+    throw new Error('clipboard copy failed')
+  }
 }
 
 /**
@@ -279,8 +283,8 @@ export async function copyWechat(parsed: ParseResult, mode: PreviewMode): Promis
       await navigator.clipboard.write([item])
       return
     }
-  } catch {
-    // fall through to legacy
+  } catch (err) {
+    recordClipboardError(`render.copyWechat → ClipboardItem/clipboard.write`, err)
   }
   copyLegacy(plain)
 }

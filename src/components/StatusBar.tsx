@@ -10,6 +10,8 @@ interface Props {
   onCheck: () => void
   onCompat?: () => void
   compatOpen?: boolean
+  onClipboardDiag?: () => void
+  clipboardDiagOpen?: boolean
   onCopy: () => void
   copyState: 'idle' | 'copied' | 'error'
 }
@@ -23,6 +25,8 @@ export function StatusBar({
   onCheck,
   onCompat,
   compatOpen,
+  onClipboardDiag,
+  clipboardDiagOpen,
   onCopy,
   copyState,
 }: Props) {
@@ -45,6 +49,11 @@ export function StatusBar({
       {onCompat && (
         <button className={`ghost ${compatOpen ? 'active' : ''}`} onClick={onCompat}>
           COMPAT
+        </button>
+      )}
+      {onClipboardDiag && (
+        <button className={`ghost ${clipboardDiagOpen ? 'active' : ''}`} onClick={onClipboardDiag}>
+          CLIPBOARD
         </button>
       )}
       <button className="copy-btn" onClick={onCopy} disabled={copyState === 'copied'}>

@@ -23,6 +23,7 @@ import readingTime from './vendor/readingTime'
 import { countWords } from '../../utils/words'
 import { copyHtml } from './vendor/browser-clipboard'
 import { compileForWechat } from '../wechat/compiler'
+import { recordClipboardError } from '../../clipboard/errors'
 import type {
   CopyOptions,
   CopyResult,
@@ -172,7 +173,8 @@ export const doocsEngine: EditorialEngine = {
       const { html, plainText } = compileForWechat(markdown, { mode: options?.mode })
       await copyHtml(html, plainText)
       return { ok: true, html, plainText }
-    } catch {
+    } catch (err) {
+      recordClipboardError(`doocsEngine.copyToWechat`, err)
       return { ok: false, html: '', plainText: '' }
     }
   },
