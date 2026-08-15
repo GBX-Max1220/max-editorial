@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: 'node',
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
     // 需要 ?inline CSS（剪贴板 juice 内联）在测试中返回真实字符串
     css: true,
   },

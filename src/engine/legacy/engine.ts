@@ -37,8 +37,8 @@ export const legacyEngine: EditorialEngine = {
     try {
       const mode = options?.mode ?? 'editorial'
       const parsed = parseMarkdown(markdown)
-      await copyWechat(parsed, mode)
-      return { ok: true, html: toWechatHtml(parsed, mode), plainText: toPlainText(parsed) }
+      const copiedMode = await copyWechat(parsed, mode)
+      return { ok: true, html: toWechatHtml(parsed, mode), plainText: toPlainText(parsed), mode: copiedMode }
     } catch (err) {
       recordClipboardError(`legacyEngine.copyToWechat`, err)
       return { ok: false, html: '', plainText: '' }

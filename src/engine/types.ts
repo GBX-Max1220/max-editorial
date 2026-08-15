@@ -44,6 +44,11 @@ export interface CopyResult {
   ok: boolean
   html: string
   plainText: string
+  /**
+   * 实际写入剪贴板的方式：`rich` = text/html + text/plain 双 MIME；`plain` = 富文本不可用/失败后的纯文本降级。
+   * 缺失视为 `rich`（旧引擎向后兼容）。UI 用它与「样式已复制」区分「仅纯文本」。
+   */
+  mode?: 'rich' | 'plain'
 }
 
 export interface RenderOptions {

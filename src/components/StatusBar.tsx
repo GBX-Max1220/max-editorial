@@ -13,7 +13,7 @@ interface Props {
   onClipboardDiag?: () => void
   clipboardDiagOpen?: boolean
   onCopy: () => void
-  copyState: 'idle' | 'copied' | 'error'
+  copyState: 'idle' | 'copied' | 'copied-plain' | 'error'
 }
 
 export function StatusBar({
@@ -57,7 +57,13 @@ export function StatusBar({
         </button>
       )}
       <button className="copy-btn" onClick={onCopy} disabled={copyState === 'copied'}>
-        {copyState === 'copied' ? 'COPIED ✓' : copyState === 'error' ? 'COPY FAILED' : 'COPY → WECHAT'}
+        {copyState === 'copied'
+          ? 'COPIED ✓'
+          : copyState === 'copied-plain'
+            ? 'COPIED · PLAIN'
+            : copyState === 'error'
+              ? 'COPY FAILED'
+              : 'COPY → WECHAT'}
       </button>
     </footer>
   )

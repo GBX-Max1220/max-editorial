@@ -171,8 +171,9 @@ export const doocsEngine: EditorialEngine = {
     try {
       // V0.2.2：剪贴板消费【微信目标编译 artifact】（与微信预览同一产物），不再克隆浏览器预览 DOM。
       const { html, plainText } = compileForWechat(markdown, { mode: options?.mode })
-      await copyHtml(html, plainText)
-      return { ok: true, html, plainText }
+      const outcome = await copyHtml(html, plainText)
+      // mode 传播：rich = 双 MIME 写入成功；plain = 已降级纯文本（UI 据此提示，不再假装样式已复制）。
+      return { ok: true, html, plainText, mode: outcome.mode }
     } catch (err) {
       recordClipboardError(`doocsEngine.copyToWechat`, err)
       return { ok: false, html: '', plainText: '' }

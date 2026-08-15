@@ -19,7 +19,7 @@ export default function App() {
   const [mode, setMode] = useState<PreviewMode>('editorial')
   const [viewport, setViewport] = useState<Viewport>('desktop')
   const [checkOpen, setCheckOpen] = useState(false)
-  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'error'>('idle')
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'copied-plain' | 'error'>('idle')
   const [engineName, setEngineName] = useState<EngineName>(DEFAULT_ENGINE)
   const [compatOpen, setCompatOpen] = useState(false)
   const [cbDiagOpen, setCbDiagOpen] = useState(false)
@@ -41,7 +41,8 @@ export default function App() {
     setCopyState('idle')
     try {
       const r = await engine.copyToWechat(source, { mode, previewEl: articleRef.current })
-      setCopyState(r.ok ? 'copied' : 'error')
+      // mode === 'plain'：富文本不可用/失败，已降级纯文本 → UI 显式提示，不再假装样式已复制。
+      setCopyState(r.ok ? (r.mode === 'plain' ? 'copied-plain' : 'copied') : 'error')
       // Phase 3 spike：保存 PRE-WECHAT 剪贴板 HTML，供 dev-only copy-back 诊断比对。
       if (r.ok) setLastCopiedHtml(r.html)
       setTimeout(() => setCopyState('idle'), 2000)

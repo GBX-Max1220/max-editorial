@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:wechat-copy": "vitest run tests/wechat-copy"
   },
   "dependencies": {
     "front-matter": "^4.0.2",

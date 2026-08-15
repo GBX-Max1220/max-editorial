@@ -68,13 +68,87 @@ function stripStyleTags(html: string): string {
   return html.replace(/<style[^>]*>[\s\S]*?<\/style>/g, '')
 }
 
+const BLOCK_TAGS = new Set([
+  'P',
+  'DIV',
+  'H1',
+  'H2',
+  'H3',
+  'H4',
+  'H5',
+  'H6',
+  'UL',
+  'OL',
+  'LI',
+  'BLOCKQUOTE',
+  'PRE',
+  'TABLE',
+  'TR',
+  'SECTION',
+  'HEADER',
+  'FOOTER',
+  'HR',
+  'FIGURE',
+])
+
+/**
+ * 从微信 artifact 提取可读纯文本（text/plain MIME）。
+ *
+ * 与旧实现（textContent 单空格压平）的关键差异：在块级元素边界插入换行，
+ * 保证相邻块（如 masthead 品牌行与正文、JUDGMENT / 001 与正文）不会被粘成一个长串。
+ * 这是 text/plain 降级路径的可读性前提 —— 微信无法使用 text/html 时粘贴的就是这段文本。
+ */
 function extractPlainText(html: string): string {
   if (typeof DOMParser === 'undefined') {
-    // 无 DOM 环境（node 无 jsdom）时降级：去标签。
-    return html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
+    // 无 DOM 环境（node 无 jsdom）时降级：在块级闭合标签后补换行再剥离标签。
+    const withBreaks = html
+      .replace(/<\/(?:p|div|h[1-6]|ul|ol|li|blockquote|pre|table|tr|section|header|footer|figure)>/gi, '\n')
+      .replace(/<br\s*\/?>/gi, '\n')
+    return withBreaks
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/[ \t]+\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
   }
+
   const doc = new DOMParser().parseFromString(html, 'text/html')
-  return (doc.body.textContent ?? '').replace(/\s+/g, ' ').trim()
+  const out: string[] = []
+
+  const pushNewline = (): void => {
+    if (out.length === 0) return
+    if (out[out.length - 1] !== '\n') out.push('\n')
+  }
+
+  const walk = (node: Node): void => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      out.push(node.textContent ?? '')
+      return
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return
+    const el = node as Element
+    const tag = el.tagName
+    if (tag === 'BR') {
+      out.push('\n')
+      return
+    }
+    const isBlock = BLOCK_TAGS.has(tag)
+    if (isBlock) pushNewline()
+    for (const child of Array.from(el.childNodes)) walk(child)
+    if (isBlock) pushNewline()
+  }
+
+  for (const child of Array.from(doc.body.childNodes)) walk(child)
+
+  return out
+    .join('')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 /**

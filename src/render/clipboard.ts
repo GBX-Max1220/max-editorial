@@ -270,8 +270,9 @@ function copyLegacy(plain: string): void {
 /**
  * 复制 text/html + text/plain 到剪贴板。
  * Clipboard API 不可用时退回 legacy execCommand（此时只复制纯文本，属已知降级）。
+ * 返回值标识实际写入方式：`rich` = 双 MIME；`plain` = 降级纯文本（调用方据此告知用户）。
  */
-export async function copyWechat(parsed: ParseResult, mode: PreviewMode): Promise<void> {
+export async function copyWechat(parsed: ParseResult, mode: PreviewMode): Promise<'rich' | 'plain'> {
   const html = toWechatHtml(parsed, mode)
   const plain = toPlainText(parsed)
   try {
@@ -281,10 +282,11 @@ export async function copyWechat(parsed: ParseResult, mode: PreviewMode): Promis
         'text/plain': new Blob([plain], { type: 'text/plain' }),
       })
       await navigator.clipboard.write([item])
-      return
+      return 'rich'
     }
   } catch (err) {
     recordClipboardError(`render.copyWechat → ClipboardItem/clipboard.write`, err)
   }
   copyLegacy(plain)
+  return 'plain'
 }
