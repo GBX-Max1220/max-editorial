@@ -1,0 +1,1058 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 说自己 90% 确定，这个数字到底意味着什么？ · MAX EDITORIAL V0.3 Phase 2 study</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — V0.3 · MAX EDITORIAL ART DIRECTION
+   设计权威：MAX_EDITORIAL_V03_ART_DIRECTION_LOCK.md §2–§5（SPEC ONLY → 生产实现）
+
+   纪律（P0）：黑白做结构，颜色做身份。
+   - 去掉 accent 后页面仍成立（grayscale 自检）。
+   - cobalt/deep 覆盖率 ≈3–5% 视觉面积；不给全部标题染色，不建蓝色组件框。
+
+   token 命名：V0.3 canonical 为准；下方保留 V0.2 别名，供编辑器 chrome
+   （app.css / base.css）与既有语义块规则引用，值已对齐 V0.3。
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── color：V0.3 canonical ─────────────────────────── */
+  --paper: #F7F5EF;            /* 纸面（文章 canvas） */
+  --ink: #191918;              /* 墨色正文 / 主结构线 */
+  --secondary: #6A6862;        /* 次级文字 / 注记 */
+  --hairline: #D8D4CA;         /* 发丝线 */
+  --surface: #EFEEE8;          /* 浅面（code / lab-note 底色） */
+  --cobalt: #3157D5;           /* 身份 accent（序号、链接、Fig、Judgment 的 MAX、圆点） */
+  --deep: #243F9E;             /* 深 cobalt（SUPPORTED 判词、ai-output 引用条可选） */
+
+  /* 派生辅助（不在 LOCK 清单，用于弱标签，低于 secondary） */
+  --faint: #B7B4AB;
+
+  /* ── color：V0.2 别名（编辑器 chrome / 既有语义块，值对齐 V0.3） ── */
+  --bg: #E7E3D8;               /* 预览区工作台（quiet neutral workspace，低于 paper） */
+  --fg: var(--ink);
+  --muted: var(--secondary);
+  --border: var(--hairline);
+  --border-strong: #B7B4AB;    /* 旧"更实在的线"→ 中灰（组件边框）；V0.3 的墨线显式用 --ink */
+  --surface-subtle: var(--surface);
+  --accent: var(--cobalt);     /* V0.3 唯一 accent = cobalt */
+
+  /* ── type：三角色分工（LOCK §3）── serif = 编辑时刻/标题；sans = 阅读主体；mono = 系统/标签 ── */
+  --serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* ── type scale（LOCK §4，固定 px；微信编译另行收敛） ── */
+  --t-title: 42px;
+  --t-title-m: 33px;           /* mobile cover 标题 */
+  --t-h2: 26px;
+  --t-h3: 20px;
+  --t-body: 16px;
+  --t-lede: 17.5px;            /* 开篇段 */
+  --t-quote: 19px;
+  --t-judgment: 23px;
+  --t-judgment-m: 21px;        /* mobile judgment */
+  --t-metric: 84px;
+  --t-metric-m: 66px;          /* mobile metric */
+  --t-label: 10px;             /* mono 标签 / 序号 / 元数据（10–11） */
+  --t-note: 13px;              /* 次级说明 / qualifier */
+  --t-next: 20px;
+
+  /* ── line-height ── */
+  --lh-body: 1.85;
+  --lh-heading: 1.35;
+  --lh-h3: 1.45;
+  --lh-quote: 1.8;
+  --lh-judgment: 1.7;
+  --lh-mono: 1.85;
+
+  /* ── letter-spacing ── */
+  --ls-label: 0.32em;          /* mono 标签（英文大写） */
+  --ls-title: -0.005em;        /* 标题 */
+
+  /* ── rhythm（LOCK §5，垂直节奏；长文不喘不挤） ── */
+  --s-para: 1.4em;             /* 段距（正文为主，不过度空） */
+  --s-h2-top: 3.4em;           /* section 转换 */
+  --s-h2-bottom: 1.1em;        /* 标题亲近内容 */
+  --s-h3-top: 2.2em;           /* 子结构 */
+  --s-block: 2.5em;            /* 语义块/引用/图与上下文 */
+  --s-pause: 4.2em;            /* Judgment 暂停特权 */
+  --s-metric: 3.2em;           /* Metric 隔离 */
+  --s-cover: 42px;             /* cover 后到正文 */
+  --s-footer: 4em;             /* 页脚 */
+
+  /* ── paper canvas（桌面 publication 列；移动端由 article.css @media 收敛） ── */
+  --paper-width: 740px;
+  --paper-pad-x: 54px;
+  --paper-pad-y: 56px;
+
+  /* ── V0.2 spacing / metric 别名（既有语义块规则仍引用；值对齐 V0.3 节奏） ── */
+  --paragraph-gap: var(--s-para);
+  --heading-top: 2.2em;
+  --heading-bottom: 0.7em;
+  --section: 2.6em;
+  --block-before: 2.2em;
+  --block-after: 1.2em;
+  --block-inner: 1em;
+  --pause-gap: var(--s-pause);
+  --image-gap: 1.3em;
+  --caption-gap: 0.55em;
+
+  /* metric 数字（V0.3 LOCK §18：specimen 84px serif 400；桌面/mobile 显式收敛） */
+  --metric-size-specimen: 84px;
+  --metric-size-specimen-m: 66px;
+  --metric-size-result: 1.5em;
+  --metric-size-reference: 1.2em;
+}
+
+/* ─── next sheet ─── */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(49, 87, 213, 0.14);
+}
+
+/* ─── next sheet ─── */
+/* ═══════════════════════════════════════════════════════════════
+   文章排版（article.css）— V0.3 · MAX EDITORIAL ART DIRECTION
+   预览与微信剪贴板共用：剪贴板通过 ?inline 读取本文件，把 var(--x) 解析成
+   tokens.css 的具体值后交给 juice 内联（微信目标产物另有 WECHAT_SAFE_CSS）。
+
+   设计权威：MAX_EDITORIAL_V03_ART_DIRECTION_LOCK.md §6–§17（Level 1 基座）
+   P0 断言：一篇零自定义语义块的纯 Markdown 文章必须已是出版级。
+   黑白色做结构，颜色做身份（cobalt ≈3–5%）。
+
+   epistemic 边界（沿用 V0.2，不因视觉改而变）：
+     - CSS class 只绑定 grammar identity；salience intensity 由 data-salience 驱动。
+     - 反方（counterpoint）与证据（evidence）同一容器同一排版（legibility parity，INVARIANT A2）。
+     - 不依赖颜色承载身份：灰阶下标签/线/对齐仍可辨。
+   ═══════════════════════════════════════════════════════════════ */
+
+.article {
+  font-family: var(--sans);
+  color: var(--ink);
+  line-height: var(--lh-body);
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+/* ── 纸面 canvas（V0.3：publication 页，非卡片） ─────────
+   纸感来自 paper 色 + measure + 间距 + 排版 + 发丝线，不用阴影/卡片。 */
+
+.paper {
+  font-size: var(--t-body);
+  color: var(--ink);
+  background: var(--paper);
+  width: 100%;
+  max-width: var(--paper-width);
+  margin: 0 auto;
+  padding: var(--paper-pad-y) var(--paper-pad-x) 76px;
+}
+
+/* ════════════════════════════════════════════════════
+   Level 1 — Plain Markdown（V0.3 基础排版；P0）
+   ════════════════════════════════════════════════════ */
+
+/* ── H1 / H2 / H3 ──
+   H2 是视觉节奏最强的来源：编号（cobalt）+ serif 标题（ink）+ 短墨线。
+   编号由渲染器在渲染层自动生成（作者不手输）；H3 不编号。 */
+
+.article h1 {
+  font-family: var(--serif);
+  font-size: 1.875em;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: var(--ls-title);
+  margin: var(--s-h2-top) 0 var(--s-h2-bottom);
+}
+
+.article h2 {
+  margin: var(--s-h2-top) 0 var(--s-h2-bottom);
+}
+
+.article h2 .sec-num {
+  display: block;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--cobalt);
+  margin-bottom: 12px;
+}
+
+.article h2 .sec-title {
+  display: block;
+  font-family: var(--serif);
+  font-size: var(--t-h2);
+  font-weight: 500;
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-title);
+  color: var(--ink);
+}
+
+/* 短墨线：浏览器源语言（60px × 1px ink）；微信编译为真实节点/border（Phase 6 已知映射） */
+.article h2::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 1px;
+  background: var(--ink);
+  margin-top: 14px;
+}
+
+.article h3 {
+  font-family: var(--serif);
+  font-size: var(--t-h3);
+  font-weight: 500;
+  line-height: var(--lh-h3);
+  letter-spacing: var(--ls-title);
+  margin: var(--s-h3-top) 0 0.8em;
+  color: var(--ink);
+}
+
+/* ── 段落：阅读主体 ───────────────────────────── */
+
+.article p {
+  margin: 0 0 var(--s-para);
+  max-width: 36em;
+}
+
+.article p:last-child {
+  margin-bottom: 0;
+}
+
+.article p.lede {
+  font-size: var(--t-lede);
+}
+
+/* ── strong / em / link ─────────────────────────── */
+
+.article strong {
+  font-weight: 600;
+}
+
+.article em {
+  font-style: italic;
+}
+
+.article a {
+  color: var(--cobalt);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(49, 87, 213, 0.35);
+}
+
+/* ── blockquote：编辑引文（serif + 左墨线 + 来源行），非通用引用 ── */
+
+.article blockquote {
+  margin: 2.4em 0;
+  padding: 4px 0 4px 22px;
+  border-left: 1px solid var(--ink);
+  font-family: var(--serif);
+  font-size: var(--t-quote);
+  line-height: var(--lh-quote);
+  color: var(--ink);
+}
+
+.article blockquote p {
+  max-width: 32em;
+}
+
+/* 来源行：渲染器产出 .q-source 时生效（Phase 2 figure/引用扩展） */
+.article blockquote .q-source {
+  display: block;
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  font-style: normal;
+}
+
+/* ── 列表：同层枚举（— / 01·02·03 编辑式，非默认） ── */
+
+.article ul {
+  list-style: none;
+  margin: 0 0 1.6em;
+  padding: 0;
+}
+
+.article ul li {
+  position: relative;
+  padding-left: 1.7em;
+  margin-bottom: 0.5em;
+  max-width: 36em;
+}
+
+.article ul li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--secondary);
+}
+
+.article ol {
+  list-style: none;
+  margin: 0 0 1.6em;
+  padding: 0;
+  counter-reset: sec;
+}
+
+.article ol li {
+  position: relative;
+  counter-increment: sec;
+  padding-left: 3.2em;
+  margin-bottom: 0.55em;
+  max-width: 36em;
+}
+
+.article ol li::before {
+  content: counter(sec, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0.3em;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--cobalt);
+}
+
+/* ── horizontal rule：章节大分隔（editorial pause），全篇 ≤2（lint） ── */
+
+.article hr {
+  border: none;
+  border-top: 1px solid var(--ink);
+  margin: 3em 0;
+}
+
+/* ── code：属刊物的代码，不像从 GitHub 贴的 ── */
+
+.article code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  padding: 0.12em 0.4em;
+  color: var(--ink);
+}
+
+.article pre {
+  margin: 2em 0;
+  padding: 19px 21px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 2px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+
+.article pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* ── table：出版表格（无 box / 无竖线；上下墨线 + mono 表头） ── */
+
+.article .table-wrap {
+  margin: 2.2em 0;
+  overflow-x: auto;
+}
+
+.article table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+
+.article th,
+.article td {
+  padding: 10px 8px;
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+}
+
+.article th {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.article tr + tr td {
+  border-top: 1px solid var(--hairline);
+}
+
+/* ── image / figure：FIG / 01 语言（Phase 2 扩展前仅干净间距） ── */
+
+.article img {
+  display: block;
+  max-width: 100%;
+  margin: 2em auto;
+}
+
+.article .figure {
+  margin: 2.6em 0;
+}
+
+.article .figure img {
+  margin: 0 auto;
+}
+
+.article .figure .fig-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-bottom: 12px;
+}
+
+.article .figure .fig-label b {
+  color: var(--cobalt);
+  font-weight: 400;
+}
+
+.article .figure-caption {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--secondary);
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* ════════════════════════════════════════════════════
+   Label 系统（沿用 V0.2 §9.4）
+   英文 label ≤4：AI OUTPUT / JUDGMENT / EVIDENCE / COUNTERPOINT
+   其余用中文（提问 / 实验注记）。label 是导航工具不是装饰。
+   ════════════════════════════════════════════════════ */
+
+.sblock-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: var(--block-inner);
+}
+
+.sblock-body {
+  color: var(--fg);
+}
+
+/* 次级 meta（来源/状态/角色声明）——注记级 */
+.sblock-meta {
+  font-family: var(--mono);
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-top: var(--block-inner);
+  line-height: 1.7;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1em;
+}
+
+.meta-source,
+.meta-status {
+  white-space: nowrap;
+}
+
+/* ════════════════════════════════════════════════════
+   §9.1 五容器语法族
+   ════════════════════════════════════════════════════ */
+
+/* ── PROSE 族：QUESTION（section opener，左对齐，底部 hairline） ──
+   §13.1：不与 JUDGMENT 的 PAUSE 语法混淆（不居中、不大 whitespace） */
+
+.sblock-question {
+  margin: var(--block-before) 0 var(--block-after);
+  padding: 0.2em 0 1.1em;
+  border-bottom: 1px solid var(--border);
+}
+
+.sblock-question .sblock-body {
+  font-size: 1.12em;
+  line-height: 1.7;
+  color: var(--fg);
+}
+
+/* major QUESTION（PAUSE 特权成员，§9.2/§2.3-3）：居中、更大 */
+.sblock-question-major {
+  text-align: center;
+  padding: var(--pause-gap) 0.5em;
+  border-top: 1px solid var(--fg);
+  border-bottom: 1px solid var(--fg);
+  border-left: none;
+}
+
+.sblock-question-major .sblock-body {
+  font-size: 1.35em;
+  font-family: var(--serif);
+}
+
+/* ── QUOTATION 族：AI OUTPUT（引用条 + 来源/status 行，非气泡） ──
+   §13.2：surface 仅用于与正文分离；正文同字号或略小；confidence 数字降注记级 */
+
+.sblock-ai-output {
+  margin: var(--block-before) 0 var(--block-after);
+  border-left: 3px solid var(--border-strong);
+  padding: 0.2em 0 0.2em 1.1em;
+}
+
+.sblock-ai-output .sblock-label {
+  margin-bottom: 0.6em;
+}
+
+.sblock-ai-output .sblock-body {
+  font-size: 0.98em;
+  line-height: 1.75;
+  white-space: pre-wrap;
+  color: #3b3a36;
+}
+
+/* ── CONTRAST PAIR 族：EVIDENCE ↔ COUNTERPOINT（同一容器同一排版，仅 label 不同）
+   §13.5 legibility parity：反方不得灰化/缩小/藏匿/警告样式（INVARIANT A2） ── */
+
+.sblock-evidence,
+.sblock-counterpoint {
+  margin: var(--block-before) 0 var(--block-after);
+  padding: 1.1em 0 0.2em;
+  border-top: 1px solid var(--border);
+}
+
+.sblock-evidence .sblock-body,
+.sblock-counterpoint .sblock-body {
+  font-size: 1em;
+  line-height: 1.8;
+  color: var(--fg);
+}
+
+/* EVIDENCE §13.4：claim 引用行在最前（文本来自 claim_id 关系） */
+.evidence-claim {
+  display: flex;
+  gap: 0.5em;
+  align-items: baseline;
+  margin-bottom: 0.8em;
+}
+
+.evidence-claim-label {
+  font-family: var(--mono);
+  font-size: 0.72em;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  flex: none;
+}
+
+.evidence-claim-text {
+  color: var(--fg);
+}
+
+/* 对照列表：无 cell borders、无 spreadsheet */
+.evidence-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.evidence-row {
+  display: flex;
+  gap: 1em;
+  align-items: baseline;
+  padding: 0.35em 0;
+}
+
+.evidence-label {
+  font-family: var(--mono);
+  font-size: 0.7em;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+  flex: none;
+  min-width: 6em;
+}
+
+.evidence-value {
+  font-size: 1em;
+  color: var(--fg);
+  line-height: 1.7;
+}
+
+/* V0.2.1：无对比 verdict 结构时 → quiet relation grammar（内容按 prose，不制造二元行） */
+.evidence-prose {
+  font-size: 1em;
+  line-height: 1.8;
+  color: var(--fg);
+}
+
+.evidence-fields {
+  margin-top: 0.7em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.evidence-field {
+  font-family: var(--mono);
+  font-size: 0.72em;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ── PAUSE 族：JUDGMENT（居中 + 单条墨线 + 署名行；§13.3）
+   V0.2.1：双规则（上下墨线）过于接近杂志 pull quote / persuasion device → 只保留一条 top rule，
+   保留 deliberate-pause 间距；不加 card/背景/边框、不改左对齐、不改排版。 ── */
+
+.sblock-judgment {
+  text-align: center;
+  margin: var(--pause-gap) 0;
+  padding: 2.2em 0.5em 1.6em;
+  border-top: 1px solid var(--fg);
+}
+
+.sblock-judgment .sblock-label {
+  margin-bottom: 1em;
+}
+
+.sblock-judgment .sblock-body {
+  font-family: var(--serif);
+  font-size: 1.24em;
+  line-height: 1.7;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* author-owned cue（INVARIANT A6）：署名行 */
+.sblock-judgment .judgment-author {
+  margin-top: 1.4em;
+  font-family: var(--mono);
+  font-size: 0.72em;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
+.sblock-judgment .judgment-uncertainty {
+  margin-top: 1em;
+  font-size: 0.85em;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.sblock-judgment .judgment-anchor {
+  margin-top: 0.9em;
+  font-size: 0.72em;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+}
+
+/* ── ANNOTATION 族：LAB NOTE（小字号、弱背景或无背景、数字平铺，不是 dashboard） ── */
+
+.sblock-lab-note {
+  margin: var(--block-before) 0 var(--block-after);
+  font-size: 0.82em;
+  line-height: 1.75;
+  color: var(--muted);
+  background: var(--surface-subtle);
+  border-left: 2px solid var(--border);
+  padding: 0.9em 1em;
+}
+
+.sblock-lab-note .sblock-label {
+  margin-bottom: 0.6em;
+  color: var(--faint);
+}
+
+.sblock-lab-note .lab-stats-flat {
+  color: var(--muted);
+  margin-bottom: 0.5em;
+}
+
+.sblock-lab-note .lab-note-line {
+  color: var(--muted);
+}
+
+/* ════════════════════════════════════════════════════
+   METRIC（§13.7）：两轴 → data-salience 派生
+   "放大检查对象，而非其权威"；覆盖标记权重 ≥ 数字
+   ════════════════════════════════════════════════════ */
+
+.sblock-metric {
+  text-align: center;
+  margin: var(--block-before) 0 var(--block-after);
+}
+
+.metric-label {
+  font-family: var(--mono);
+  font-size: 0.68em;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+  margin-bottom: 1.1em;
+}
+
+.metric-value {
+  font-family: var(--serif);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  font-weight: 600;
+  /* V0.2.3：value 为 <p>（对齐 H01），覆盖 .article p 段距，避免数字行多出下边距 */
+  margin: 0;
+}
+
+.metric-meta,
+.metric-provenance {
+  font-family: var(--mono);
+  font-size: 0.7em;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-top: 0.8em;
+  line-height: 1.7;
+}
+
+/* specimen（检查对象）：放大，覆盖标记权重 ≥ 数字 */
+.sblock-metric[data-salience='inspection_specimen'] {
+  margin: var(--pause-gap) 0;
+}
+
+.sblock-metric[data-salience='inspection_specimen'] .metric-value {
+  font-size: var(--metric-size-specimen);
+}
+
+.sblock-metric[data-salience='inspection_specimen'] .metric-cover {
+  margin-top: 1.6em;
+  padding-top: 1.2em;
+  border-top: 1px solid var(--border-strong);
+}
+
+.metric-cover-label {
+  font-family: var(--mono);
+  font-size: 0.72em;
+  letter-spacing: 0.22em;
+  color: var(--fg);
+}
+
+.metric-cover-question {
+  margin-top: 0.7em;
+  font-size: 1em;
+  line-height: 1.7;
+  color: var(--fg);
+}
+
+/* result（报告结果）：中等，不得放大，紧邻 denominator/boundary */
+.sblock-metric[data-salience='reported_result'] .metric-value {
+  font-size: var(--metric-size-result);
+}
+
+/* reference（上下文参考）：中低，引用式呈现 */
+.sblock-metric[data-salience='contextual_reference'] .metric-value {
+  font-size: var(--metric-size-reference);
+}
+
+/* ── 降级渲染（结构无效关系不镀金，§14） ──────────── */
+
+.sblock-degraded {
+  opacity: 1; /* 不降低可读性 */
+}
+
+.sblock-degraded .evidence-claim-text {
+  color: var(--muted);
+}
+
+.degraded-note {
+  margin-top: 0.7em;
+  font-size: 0.78em;
+  color: var(--faint);
+}
+
+.sblock-evidence.sblock-degraded .evidence-rows {
+  filter: none;
+}
+
+/* 未知语义块 */
+.sblock-unknown {
+  border: 1px dashed var(--border-strong);
+  border-radius: 2px;
+  padding: 14px 16px;
+  margin: var(--block-before) 0 var(--block-after);
+}
+
+.sblock-unknown .sblock-body {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--muted);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+/* ════════════════════════════════════════════════════
+   masthead / footer（V0.3 封面开版 + 页脚）
+   ════════════════════════════════════════════════════ */
+
+.masthead {
+  padding: 28px 0 20px;
+  margin-bottom: var(--s-cover);
+  border-bottom: 1px solid var(--ink);
+}
+
+.masthead-brand {
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.masthead-brand .dot {
+  color: var(--cobalt);
+}
+
+/* kicker：JUDGMENT / 001 */
+.masthead-series {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-top: 22px;
+}
+
+/* cover title：display serif，克制但强控尺度 */
+.masthead-title {
+  font-family: var(--serif);
+  font-size: var(--t-title);
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  max-width: 20em;
+  margin-top: 14px;
+  overflow-wrap: break-word; /* 中文多行标题优雅断行 */
+}
+
+/* cover deck */
+.masthead-deck {
+  font-size: 16px;
+  color: var(--secondary);
+  line-height: 1.7;
+  max-width: 32em;
+  margin-top: 16px;
+}
+
+/* cover byline：2026 / 08 */
+.masthead-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--secondary);
+  margin-top: 22px;
+}
+
+.masthead-simple {
+  padding-bottom: 20px;
+  margin-bottom: var(--s-cover);
+  border-bottom: 1px solid var(--ink);
+}
+
+.masthead-simple .masthead-title {
+  margin-top: 14px;
+}
+
+.article-footer {
+  margin-top: var(--s-footer);
+  padding-top: 28px;
+  border-top: 1px solid var(--ink);
+}
+
+.footer-brand {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.footer-tagline {
+  margin-top: 12px;
+  font-size: 15px;
+  color: var(--secondary);
+  line-height: 1.7;
+}
+
+.next {
+  margin-top: 2.2em;
+}
+
+.next-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--secondary);
+}
+
+.next-title {
+  font-family: var(--serif);
+  font-size: var(--t-next);
+  line-height: 1.55;
+  margin-top: 8px;
+  color: var(--ink);
+}
+
+/* ════════════════════════════════════════════════════
+   NORMAL 模式：同一编辑语法的紧凑密度（§10 / §16）
+   认识论不变量不变：同容器、同 label、同降级
+   ════════════════════════════════════════════════════ */
+
+.article[data-mode='normal'] .sblock-question .sblock-body {
+  font-size: 1em;
+}
+
+.article[data-mode='normal'] .sblock-judgment {
+  padding: 1.4em 0.5em 1em;
+  margin: var(--block-before) 0;
+}
+
+.article[data-mode='normal'] .sblock-judgment .sblock-body {
+  font-size: 1.1em;
+}
+
+.article[data-mode='normal'] .sblock-metric[data-salience='inspection_specimen'] {
+  margin: var(--block-before) 0;
+}
+
+.article[data-mode='normal'] .sblock-metric[data-salience='inspection_specimen'] .metric-value {
+  font-size: clamp(2.4em, 6vw, 3.6em);
+}
+
+.article[data-mode='normal'] .sblock-question,
+.article[data-mode='normal'] .sblock-evidence,
+.article[data-mode='normal'] .sblock-counterpoint,
+.article[data-mode='normal'] .sblock-ai-output {
+  margin: calc(var(--block-before) * 0.8) 0 calc(var(--block-after) * 0.8);
+}
+
+/* ════════════════════════════════════════════════════
+   移动端（V0.3）：文章本身成为 canvas，无假桌面框
+   ════════════════════════════════════════════════════ */
+
+.article .masthead-title,
+.article .sblock-body,
+.article .metric-cover-question {
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 480px) {
+  .paper {
+    border: none;
+    box-shadow: none;
+    padding: 34px 22px 64px;
+  }
+
+  .masthead {
+    padding: 20px 0 18px;
+    margin-bottom: 34px;
+  }
+
+  .masthead-title {
+    font-size: var(--t-title-m);
+  }
+
+  .masthead-deck {
+    font-size: 15.5px;
+  }
+
+  .sblock-metric[data-salience='inspection_specimen'] .metric-value {
+    font-size: var(--metric-size-specimen-m);
+  }
+}
+
+
+/* ═══ study shell：preview canvas（编辑器专用，不导出） ═══ */
+body { background: var(--bg); }
+.stage { padding: 36px 28px 80px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <article class="article paper" data-mode="editorial">
+<header class="masthead"><div class="masthead-brand"><span class="dot">●</span> MAX大郭的判断局</div><div class="masthead-series">JUDGMENT / 001</div><h1 class="masthead-title">AI 说自己 90% 确定，这个数字到底意味着什么？</h1><div class="masthead-deck">一个置信度，值得一个审慎的读法。</div><div class="masthead-date">2026 / 08</div></header>
+    <div class="article-body">
+<p>一个健身助手告诉我，它对某项建议有 90% 的把握。我不太确定该高兴，还是该警惕。</p>
+<p>这里的 90%，像一句<strong>言之凿凿的承诺</strong>。可一旦追问——这个数字怎么来的、覆盖哪些情况、误差有多大——回答常常变回一段<em>通用说明文字</em>。<a href="https://example.com/calibration">置信度的完整讨论</a> 可以从一个更安静的问题开始：一个普通读者，能不能从界面上看出这个 90% 到底指什么。</p>
+<p>90% 的置信度常常被当成确定性来消费，但它既不是概率保证，也不是准确性。</p><h2><span class="sec-num">01</span><span class="sec-title">90% 是概率，不是承诺</span></h2><p>一个数字说 90%，听起来像十次里九次对。但模型说的置信度，是对它自己内部状态的一种声明——不是对世界客观事件的频率统计，也不等于一个普通人读这句话时理解的那种“九成把握”。两者被同一个数字包装，却是两件事。</p>
+<h3>三种容易混淆的意思</h3><p>第一种，模型对自身参数确定程度的估计；第二种，历史评测里这类样本的命中率；第三种，你在心里把它当成“这个判断大概率成立”。同一个 90%，三种读法，对应三种不同的信任行为。</p>
+<h4>为什么区分很重要</h4><p>因为信任行为取决于读法。若把第一种当成第三种，就会把一次对话里的个别判断，当成长期稳定的可靠结论——这正是校准问题最初被注意到的原因。</p>
+<blockquote>
+<p>人们会对表述自信做出系统性反应，即使这种自信没有任何依据。
+—— 认知心理学研究综述（示例来源）</p>
+</blockquote>
+<h2><span class="sec-num">02</span><span class="sec-title">两种 90%，别混为一谈</span></h2><p>先把它说的原话摆出来，再问它的边界。</p>
+<section class="sblock sblock-question"><div class="sblock-label">提问</div><div class="sblock-body">这个 90%，到底是模型对自身的把握，<br/>还是对你的建议成立的概率？</div></section><section class="sblock sblock-ai-output"><div class="sblock-label">AI OUTPUT</div><div class="sblock-body">“我对该建议有 90% 的把握。”<br/><br/>Confidence: 90%</div><div class="sblock-meta"><span class="meta-source">来源：健身助手 · 2026-08 单次对话输出</span><span class="meta-status">RAW OUTPUT</span></div></section><p>用一套证据标准来看，什么被支持了，什么没有被支持：</p>
+<section class="sblock sblock-metric" data-salience="inspection_specimen"><div class="metric-label">CONFIDENCE · AI CLAIMED</div><p class="metric-value">90%</p><div class="metric-cover"><div class="metric-cover-label">被检查对象 · 非结论</div><div class="metric-cover-question">这个 90% 是模型的把握，还是建议成立的概率？</div></div><div class="metric-provenance">模型输出 · 来源：健身助手 · 方法：单次对话输出 · 边界：不含置信区间与评测口径</div></section><section class="sblock sblock-evidence"><div class="sblock-label">EVIDENCE</div><div class="evidence-claim"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">90% 的置信度常常被当成确定性来消费，但它既不是概率保证，也不是准确性。</span></div><div class="evidence-rows"><div class="evidence-row"><span class="evidence-label">SUPPORTED</span><span class="evidence-value">90% 是模型自报的置信度，不是准确性</span></div><div class="evidence-row"><span class="evidence-label">NOT SUPPORTED</span><span class="evidence-value">90% 意味着十次里九次正确</span></div></div><div class="evidence-fields"><div class="evidence-field">边界：支持“置信度不等于确定性”的表述，不支持任何具体产品的具体数值</div><div class="evidence-field">来源：校准研究综述（示例）</div><div class="evidence-field">强度：40 例系统评估（示例）</div></div></section><p>当然，要公平一点——最强的反方是这样说的：</p>
+<section class="sblock sblock-counterpoint"><div class="sblock-label">COUNTERPOINT</div><div class="sblock-body">在医疗、工程等高风险场景里，明确给出把握程度是有价值的。<br/>问题不在置信度本身，而在它被简化成一个数字。</div></section><p>材料齐了，这是一个值得停一下的判断：</p>
+<section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">数字没有错，<br/>错的是把它当成全部。</div><div class="judgment-uncertainty">这是关于“呈现与读取方式”的判断，不是关于任何具体 AI 能力的结论。</div><div class="judgment-author">— Max</div><div class="judgment-anchor">证据与反方见上方</div></section><h2><span class="sec-num">03</span><span class="sec-title">检查，而不是相信</span></h2><p>我自己有一个很简单的检查顺序，也适合你下次遇到一个精确数字时照着做：</p>
+<ol>
+<li>先记下它说了什么，不急着解释。</li>
+<li>再问它有没有带误差、边界或评测口径。</li>
+<li>最后问：一个普通读者，能不能从界面上看出前两步的答案。</li>
+</ol>
+<p>跑完一轮之后，一个 90% 通常缺三样东西：</p>
+<ul>
+<li>依据：这个数字是从什么数据、什么场景里来的</li>
+<li>边界：它适用于谁，不适用于谁</li>
+<li>口径：它指的到底是置信度、准确率，还是别的什么</li>
+</ul>
+<section class="sblock sblock-lab-note"><div class="sblock-label">实验注记 · CHECK</div><div class="lab-body"><div class="lab-stats-flat">3 readings · 2 boundaries · 0 intervals</div><div class="lab-note-line">This is a reading checklist.</div><div class="lab-note-line">Not a model benchmark.</div></div></section><p>回到那个健身助手。如果我把它的话拆开，会发现它其实在说三件不同的事：它对参数很确定，它在历史样本上表现稳定，以及它建议我把这两件事当作“这个计划大概率适合我”来接受。前两句是它的内部状态，最后一句是我的决策。把三者合并成一个“90%”，省略的不只是误差，还有责任——谁在承担把这个数字变成行动的判断。对一篇短文章来说，这已经足够说明：数字本身不撒谎，缺的是让数字被正确读取的上下文。</p>
+<p>这篇文章本身就是一次检查练习。<a href="https://example.com/start">回到开头那个问题</a> 再读一遍：下一次收到一个精确数字，先问它的依据、误差和边界，再决定要不要相信。</p>
+<p>注：本文用于排版与阅读节奏测试，内容为示例材料，不构成研究结论。
+来源：示例材料 · 2026-08 · 视觉测试专用。</p>
+
+    </div>
+<footer class="article-footer"><div class="footer-brand">MAX / JUDGMENT / 001</div><div class="footer-tagline">一个置信度，值得一个审慎的读法。</div><div class="next"><div class="next-label">NEXT</div><div class="next-title">当机器说“我很有把握”，它到底在说谁的把握？</div></div></footer>
+  </article>
+</div>
+</body>
+</html>

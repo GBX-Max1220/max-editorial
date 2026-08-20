@@ -1,0 +1,127 @@
+/* ═══════════════════════════════════════════════════════════════
+   HYBRID TOKENS — V0.3 Phase 2 · Editorial Surface & Hierarchy Study
+   Direction B — Restrained Hybrid（克制混合模式）
+
+   基于生产 src/styles/tokens.css 派生。改动仅限颜色面：
+   引入 3 个视觉角色（Primary / Accent / Neutral）+ 文章表面/画布分离。
+   Ink 不算语义色，是正文基础色。
+
+   Owner 候选色 → token 映射：
+     Primary        #315C5B  → --primary（身份主色；替换 V0.3 cobalt 触点）
+     Primary Surface #F0F6F4 → --primary-surface
+     Accent         #B45F42  → --accent（Counterpoint 摩擦色）
+     Accent Surface #FBF1EC  → --accent-surface
+     Neutral        #746F67  → --neutral
+     Neutral Surface #F5F2EC → --surface
+     Ink            #252421  → --ink
+     Secondary Text #6F6B63  → --secondary
+     Hairline       #D8D1C6  → --hairline
+     Article Surface #FFFDF8 → --paper
+     Preview Canvas 奶油    → --bg（仅编辑器预览，不导出）
+
+   生产 token 名与结构保持，便于差异 diff；只改值 + 新增角色 token。
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── color：Phase 2 hybrid canonical ────────────────── */
+  --paper: #FFFDF8;            /* 文章表面（导出正文背景；暖白） */
+  --ink: #252421;              /* 墨色正文 / 主结构线 */
+  --secondary: #6F6B63;        /* 次级文字 / 注记 */
+  --hairline: #D8D1C6;         /* 发丝线 */
+  --surface: #F5F2EC;          /* Neutral Surface（code / quote / ai-output / lab-note 浅底） */
+  --faint: #B7B4AB;
+
+  /* ── 三个视觉角色 ─────────────────────────────────── */
+  --primary: #315C5B;          /* Primary · 身份主色（替换 cobalt：序号/链接/圆点/ol） */
+  --primary-surface: #F0F6F4;  /* Primary Surface · Question 底 */
+  --accent: #B45F42;           /* Accent · Counterpoint 摩擦/异议 */
+  --accent-surface: #FBF1EC;   /* Accent Surface · Counterpoint 底 */
+  --neutral: #746F67;          /* Neutral · Quote / AI Output / Lab Note 边框 */
+
+  /* ── 兼容别名：V0.3 cobalt 触点在本研究迁移到 --primary ── */
+  --cobalt: var(--primary);
+  --deep: var(--primary);
+
+  /* ── color：V0.2 别名（编辑器 chrome；值对齐上面） ── */
+  --bg: #EAE4DA;               /* 预览画布（奶油）；与导出纸面 #FFFDF8 明确分离 */
+  --fg: var(--ink);
+  --muted: var(--secondary);
+  --border: var(--hairline);
+  --border-strong: #B7B4AB;
+  --surface-subtle: var(--surface);
+  --accent: var(--cobalt);     /* V0.2 别名 → primary */
+
+  /* ── type：三角色分工（沿用 LOCK §3，不动） ── */
+  --serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* ── type scale（沿用 LOCK §4；metric 收敛见 hybrid-article） ── */
+  --t-title: 42px;
+  --t-title-m: 33px;
+  --t-h2: 26px;
+  --t-h3: 20px;
+  --t-body: 16px;
+  --t-lede: 17.5px;
+  --t-quote: 19px;
+  --t-judgment: 23px;
+  --t-judgment-m: 21px;
+  --t-metric: 44px;            /* 收敛：微信安全上限（原 84px 属 desktop-only 身份，见报告 §16） */
+  --t-metric-m: 40px;
+  --t-label: 10px;
+  --t-note: 13px;
+  --t-next: 20px;
+
+  /* ── line-height（沿用） ── */
+  --lh-body: 1.85;
+  --lh-heading: 1.35;
+  --lh-h3: 1.45;
+  --lh-quote: 1.8;
+  --lh-judgment: 1.7;
+  --lh-mono: 1.85;
+
+  /* ── letter-spacing（沿用） ── */
+  --ls-label: 0.32em;
+  --ls-title: -0.005em;
+
+  /* ── rhythm（沿用 LOCK §5） ── */
+  --s-para: 1.4em;
+  --s-h2-top: 3.4em;
+  --s-h2-bottom: 1.1em;
+  --s-h3-top: 2.2em;
+  --s-block: 2.5em;
+  --s-pause: 4.2em;
+  --s-metric: 3.2em;
+  --s-cover: 42px;
+  --s-footer: 4em;
+
+  /* ── paper canvas（沿用） ── */
+  --paper-width: 740px;
+  --paper-pad-x: 54px;
+  --paper-pad-y: 56px;
+
+  /* ── V0.2 别名（沿用） ── */
+  --paragraph-gap: var(--s-para);
+  --heading-top: 2.2em;
+  --heading-bottom: 0.7em;
+  --section: 2.6em;
+  --block-before: 2.2em;
+  --block-after: 1.2em;
+  --block-inner: 1em;
+  --pause-gap: var(--s-pause);
+  --image-gap: 1.3em;
+  --caption-gap: 0.55em;
+
+  --metric-size-specimen: var(--t-metric);
+  --metric-size-specimen-m: var(--t-metric-m);
+  --metric-size-result: 1.5em;
+  --metric-size-reference: 1.2em;
+}
+
+/* 选区高亮：cobalt → primary */
+::selection {
+  background: rgba(49, 92, 91, 0.16);
+}
