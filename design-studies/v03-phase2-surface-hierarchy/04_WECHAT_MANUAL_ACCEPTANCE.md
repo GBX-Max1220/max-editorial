@@ -47,21 +47,29 @@ node .tmp/build-study.cjs
 
 ## 4. 验收清单（粘贴后逐项记录）
 
+Revision 1 候选（`02_RESTRAINED_HYBRID.html`）已含以下已接受决策，请按修订后的候选验收：
+
 | 项目 | PASS / FAIL / UNCERTAIN | 观察记录 |
 |---|---|---|
 | 整体背景（暖白 #FFFDF8 是否出现） | | |
-| H2 边线（teal 短线是否出现；若塌成无短线则记录） | | |
-| Quote 左边框（Neutral 2px） | | |
-| Question 背景与边框（浅 teal 底 + teal 左线） | | |
-| Evidence（teal 左线） | | |
+| 身份色（teal `#315C5B` 序号/圆点/链接；非 cobalt 蓝） | | |
+| H2 边线（teal 短线；候选为真实 `.sec-rule` 节点，微信粘贴后是否存活/塌缩） | | |
+| Quote 左边框（Neutral 2px）+ 来源行（小号 Secondary 真实文本） | | |
+| Question 背景与边框（**保留** Primary Surface + teal 左线） | | |
+| Evidence（teal 左线，无底色） | | |
 | Counterpoint（陶土左线 + 浅陶土底） | | |
-| AI Output（Neutral 左线 + 浅底 + `AI OUTPUT` 标签） | | |
-| Lab Note（上下 hairline + 浅底） | | |
-| Metric（顶部 teal 细线 + 数字 44px + label） | | |
-| Judgment 墨线（居中 ink 顶线 + 署名） | | |
-| 字号（标题/正文是否保持，不塌缩到默认） | | |
-| 行距（正文 1.85 是否保留） | | |
-| 段间距（1.4em 是否保留） | | |
+| AI Output（**无背景**；Neutral 左线 + `AI OUTPUT` 标签） | | |
+| Lab Note（上下 hairline + Neutral Surface） | | |
+| Metric（顶部 teal 细线 + 数字 **44px** + teal label；非 84px） | | |
+| Judgment 墨线（居中 ink 顶线 + 署名，无彩色面） | | |
+| 有序列表序号（候选为真实文本 `.ol-num`；微信是否保留） | | |
+| H4（**不验收**——已 DEFERRED，深度四标题走 h3 钳制） | | |
+| 字号（标题 42/38px、正文 16px 是否保持） | | |
+| 行距（正文 1.85） | | |
+| 段间距（1.4em） | | |
+
+> 注意：样张中的 `.sec-rule`、`.ol-num`、`.q-source` 为 **STUDY-ONLY** 节点，生产渲染器当前不产出。
+> 本清单验证的是"候选视觉在微信中的存活"，不是验证生产已具备这些节点。
 
 ## 5. 若失败，记录以下内容
 

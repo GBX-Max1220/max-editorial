@@ -74,9 +74,11 @@
   color: var(--ink);
 }
 
-/* 短墨线：Primary 克制信号（原 ink） */
-.article h2::after {
-  content: "";
+/* 短墨线：Primary 克制信号。
+   Revision 1：由 ::after 伪元素改为**真实装饰节点** `.sec-rule`（aria-hidden，非语义），
+   生成器在渲染层注入；微信无需伪元素即可存活（真实 span + background/border）。
+   不依赖 ::after —— 这是修订后的实现兼容形式。 */
+.article h2 .sec-rule {
   display: block;
   width: 60px;
   height: 1px;
@@ -194,30 +196,25 @@
   color: var(--secondary);
 }
 
+/* 有序列表：Revision 1 —— 数字由 CSS counter 改为**真实文本** `.ol-num`（生成器注入）。
+   视觉含义不依赖 counter()；微信编译亦不需要额外展开。 */
 .article ol {
   list-style: none;
   margin: 0 0 1.6em;
   padding: 0;
-  counter-reset: sec;
 }
 
 .article ol li {
-  position: relative;
-  counter-increment: sec;
-  padding-left: 3.2em;
   margin-bottom: 0.55em;
   max-width: 36em;
 }
 
-.article ol li::before {
-  content: counter(sec, decimal-leading-zero);
-  position: absolute;
-  left: 0;
-  top: 0.3em;
+.article ol .ol-num {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.12em;
   color: var(--primary);
+  margin-right: 0.7em;
 }
 
 /* ── horizontal rule ── */
@@ -409,11 +406,13 @@
    明确真实文本标签 AI OUTPUT；Neutral 左边框 + 极浅 Neutral Surface；
    接近正文，不高于作者判断；禁气泡/禁仿对话 UI。 */
 
+/* Revision 1（Owner Decision 4）：移除 Neutral Surface 背景。
+   只保留 Neutral 左边框 + 真实文本 label AI OUTPUT；正文 ink 常规可读。
+   作者结构因此比模型输出更突出；无气泡、无仿对话 UI。 */
 .sblock-ai-output {
   margin: var(--block-before) 0 var(--block-after);
   border-left: 2px solid var(--neutral);
-  background: var(--surface);
-  padding: 0.8em 1.1em 0.6em;
+  padding: 0.2em 0 0.2em 1.1em;
 }
 
 .sblock-ai-output .sblock-label {
@@ -472,6 +471,7 @@
 
 .evidence-claim-text {
   color: var(--fg);
+  min-width: 0; /* flex 硬化：长文本可收缩换行，不把行撑出纸面 */
 }
 
 .evidence-rows {
@@ -499,6 +499,7 @@
   font-size: 1em;
   color: var(--fg);
   line-height: 1.7;
+  min-width: 0; /* flex 硬化：见 evidence-claim-text */
 }
 
 .evidence-prose {
@@ -740,7 +741,10 @@
   margin-top: 22px;
 }
 
-.masthead-title {
+/* Revision 1：提高特异性 `.article .masthead-title`（0-2-0），
+   否则 `.article h1 { font-size: 1.875em }`（0-1-1）会覆盖它，H1 实际渲染为 30px。
+   生产 article.css 存在同一覆盖（既有 bug，本 study 修正候选，生产需单独记录）。 */
+.article .masthead-title {
   font-family: var(--serif);
   font-size: var(--t-title);
   line-height: 1.3;
@@ -876,7 +880,7 @@
     margin-bottom: 34px;
   }
 
-  .masthead-title {
+  .article .masthead-title {
     font-size: var(--t-title-m);
   }
 

@@ -97,7 +97,7 @@ button {
 
   /* ── type scale（沿用 LOCK §4；metric 收敛见 hybrid-article） ── */
   --t-title: 42px;
-  --t-title-m: 33px;
+  --t-title-m: 38px;           /* Revision 1：Owner 决定 H1 区间 36–44px；移动端 38px（≥36） */
   --t-h2: 26px;
   --t-h3: 20px;
   --t-body: 16px;
@@ -239,9 +239,11 @@ button {
   color: var(--ink);
 }
 
-/* 短墨线：Primary 克制信号（原 ink） */
-.article h2::after {
-  content: "";
+/* 短墨线：Primary 克制信号。
+   Revision 1：由 ::after 伪元素改为**真实装饰节点** `.sec-rule`（aria-hidden，非语义），
+   生成器在渲染层注入；微信无需伪元素即可存活（真实 span + background/border）。
+   不依赖 ::after —— 这是修订后的实现兼容形式。 */
+.article h2 .sec-rule {
   display: block;
   width: 60px;
   height: 1px;
@@ -359,30 +361,25 @@ button {
   color: var(--secondary);
 }
 
+/* 有序列表：Revision 1 —— 数字由 CSS counter 改为**真实文本** `.ol-num`（生成器注入）。
+   视觉含义不依赖 counter()；微信编译亦不需要额外展开。 */
 .article ol {
   list-style: none;
   margin: 0 0 1.6em;
   padding: 0;
-  counter-reset: sec;
 }
 
 .article ol li {
-  position: relative;
-  counter-increment: sec;
-  padding-left: 3.2em;
   margin-bottom: 0.55em;
   max-width: 36em;
 }
 
-.article ol li::before {
-  content: counter(sec, decimal-leading-zero);
-  position: absolute;
-  left: 0;
-  top: 0.3em;
+.article ol .ol-num {
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.12em;
   color: var(--primary);
+  margin-right: 0.7em;
 }
 
 /* ── horizontal rule ── */
@@ -574,11 +571,13 @@ button {
    明确真实文本标签 AI OUTPUT；Neutral 左边框 + 极浅 Neutral Surface；
    接近正文，不高于作者判断；禁气泡/禁仿对话 UI。 */
 
+/* Revision 1（Owner Decision 4）：移除 Neutral Surface 背景。
+   只保留 Neutral 左边框 + 真实文本 label AI OUTPUT；正文 ink 常规可读。
+   作者结构因此比模型输出更突出；无气泡、无仿对话 UI。 */
 .sblock-ai-output {
   margin: var(--block-before) 0 var(--block-after);
   border-left: 2px solid var(--neutral);
-  background: var(--surface);
-  padding: 0.8em 1.1em 0.6em;
+  padding: 0.2em 0 0.2em 1.1em;
 }
 
 .sblock-ai-output .sblock-label {
@@ -637,6 +636,7 @@ button {
 
 .evidence-claim-text {
   color: var(--fg);
+  min-width: 0; /* flex 硬化：长文本可收缩换行，不把行撑出纸面 */
 }
 
 .evidence-rows {
@@ -664,6 +664,7 @@ button {
   font-size: 1em;
   color: var(--fg);
   line-height: 1.7;
+  min-width: 0; /* flex 硬化：见 evidence-claim-text */
 }
 
 .evidence-prose {
@@ -905,7 +906,10 @@ button {
   margin-top: 22px;
 }
 
-.masthead-title {
+/* Revision 1：提高特异性 `.article .masthead-title`（0-2-0），
+   否则 `.article h1 { font-size: 1.875em }`（0-1-1）会覆盖它，H1 实际渲染为 30px。
+   生产 article.css 存在同一覆盖（既有 bug，本 study 修正候选，生产需单独记录）。 */
+.article .masthead-title {
   font-family: var(--serif);
   font-size: var(--t-title);
   line-height: 1.3;
@@ -1041,7 +1045,7 @@ button {
     margin-bottom: 34px;
   }
 
-  .masthead-title {
+  .article .masthead-title {
     font-size: var(--t-title-m);
   }
 
@@ -1058,6 +1062,9 @@ button {
 /* ═══ study shell：preview canvas（编辑器专用，不导出） ═══ */
 body { background: var(--bg); }
 .stage { padding: 36px 28px 80px; }
+@media (max-width: 480px) {
+  .stage { padding: 20px 14px 64px; }
+}
 </style>
 </head>
 <body>
@@ -1067,22 +1074,19 @@ body { background: var(--bg); }
     <div class="article-body">
 <p>一个健身助手告诉我，它对某项建议有 90% 的把握。我不太确定该高兴，还是该警惕。</p>
 <p>这里的 90%，像一句<strong>言之凿凿的承诺</strong>。可一旦追问——这个数字怎么来的、覆盖哪些情况、误差有多大——回答常常变回一段<em>通用说明文字</em>。<a href="https://example.com/calibration">置信度的完整讨论</a> 可以从一个更安静的问题开始：一个普通读者，能不能从界面上看出这个 90% 到底指什么。</p>
-<p>90% 的置信度常常被当成确定性来消费，但它既不是概率保证，也不是准确性。</p><h2><span class="sec-num">01</span><span class="sec-title">90% 是概率，不是承诺</span></h2><p>一个数字说 90%，听起来像十次里九次对。但模型说的置信度，是对它自己内部状态的一种声明——不是对世界客观事件的频率统计，也不等于一个普通人读这句话时理解的那种“九成把握”。两者被同一个数字包装，却是两件事。</p>
+<p>90% 的置信度常常被当成确定性来消费，但它既不是概率保证，也不是准确性。</p><h2><span class="sec-num">01</span><span class="sec-title">90% 是概率，不是承诺</span><span class="sec-rule" aria-hidden="true"></span></h2><p>一个数字说 90%，听起来像十次里九次对。但模型说的置信度，是对它自己内部状态的一种声明——不是对世界客观事件的频率统计，也不等于一个普通人读这句话时理解的那种“九成把握”。两者被同一个数字包装，却是两件事。</p>
 <h3>三种容易混淆的意思</h3><p>第一种，模型对自身参数确定程度的估计；第二种，历史评测里这类样本的命中率；第三种，你在心里把它当成“这个判断大概率成立”。同一个 90%，三种读法，对应三种不同的信任行为。</p>
-<h4>为什么区分很重要</h4><p>因为信任行为取决于读法。若把第一种当成第三种，就会把一次对话里的个别判断，当成长期稳定的可靠结论——这正是校准问题最初被注意到的原因。</p>
-<blockquote>
-<p>人们会对表述自信做出系统性反应，即使这种自信没有任何依据。
-—— 认知心理学研究综述（示例来源）</p>
-</blockquote>
-<h2><span class="sec-num">02</span><span class="sec-title">两种 90%，别混为一谈</span></h2><p>先把它说的原话摆出来，再问它的边界。</p>
+<h3>为什么区分很重要</h3><p>因为信任行为取决于读法。若把第一种当成第三种，就会把一次对话里的个别判断，当成长期稳定的可靠结论——这正是校准问题最初被注意到的原因。</p>
+<blockquote><p>人们会对表述自信做出系统性反应，即使这种自信没有任何依据。</p><div class="q-source">—— 认知心理学研究综述（示例来源）</div></blockquote>
+<h2><span class="sec-num">02</span><span class="sec-title">两种 90%，别混为一谈</span><span class="sec-rule" aria-hidden="true"></span></h2><p>先把它说的原话摆出来，再问它的边界。</p>
 <section class="sblock sblock-question"><div class="sblock-label">提问</div><div class="sblock-body">这个 90%，到底是模型对自身的把握，<br/>还是对你的建议成立的概率？</div></section><section class="sblock sblock-ai-output"><div class="sblock-label">AI OUTPUT</div><div class="sblock-body">“我对该建议有 90% 的把握。”<br/><br/>Confidence: 90%</div><div class="sblock-meta"><span class="meta-source">来源：健身助手 · 2026-08 单次对话输出</span><span class="meta-status">RAW OUTPUT</span></div></section><p>用一套证据标准来看，什么被支持了，什么没有被支持：</p>
 <section class="sblock sblock-metric" data-salience="inspection_specimen"><div class="metric-label">CONFIDENCE · AI CLAIMED</div><p class="metric-value">90%</p><div class="metric-cover"><div class="metric-cover-label">被检查对象 · 非结论</div><div class="metric-cover-question">这个 90% 是模型的把握，还是建议成立的概率？</div></div><div class="metric-provenance">模型输出 · 来源：健身助手 · 方法：单次对话输出 · 边界：不含置信区间与评测口径</div></section><section class="sblock sblock-evidence"><div class="sblock-label">EVIDENCE</div><div class="evidence-claim"><span class="evidence-claim-label">支持：</span><span class="evidence-claim-text">90% 的置信度常常被当成确定性来消费，但它既不是概率保证，也不是准确性。</span></div><div class="evidence-rows"><div class="evidence-row"><span class="evidence-label">SUPPORTED</span><span class="evidence-value">90% 是模型自报的置信度，不是准确性</span></div><div class="evidence-row"><span class="evidence-label">NOT SUPPORTED</span><span class="evidence-value">90% 意味着十次里九次正确</span></div></div><div class="evidence-fields"><div class="evidence-field">边界：支持“置信度不等于确定性”的表述，不支持任何具体产品的具体数值</div><div class="evidence-field">来源：校准研究综述（示例）</div><div class="evidence-field">强度：40 例系统评估（示例）</div></div></section><p>当然，要公平一点——最强的反方是这样说的：</p>
 <section class="sblock sblock-counterpoint"><div class="sblock-label">COUNTERPOINT</div><div class="sblock-body">在医疗、工程等高风险场景里，明确给出把握程度是有价值的。<br/>问题不在置信度本身，而在它被简化成一个数字。</div></section><p>材料齐了，这是一个值得停一下的判断：</p>
-<section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">数字没有错，<br/>错的是把它当成全部。</div><div class="judgment-uncertainty">这是关于“呈现与读取方式”的判断，不是关于任何具体 AI 能力的结论。</div><div class="judgment-author">— Max</div><div class="judgment-anchor">证据与反方见上方</div></section><h2><span class="sec-num">03</span><span class="sec-title">检查，而不是相信</span></h2><p>我自己有一个很简单的检查顺序，也适合你下次遇到一个精确数字时照着做：</p>
+<section class="sblock sblock-judgment"><div class="sblock-label">JUDGMENT</div><div class="sblock-body">数字没有错，<br/>错的是把它当成全部。</div><div class="judgment-uncertainty">这是关于“呈现与读取方式”的判断，不是关于任何具体 AI 能力的结论。</div><div class="judgment-author">— Max</div><div class="judgment-anchor">证据与反方见上方</div></section><h2><span class="sec-num">03</span><span class="sec-title">检查，而不是相信</span><span class="sec-rule" aria-hidden="true"></span></h2><p>我自己有一个很简单的检查顺序，也适合你下次遇到一个精确数字时照着做：</p>
 <ol>
-<li>先记下它说了什么，不急着解释。</li>
-<li>再问它有没有带误差、边界或评测口径。</li>
-<li>最后问：一个普通读者，能不能从界面上看出前两步的答案。</li>
+<li><span class="ol-num">01</span>先记下它说了什么，不急着解释。</li>
+<li><span class="ol-num">02</span>再问它有没有带误差、边界或评测口径。</li>
+<li><span class="ol-num">03</span>最后问：一个普通读者，能不能从界面上看出前两步的答案。</li>
 </ol>
 <p>跑完一轮之后，一个 90% 通常缺三样东西：</p>
 <ul>

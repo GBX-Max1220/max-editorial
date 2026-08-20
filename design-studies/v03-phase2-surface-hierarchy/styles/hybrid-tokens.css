@@ -61,7 +61,7 @@
 
   /* ── type scale（沿用 LOCK §4；metric 收敛见 hybrid-article） ── */
   --t-title: 42px;
-  --t-title-m: 33px;
+  --t-title-m: 38px;           /* Revision 1：Owner 决定 H1 区间 36–44px；移动端 38px（≥36） */
   --t-h2: 26px;
   --t-h3: 20px;
   --t-body: 16px;

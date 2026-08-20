@@ -1,7 +1,7 @@
 # V0.3 Phase 2 — DESIGN DECISION REPORT
 ## Editorial Surface & Hierarchy Study · Direction B (Restrained Hybrid)
 
-> 状态：**STUDY COMPLETE — AWAITING OWNER + CHATGPT VISUAL REVIEW**。
+> 状态：**REVISION 1 COMPLETE — RECOMMEND HYBRID FOR OWNER ACCEPTANCE**（见文末 Revision 1 节）。
 > 本报告不冻结任何视觉。生产 renderer / compiler / app UI 未修改。
 > Provenance：Agent Claude Code · 2026-08-21 · Branch `design/v03-phase2-surface-hierarchy-study` ·
 > Starting HEAD `00cbebf224b32f3e754133ab525666d1a20d19ce`（feat/v03-phase1-markdown-typography）。
@@ -10,10 +10,10 @@
 
 ## 1. Executive Verdict
 
-**`REVISE_HYBRID_BEFORE_OWNER_ACCEPTANCE`**
+**`REVISE_HYBRID_BEFORE_OWNER_ACCEPTANCE`（原裁定）→ 经 Revision 1 修订后：`RECOMMEND_HYBRID_FOR_OWNER_ACCEPTANCE`（见文末 §R）**
 
 方向 B 可行：两个样张渲染干净、灰度层级成立、无营销模板风险、微信安全边界内可表达。
-但进入生产前有 **3 个必须由 Owner + ChatGPT 拍板的决策**（cobalt→teal 身份迁移、Metric 84→44px 收敛、H4 需要渲染器改动），以及 2 个已知渲染器缺口（H4 钳制、`.q-source` 不产出）。方向对，未冻结。
+Revision 1 已处理 Owner + ChatGPT 视觉评审的全部阻塞项（响应式证据、5 项决策、H1/H2/ol/Quote 实现兼容），并重新生成真实视口证据。仍不冻结：微信真机验收 = PENDING（`04_WECHAT_MANUAL_ACCEPTANCE.md`），生产集成待 Owner 接受后另排。
 
 ---
 
@@ -250,3 +250,131 @@
 
 - `LOCAL_RENDER_VERIFIED`：本报告 §7/§14/§15/§16 的视觉结论基于 Edge headless 截图。
 - `WECHAT_MANUAL_ACCEPTANCE_PENDING`：任何"微信里会怎样"的表述均为按 SAFE_PROFILE_V1 的**推断**，未经真机。请按 `04_WECHAT_MANUAL_ACCEPTANCE.md` 逐项验收。
+
+---
+
+# PHASE 2 REVISION 1 — OWNER + CHATGPT VISUAL REVIEW RESPONSE
+
+> 日期：2026-08-21（本地时区）· Branch `design/v03-phase2-surface-hierarchy-study` ·
+> 前序 commit `6368edc` · 本修订不修改生产代码。此节是对原报告的修订，不是重写；原历史保留在上方。
+
+## R1. 视觉证据：右缘裁剪
+
+Owner/ChatGPT 评审指出上传的 `hybrid-mobile-top.png` 存在右缘裁剪：H1 右缘被切、正文行超出视口、纸面延伸到 390px 之外。**接受该证据，原报告的"390px 无横向溢出"断言被该截图证伪，不辩护原断言。**
+
+## R2. 根因（从 computed 证据确认，非猜测）
+
+用 CDP（`Emulation.setDeviceMetricsOverride`）在真实视口下测量：**布局本身无横向溢出**——5 档视口 `dsw==dcw`、`.paper` 完全在视口内、零越界元素。
+
+裁剪的真实来源是**截图 harness**：Edge headless `--screenshot --window-size=390` 会把页面排版在浏览器最小窗口宽度（实测 `window.innerWidth=504`，对 320–430 的请求全部钳到 ~504），却只截 390px 宽 → 纸面右缘与正文被裁。对比证据：
+- 老 harness 390 截图：纸面延续到截图像素右缘（504 布局截 390）。
+- CDP 390 截图：纸面 `left=14, right=361`，距视口右缘有明确空隙。
+
+即：**原断言"布局无溢出"实际正确，但当时未用真实视口验证；截图证据因 harness 失效而显得与断言矛盾。** 两者在 Revision 1 中以 CDP 真视口证据统一。
+
+## R3. 修正
+
+1. **截图 harness 改为 CDP**（`Emulation.setDeviceMetricsOverride` + `Page.captureScreenshot`），布局与捕获同视口，彻底消除 min-width 钳制裁剪。
+2. **study shell 移动端内边距收窄**：`.stage` 在 ≤480px 用 `20px 14px 64px`（原 28px），纸面获得合理外距，仍完全在视口内。
+3. **H1 特异性修复**：`.article .masthead-title`（0-2-0）压过 `.article h1 { font-size:1.875em }`（0-1-1）——修复后发现生产 CSS 里 masthead H1 实际渲染 30px 而非 42px（既有覆盖 bug，生产需单独记录；本 study 修正候选）。
+4. **flex 硬化**：`evidence-claim-text` / `evidence-value` 加 `min-width:0`，长文本可收缩换行。
+
+## R4. 响应式断言矩阵（CDP 真视口，脚本 `.tmp/assert-responsive.mjs`）
+
+| viewport | html scroll/client | body scroll/client | paper left/right | overflow els (viewport) | overflow els (paper) | PASS/FAIL |
+|---|---|---|---|---|---|---|
+| 320 | 305/305 | 305/305 | 14/291 | 0 | 0 | **PASS** |
+| 360 | 345/345 | 345/345 | 14/331 | 0 | 0 | **PASS** |
+| 390 | 375/375 | 375/375 | 14/361 | 0 | 0 | **PASS** |
+| 430 | 415/415 | 415/415 | 14/401 | 0 | 0 | **PASS** |
+| 768 | 753/753 | 753/753 | 28/725 | 0 | 0 | **PASS** |
+
+6 项条件逐项为真：html scroll≤client、body scroll≤client、paper.left≥0、paper.right≤viewport、无元素越视口、无标题/引用/语义块越纸面。`ALL_PASS=true`。截图与矩阵一致（见 `hybrid-v2-*.png`）。
+
+## R5. 被证伪/取代的先前主张
+
+- "390px 无横向溢出"（§附A）：证据上被旧截图证伪；Revision 1 用 CDP 真视口重新验证为真。
+- "长标题 3 行优雅断行"：旧截图不可靠；修订后 H1 38px 在 390px 为 **3 行**，截图确认（`hybrid-v2-mobile-top.png`）。
+- "Three-second scan PASS / Density 可接受"：基于旧截图的结论撤回，按新截图重判（见 R8）。
+- §5.1 "H4 注入"：已移除，H4 从候选退回 DEFERRED（R10）。
+- §13 H2 短线"伪元素需编译拍平"：已改为真实节点方案（R12）。
+
+## R6. 重新验证的主张
+
+- 无横向滚动、纸面在视口内、正文在纸面内换行（R4 矩阵 + 截图）。
+- 灰度层级（R8 灰度图：H1–H4 层级与块标签区分在灰度下成立）。
+- 微信安全边界内可表达（元素仍全部为 block 流 + 固定 px + border/background/color/text-align；flex 仅 preview 用，微信编译已声明需拍平）。
+
+## R7. Owner 五项决策（已实现）
+
+| 决策 | 实现 |
+|---|---|
+| D1 身份色 teal | 保留 `--primary #315C5B` / `--primary-surface #F0F6F4`；`--cobalt` 别名到 primary；不回退 cobalt；token 级可逆 |
+| D2 Metric 44px | 已实现（`--t-metric:44px`）；84px 浏览器标本拒绝 |
+| D3 H4 DEFERRED | 生成器 H4 注入**移除**；`####` 回到生产钳制为 `<h3>`；不修改 `v03Heading.ts`；深度四标题在本次候选反映生产行为 |
+| D4 Question 保留底色 / AI Output 去底 | Question 保留 Primary Surface；AI Output 仅 Neutral 左线 + 真实 `AI OUTPUT` label，无背景（`hybrid-article.css`） |
+| D5 Quote 来源行 | 生成器把引文末行拆为真实 `.q-source` 文本节点（mono 10px · secondary · 与引文分离）；`STUDY-ONLY FUTURE PRODUCTION REQUIREMENT`——生产渲染器当前不产出 `.q-source` |
+
+## R8. 修订后表面密度与视觉判定
+
+- 带底色容器从 5 → **4**：Question（Primary Surface）、Counterpoint（Accent Surface）、Lab Note（Neutral Surface）、Quote（Neutral Surface）。AI Output、Evidence、Metric、Judgment 无底色。
+- Three-second scan（新 `hybrid-v2-mobile-top/semantics-a`）：主标题、章节、引用、判断、证据、反方、AI 输出 3 秒内可辨。**PASS**
+- Density（新 `hybrid-v2-mobile-*`）：4 处浅底 + 左线/上下线，非卡片墙，正文占主导。**PASS**
+- Grayscale（`hybrid-v2-mobile-top-grayscale.png`）：H1 serif 大 / H2 编号+短线 / H3 serif 中 / 块靠真实 label 区分。**PASS**
+
+## R9. 最终 H1 尺寸
+
+- 桌面 `42px`；移动 `38px`（`--t-title-m`，≥36、≤44）。390px 实测 3 行，截图确认。未加营销式彩色标题背景。
+
+## R10. H4 状态
+
+**`H4 DEFERRED / NOT PART OF V0.3 PHASE 2 PRODUCTION SCOPE`**。深度四标题继续走生产钳制（→ h3）；如需小型内部导语，用既有 H3 或加粗段落，不发明新组件。
+
+## R11. Quote 来源行状态
+
+候选样张中为**真实文本节点** `.q-source`（study-only 注入）。生产渲染器不产出该 class → 标记 `STUDY-ONLY FUTURE PRODUCTION REQUIREMENT`，不声称生产已产出。
+
+## R12. H2 短墨线状态
+
+候选由 `::after` 改为**真实装饰节点** `<span class="sec-rule" aria-hidden="true">`（60px×1px teal，非语义）。不再依赖伪元素。生产要求：渲染器/编译器产出同类真实节点或 border；微信无需伪元素展开。
+
+## R13. 有序列表状态
+
+候选数字由 CSS `counter()` 改为**真实文本** `<span class="ol-num">01…`（study-only 注入）。视觉含义不依赖 counter。生产要求：编译器显式文本化序号（Phase 6 已知映射）。
+
+## R14. 生成的截图（CDP 真视口，390px，未降采样）
+
+- `shots/hybrid-v2-mobile-top.png`（390×2000）
+- `shots/hybrid-v2-mobile-semantics-a.png`（390×1900，Question→Counterpoint）
+- `shots/hybrid-v2-mobile-semantics-b.png`（390×1700，Judgment→Lab Note）
+- `shots/hybrid-v2-mobile-end.png`（390×1500，结尾节奏 + footer）
+- `shots/hybrid-v2-desktop-top.png`（1280×1700，桌面未损坏）
+- `shots/hybrid-v2-mobile-top-grayscale.png`（390 顶部灰度）
+- `shots/hybrid-v2-mobile-full.png`（390×9000 全页归档，勿单独用于评审）
+
+旧 harness 截图（`hybrid-mobile-*`/`hybrid-desktop-*`）已删除，不再作为证据。
+
+## R15. 剩余手动微信风险（不变，见 04 文件）
+
+- 真机验收 = `WECHAT_MANUAL_ACCEPTANCE_PENDING`，未预填 PASS。
+- serif 字体栈、44px 数字、浅底/边框色相保真、H2/ol 的 study-only 真实节点在微信编译产物中如何表达——全部需真机确认。
+
+## R16. Test/Build 记录消解
+
+**矛盾披露**：原报告 §附B 写"未在此轮执行完整 test/build"，而此前会话总结报告"219/219 passed、build 成功"。事实（本会话命令输出可查）：原任务在写报告**之后**、commit 之前确实执行了 `npm test`（219 passed）与 `npm run build`（成功）；报告文本先于执行，故自相矛盾。会话总结属实，报告文本过时。
+
+Revision 1 权威记录（本次实际执行）：
+- `npm test` → **20 files / 219 tests passed，exit 0**（27.5s）。
+- `npm run build` → `tsc --noEmit` ✅ + `vite build` ✅，exit 0（3.2s；>500kB chunk 警告为既有项）。
+- 未修改任何生产代码使测试通过。
+
+## R17. 修订后裁定
+
+**`RECOMMEND_HYBRID_FOR_OWNER_ACCEPTANCE`**
+
+- 响应式阻塞已解除（R4 全 PASS，截图与断言一致）。
+- 五项决策全部落实（R7）。
+- 候选实现兼容生产语法（H4 退回、H2/ol 真实节点、AI Output 去底）。
+- 未冻结：微信真机验收 PENDING；生产集成待 Owner 接受后单独排期。
+
+`STOP — AWAITING OWNER + CHATGPT VISUAL ACCEPTANCE`

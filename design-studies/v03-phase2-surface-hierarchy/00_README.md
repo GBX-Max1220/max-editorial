@@ -12,9 +12,9 @@
 | `styles/hybrid-tokens.css` | hybrid 色板 token（生产 tokens.css 派生） |
 | `styles/hybrid-article.css` | hybrid 文章排版（生产 article.css 派生） |
 | `scripts/build-study.ts` | 样张生成器（esbuild + node，同 Phase 1 模式） |
-| `03_DESIGN_DECISION_REPORT.md` | 决策报告（最终裁决见其中 §Executive Verdict） |
-| `04_WECHAT_MANUAL_ACCEPTANCE.md` | 手动微信验收清单（Owner 执行，勿预填 PASS） |
-| `shots/*.png` | 渲染截图（桌面 / 移动 390 / 局部 / 灰度） |
+| `03_DESIGN_DECISION_REPORT.md` | 决策报告（Revision 1 修订 + 最终裁决见其中 §R） |
+| `04_WECHAT_MANUAL_ACCEPTANCE.md` | 手动微信验收清单（Revision 1 候选，Owner 执行，勿预填 PASS） |
+| `shots/*.png` | 渲染截图（Revision 1 = `hybrid-v2-*`，CDP 真视口 390px，未降采样） |
 
 ## 生成样张
 
