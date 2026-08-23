@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AVAILABLE_ENGINES, createEditorialEngine } from './engine'
 import type { EngineName, PreviewMode, Viewport } from './engine'
 import { runCompatibilityCheck } from './compat/check'
@@ -14,8 +14,18 @@ import fixtureRaw from '../examples/issue-001.md?raw'
 /** 引擎切换仅开发模式可见；默认 Doocs-backed 引擎。 */
 const DEFAULT_ENGINE: EngineName = 'doocs'
 
+/** 草稿自动保存：本地无草稿时回落到示例 fixture。 */
+const DRAFT_KEY = 'max-editorial:draft:v1'
+function loadDraft(fallback: string): string {
+  try {
+    return localStorage.getItem(DRAFT_KEY) ?? fallback
+  } catch {
+    return fallback
+  }
+}
+
 export default function App() {
-  const [source, setSource] = useState(fixtureRaw)
+  const [source, setSource] = useState(() => loadDraft(fixtureRaw))
   const [mode, setMode] = useState<PreviewMode>('editorial')
   const [viewport, setViewport] = useState<Viewport>('desktop')
   const [checkOpen, setCheckOpen] = useState(false)
@@ -24,6 +34,15 @@ export default function App() {
   const [compatOpen, setCompatOpen] = useState(false)
   const [cbDiagOpen, setCbDiagOpen] = useState(false)
   const [lastCopiedHtml, setLastCopiedHtml] = useState<string | null>(null)
+
+  // 草稿自动保存：任何编辑（含 LOAD FIXTURE 重置）都写入 localStorage，刷新/重开不丢稿。
+  useEffect(() => {
+    try {
+      localStorage.setItem(DRAFT_KEY, source)
+    } catch {
+      // 隐私模式 / 配额满时静默降级，不阻塞编辑。
+    }
+  }, [source])
 
   const engine = useMemo(() => createEditorialEngine(engineName), [engineName])
   const rendered = useMemo(() => engine.render(source), [engine, source])

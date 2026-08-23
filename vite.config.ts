@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  // 相对路径构建：部署到任意子路径（GitHub Pages /max-editorial/）都能加载资源。
+  base: './',
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
