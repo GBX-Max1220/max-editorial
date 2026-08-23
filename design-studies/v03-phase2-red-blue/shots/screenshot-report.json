@@ -1,0 +1,288 @@
+{
+  "cleanOverflow": {
+    "vw": 390,
+    "htmlScroll": 375,
+    "htmlClient": 375,
+    "bodyScroll": 375,
+    "bodyClient": 375,
+    "overflowEls": [],
+    "pass": true
+  },
+  "shots": [
+    {
+      "file": "red-blue-desktop-top.png",
+      "width": 1440,
+      "height": 1000,
+      "beyond": false,
+      "gray": false,
+      "overflow": null,
+      "h1": null,
+      "computed": null,
+      "pixels": {
+        "blue": 2226,
+        "red": 1624,
+        "saturated": 30742,
+        "w": 1440,
+        "h": 1000
+      },
+      "pass": {
+        "colorShot": true,
+        "grayscaleShot": null,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-desktop-full.png",
+      "width": 1440,
+      "height": 9000,
+      "beyond": false,
+      "gray": false,
+      "overflow": null,
+      "h1": null,
+      "computed": null,
+      "pixels": null,
+      "pass": {
+        "colorShot": null,
+        "grayscaleShot": null,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-mobile-top.png",
+      "width": 390,
+      "height": 844,
+      "beyond": false,
+      "gray": false,
+      "overflow": null,
+      "h1": {
+        "lineCount": 2,
+        "lastLineChars": 11,
+        "lines": [
+          "AI 说自己 90% 确定，这",
+          "个数字到底意味着什么？"
+        ]
+      },
+      "computed": null,
+      "pixels": {
+        "blue": 1641,
+        "red": 822,
+        "saturated": 19767,
+        "w": 390,
+        "h": 844
+      },
+      "pass": {
+        "colorShot": true,
+        "grayscaleShot": null,
+        "overflow": null,
+        "h1": true
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-mobile-full.png",
+      "width": 390,
+      "height": 18000,
+      "beyond": false,
+      "gray": false,
+      "overflow": null,
+      "h1": null,
+      "computed": null,
+      "pixels": {
+        "blue": 15078,
+        "red": 10429,
+        "saturated": 176128,
+        "w": 390,
+        "h": 18000
+      },
+      "pass": {
+        "colorShot": true,
+        "grayscaleShot": null,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-mobile-top-grayscale.png",
+      "width": 390,
+      "height": 844,
+      "beyond": false,
+      "gray": true,
+      "overflow": null,
+      "h1": null,
+      "computed": null,
+      "pixels": {
+        "blue": 0,
+        "red": 0,
+        "saturated": 0,
+        "w": 390,
+        "h": 844
+      },
+      "pass": {
+        "colorShot": null,
+        "grayscaleShot": true,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-opposition-blocks-color.png",
+      "width": 390,
+      "height": 844,
+      "beyond": false,
+      "gray": false,
+      "overflow": null,
+      "h1": null,
+      "computed": {
+        "evidenceBorder": "rgb(47, 95, 215)",
+        "evidenceLabel": "rgb(47, 95, 215)",
+        "counterpointBorder": "rgb(212, 71, 63)",
+        "counterpointLabel": "rgb(212, 71, 63)"
+      },
+      "pixels": {
+        "blue": 1459,
+        "red": 1006,
+        "saturated": 12746,
+        "w": 390,
+        "h": 844
+      },
+      "pass": {
+        "colorShot": true,
+        "grayscaleShot": null,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-opposition-blocks-grayscale.png",
+      "width": 390,
+      "height": 844,
+      "beyond": false,
+      "gray": true,
+      "overflow": null,
+      "h1": null,
+      "computed": {
+        "evidenceBorder": "rgb(47, 95, 215)",
+        "evidenceLabel": "rgb(47, 95, 215)",
+        "counterpointBorder": "rgb(212, 71, 63)",
+        "counterpointLabel": "rgb(212, 71, 63)"
+      },
+      "pixels": {
+        "blue": 0,
+        "red": 0,
+        "saturated": 0,
+        "w": 390,
+        "h": 844
+      },
+      "pass": {
+        "colorShot": null,
+        "grayscaleShot": true,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-markdown-coverage-color.png",
+      "width": 390,
+      "height": 844,
+      "beyond": false,
+      "gray": false,
+      "overflow": null,
+      "h1": null,
+      "computed": null,
+      "pixels": {
+        "blue": 3414,
+        "red": 856,
+        "saturated": 19853,
+        "w": 390,
+        "h": 844
+      },
+      "pass": {
+        "colorShot": true,
+        "grayscaleShot": null,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-markdown-coverage-grayscale.png",
+      "width": 390,
+      "height": 844,
+      "beyond": false,
+      "gray": true,
+      "overflow": null,
+      "h1": null,
+      "computed": null,
+      "pixels": {
+        "blue": 0,
+        "red": 0,
+        "saturated": 0,
+        "w": 390,
+        "h": 844
+      },
+      "pass": {
+        "colorShot": null,
+        "grayscaleShot": true,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-opposition-blocks.png",
+      "width": 390,
+      "height": 844,
+      "beyond": false,
+      "gray": false,
+      "overflow": null,
+      "h1": null,
+      "computed": null,
+      "pixels": {
+        "blue": 1459,
+        "red": 1006,
+        "saturated": 12746,
+        "w": 390,
+        "h": 844
+      },
+      "pass": {
+        "colorShot": true,
+        "grayscaleShot": null,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    },
+    {
+      "file": "red-blue-markdown-coverage.png",
+      "width": 390,
+      "height": 844,
+      "beyond": false,
+      "gray": false,
+      "overflow": null,
+      "h1": null,
+      "computed": null,
+      "pixels": {
+        "blue": 3414,
+        "red": 856,
+        "saturated": 19853,
+        "w": 390,
+        "h": 844
+      },
+      "pass": {
+        "colorShot": true,
+        "grayscaleShot": null,
+        "overflow": null,
+        "h1": null
+      },
+      "failed": []
+    }
+  ]
+}

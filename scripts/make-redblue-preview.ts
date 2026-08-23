@@ -104,6 +104,11 @@ ${footerHtml(fm)}
 `
   writeFileSync(join(root, OUT_DIR, 'preview.html'), preview, 'utf8')
 
+  // 灰度变体：预置 html{filter:grayscale(1)}（运行时不再注入/移除样式，避免状态污染与 computed 怪癖）。
+  // 注意：必须插到 </style> 之前（style 元素内），否则是 head 里无效的裸文本。
+  const grayscale = preview.replace('</style>', 'html { filter: grayscale(1) !important; } img { filter: grayscale(1) !important; }\n</style>')
+  writeFileSync(join(root, OUT_DIR, 'preview-grayscale.html'), grayscale, 'utf8')
+
   // ── 2) 微信目标编译产物（纯 inline-style 自包含 HTML，粘贴进微信的就是它） ──
   const artifact = compileForWechat(fixture, { mode: 'editorial' })
   const artifactPage = `<!doctype html>

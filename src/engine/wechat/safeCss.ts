@@ -63,7 +63,7 @@ export const WECHAT_SAFE_CSS = `
 .article .figure-caption { font-size: 13px; color: #6F6B63; text-align: center; margin-top: 10px; line-height: 1.6; }
 .article table { width: 100%; border-collapse: collapse; font-size: 14px; border-top: 1px solid #252421; border-bottom: 1px solid #252421; margin: 34px 0; }
 .article th, .article td { padding: 10px 8px; text-align: left; vertical-align: top; font-weight: 400; }
-.article th { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; font-size: 10px; letter-spacing: 2px; color: #6F6B63; background: #F4F1EB; border-bottom: 1px solid #2F5FD7; }
+.article th { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; font-size: 11px; letter-spacing: 2px; color: #6F6B63; background: #F4F1EB; border-bottom: 1px solid #2F5FD7; }
 .article tr + tr td { border-top: 1px solid #D8D1C6; }
 .article .table-wrap { overflow-x: auto; }
 

@@ -55,7 +55,7 @@
 
   /* ── type scale（LOCK §4，固定 px；微信编译另行收敛；H1 ≤ 40px） ── */
   --t-title: 40px;
-  --t-title-m: 33px;           /* mobile cover 标题 */
+  --t-title-m: 27px;           /* mobile cover 标题：27px 消除末行孤字（≥2 自然行） */
   --t-h2: 26px;
   --t-h3: 20px;
   --t-h4: 17px;                /* H4：段内小标题（sans 600） */
