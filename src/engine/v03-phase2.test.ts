@@ -35,7 +35,8 @@ const BLUE = '#2F5FD7'
 const RED = '#D4473F'
 const NEUTRAL = '#746F67'
 const NEUTRAL_SURFACE = '#F4F1EB'
-const BLUE_SURFACE = '#EEF3FF'
+const BLUE_SURFACE = '#DCE8FF'
+const RED_SURFACE = '#FBE2DE'
 
 describe('H1–H6 输出稳定；H4 不再被钳制（§五）', () => {
   it('渲染 #–###### 为对应 h1–h6', () => {
@@ -127,14 +128,27 @@ describe('七个语义块输出预期结构（§六）', () => {
     const c = compiled(':::judgment\n判断\n:::')
     expect(c).toContain('border-top: 1px solid #252421')
     expect(c).not.toContain(`background: ${'#D4473F'}`)
-    expect(c).not.toContain('background: #FFF0EE')
+    expect(c).not.toContain(`background: ${RED_SURFACE}`)
     expect(c).toMatch(/class="sblock-label" style="[^"]*color: #D4473F/)
   })
 
-  it('AI Output 不使用大面积背景', () => {
+  it('AI Output 使用不透明蓝面（Owner 真机反馈：整块蓝底，非仅左边框）', () => {
     const c = compiled(':::ai-output source="来源" status="raw"\n输出\n:::')
     const sec = c.match(/class="sblock sblock-ai-output"[^>]*>/)?.[0] ?? ''
-    expect(sec).not.toContain('background:')
+    expect(sec).toContain(`background: ${BLUE_SURFACE}`)
+    expect(sec).not.toContain('rgba(') // 不透明，非半透明
+  })
+
+  it('Evidence / Metric 整块蓝面；Counterpoint 整块红面（非仅左边框）', () => {
+    const ev = compiled(':::evidence\n证据\n:::')
+    const cp = compiled(':::counterpoint\n反方\n:::')
+    const mt = compiled(':::metric value="90%" display_function="inspection_specimen"\n:::')
+    const mn = compiled(':::metric value="-18%" negative="true" display_function="reported_result"\n:::')
+    expect(ev).toMatch(/class="sblock sblock-evidence[^"]*"[^>]*style="[^"]*background: #DCE8FF/)
+    expect(cp).toMatch(/class="sblock sblock-counterpoint[^"]*"[^>]*style="[^"]*background: #FBE2DE/)
+    expect(mt).toMatch(/class="sblock sblock-metric[^"]*"[^>]*style="[^"]*background: #DCE8FF/)
+    // negative metric → 红面
+    expect(mn).toMatch(/data-negative="true"[^>]*style="[^"]*background: #FBE2DE/)
   })
 
   it('Metric 字号不超过 44px（specimen 44px 上限）', () => {

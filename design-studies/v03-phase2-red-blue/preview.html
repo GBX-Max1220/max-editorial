@@ -29,9 +29,9 @@
   --hairline: #D8D1C6;         /* 发丝线 */
   --neutral-surface: #F4F1EB;  /* 中性浅面（quote / lab-note / 表头） */
   --blue: #2F5FD7;             /* 主蓝：结构 / 提问 / 链接 / 列表 / 证据 / 正方 */
-  --blue-surface: #EEF3FF;     /* 极浅蓝面（question） */
+  --blue-surface: #DCE8FF;     /* 蓝面（question / ai-output / evidence / metric）：不透明、明显可读（Owner 真机反馈） */
   --red: #D4473F;              /* 判断红：反方 / 风险 / 边界 / 少量判断标签 */
-  --red-surface: #FFF0EE;      /* 极浅红面（counterpoint 可选） */
+  --red-surface: #FBE2DE;      /* 红面（counterpoint / negative metric）：不透明、明显可读 */
 
   /* ── 派生 / 角色色 ── */
   --neutral: #746F67;          /* 中性 quote 左边框（不默认蓝/红） */
@@ -569,7 +569,7 @@ button {
 
 .sblock-question {
   margin: var(--block-before) 0 var(--block-after);
-  padding: 0.6em 1em 1.1em;
+  padding: 0.9em 1.1em;
   border-left: 2px solid var(--blue);
   border-bottom: 1px solid var(--border);
   background: var(--blue-surface);
@@ -605,7 +605,8 @@ button {
 .sblock-ai-output {
   margin: var(--block-before) 0 var(--block-after);
   border-left: 2px solid var(--blue);
-  padding: 0.2em 0 0.2em 1.1em;
+  padding: 0.9em 1.1em;
+  background: var(--blue-surface);
 }
 
 .sblock-ai-output .sblock-label {
@@ -626,17 +627,20 @@ button {
 .sblock-evidence,
 .sblock-counterpoint {
   margin: var(--block-before) 0 var(--block-after);
-  padding: 0.2em 0 0.2em 1.1em;
+  padding: 0.9em 1.1em;
 }
 
-/* 红蓝对立（legibility parity，INVARIANT A2）：同一容器同一排版，仅 border/label 色区分；
-   蓝=Evidence/正方（结构），红=Counterpoint/反方（冲突）。body 仍墨色，视觉重量对等。 */
+/* 红蓝对立（legibility parity，INVARIANT A2）：同一容器同一排版，仅 border/label/面 色区分；
+   蓝=Evidence/正方（结构），红=Counterpoint/反方（冲突）。body 仍墨色，视觉重量对等。
+   Owner 真机反馈：整块不透明蓝/红面（非仅左边框）。 */
 .sblock-evidence {
   border-left: 2px solid var(--blue);
+  background: var(--blue-surface);
 }
 
 .sblock-counterpoint {
   border-left: 2px solid var(--red);
+  background: var(--red-surface);
 }
 
 .sblock-evidence .sblock-label {
@@ -805,6 +809,13 @@ button {
 .sblock-metric {
   text-align: center;
   margin: var(--block-before) 0 var(--block-after);
+  padding: 1.4em 1.1em;
+  background: var(--blue-surface);
+}
+
+/* negative metric：风险指标 → 红面（伴随文本标签），与正负语义一致 */
+.sblock-metric[data-negative='true'] {
+  background: var(--red-surface);
 }
 
 .metric-label {

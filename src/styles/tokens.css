@@ -22,9 +22,9 @@
   --hairline: #D8D1C6;         /* 发丝线 */
   --neutral-surface: #F4F1EB;  /* 中性浅面（quote / lab-note / 表头） */
   --blue: #2F5FD7;             /* 主蓝：结构 / 提问 / 链接 / 列表 / 证据 / 正方 */
-  --blue-surface: #EEF3FF;     /* 极浅蓝面（question） */
+  --blue-surface: #DCE8FF;     /* 蓝面（question / ai-output / evidence / metric）：不透明、明显可读（Owner 真机反馈） */
   --red: #D4473F;              /* 判断红：反方 / 风险 / 边界 / 少量判断标签 */
-  --red-surface: #FFF0EE;      /* 极浅红面（counterpoint 可选） */
+  --red-surface: #FBE2DE;      /* 红面（counterpoint / negative metric）：不透明、明显可读 */
 
   /* ── 派生 / 角色色 ── */
   --neutral: #746F67;          /* 中性 quote 左边框（不默认蓝/红） */

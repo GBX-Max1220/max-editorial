@@ -86,7 +86,7 @@ export const WECHAT_SAFE_CSS = `
 
 /* ── QUESTION（蓝左边框 + 浅蓝面 + 蓝 label；问题入口，非 CTA） ── */
 
-.sblock-question { margin: 34px 0; padding: 10px 16px 14px; border-left: 2px solid #2F5FD7; border-bottom: 1px solid #D8D1C6; background: #EEF3FF; }
+.sblock-question { margin: 34px 0; padding: 14px 16px; border-left: 2px solid #2F5FD7; border-bottom: 1px solid #D8D1C6; background: #DCE8FF; }
 .sblock-question .sblock-label { color: #2F5FD7; }
 .sblock-question .sblock-body { font-size: 19px; line-height: 1.7; }
 .sblock-question-major { text-align: center; padding: 48px 8px; border-top: 1px solid #252421; border-bottom: 1px solid #252421; background: #EEF3FF; }
@@ -94,15 +94,15 @@ export const WECHAT_SAFE_CSS = `
 
 /* ── AI OUTPUT（蓝细边框，无大面积背景；label 蓝；换行靠 <br/>） ── */
 
-.sblock-ai-output { margin: 34px 0; border-left: 2px solid #2F5FD7; padding-left: 16px; }
+.sblock-ai-output { margin: 34px 0; border-left: 2px solid #2F5FD7; padding: 14px 16px; background: #DCE8FF; }
 .sblock-ai-output .sblock-label { margin-bottom: 8px; color: #2F5FD7; }
 .sblock-ai-output .sblock-body { font-size: 15px; line-height: 1.75; color: #3b3a36; }
 
 /* ── EVIDENCE ↔ COUNTERPOINT（parity：同一容器同一排版；蓝/红左边框 + 色 label） ── */
 
-.sblock-evidence, .sblock-counterpoint { margin: 34px 0; padding: 4px 0 4px 16px; }
-.sblock-evidence { border-left: 2px solid #2F5FD7; }
-.sblock-counterpoint { border-left: 2px solid #D4473F; }
+.sblock-evidence, .sblock-counterpoint { margin: 34px 0; padding: 14px 16px; }
+.sblock-evidence { border-left: 2px solid #2F5FD7; background: #DCE8FF; }
+.sblock-counterpoint { border-left: 2px solid #D4473F; background: #FBE2DE; }
 .sblock-evidence .sblock-label { color: #2F5FD7; }
 .sblock-counterpoint .sblock-label { color: #D4473F; }
 .sblock-evidence .sblock-body, .sblock-counterpoint .sblock-body { font-size: 16px; line-height: 1.8; }
@@ -135,7 +135,8 @@ export const WECHAT_SAFE_CSS = `
 
 /* ── METRIC（数字 ink，≤44px；label 蓝；negative 才红且伴随文本标签） ── */
 
-.sblock-metric { text-align: center; margin: 32px 0; }
+.sblock-metric { text-align: center; margin: 32px 0; padding: 20px 16px; background: #DCE8FF; }
+.sblock-metric[data-negative='true'] { background: #FBE2DE; }
 .metric-label { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; font-size: 11px; letter-spacing: 3px; color: #2F5FD7; margin-bottom: 14px; }
 /* V0.2.3 H01：<p> + 固定 44px + weight 600 + margin 10px 0，无 line-height 覆盖。
    特异性：.sblock-metric .metric-value（0,2,0）须压过 .article p（0,1,1）。 */

@@ -197,7 +197,7 @@ function renderMetric(input: SemanticRenderInput): string {
   // Phase 2：negative="true" → 数字红（负向风险），且必须伴随文本标签（label 或默认"负向风险"）。
   const negative = input.props.negative === 'true'
   const effLabel = negative && !label ? '负向风险' : label
-  return `<section class="sblock sblock-metric" data-salience="${role}">${effLabel ? `<div class="metric-label">${esc(effLabel)}</div>` : ''}<p class="metric-value${negative ? ' metric-value-negative' : ''}">${esc(value)}</p>${cover}${metaLine ? `<div class="metric-meta">${esc(metaLine)}</div>` : ''}${provLine ? `<div class="metric-provenance">${esc(provLine)}</div>` : ''}</section>`
+  return `<section class="sblock sblock-metric" data-salience="${role}"${negative ? ' data-negative="true"' : ''}>${effLabel ? `<div class="metric-label">${esc(effLabel)}</div>` : ''}<p class="metric-value${negative ? ' metric-value-negative' : ''}">${esc(value)}</p>${cover}${metaLine ? `<div class="metric-meta">${esc(metaLine)}</div>` : ''}${provLine ? `<div class="metric-provenance">${esc(provLine)}</div>` : ''}</section>`
 }
 
 function renderUnknown(input: SemanticRenderInput): string {
