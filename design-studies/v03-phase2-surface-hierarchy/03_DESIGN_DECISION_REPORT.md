@@ -1,7 +1,12 @@
 # V0.3 Phase 2 — DESIGN DECISION REPORT
 ## Editorial Surface & Hierarchy Study · Direction B (Restrained Hybrid)
 
-> 状态：**REVISION 1 COMPLETE — RECOMMEND HYBRID FOR OWNER ACCEPTANCE**（见文末 Revision 1 节）。
+> **`SUPERSEDED_BY_RED_BLUE_EDITORIAL`**（2026-08-23，Owner 最终裁决）：
+> 本报告的 teal/terracotta 方案不再作为最终候选，仅保留为历史方案。
+> 生产配色以 `design-studies/v03-phase2-red-blue/PRODUCTION_DECISION_REPORT.md` 为准
+> （红蓝身份色，已落到生产 renderer/compiler）。
+
+> 状态（历史）：**REVISION 1 COMPLETE — RECOMMEND HYBRID FOR OWNER ACCEPTANCE**（见文末 Revision 1 节）。
 > 本报告不冻结任何视觉。生产 renderer / compiler / app UI 未修改。
 > Provenance：Agent Claude Code · 2026-08-21 · Branch `design/v03-phase2-surface-hierarchy-study` ·
 > Starting HEAD `00cbebf224b32f3e754133ab525666d1a20d19ce`（feat/v03-phase1-markdown-typography）。
