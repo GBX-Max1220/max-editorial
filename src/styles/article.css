@@ -62,7 +62,7 @@
   line-height: 1;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: var(--cobalt);
+  color: var(--blue);
   margin-bottom: 12px;
 }
 
@@ -76,13 +76,13 @@
   color: var(--ink);
 }
 
-/* 短墨线：浏览器源语言（60px × 1px ink）；微信编译为真实节点/border（Phase 6 已知映射） */
-.article h2::after {
-  content: "";
+/* 短墨线（Phase 2）：真实节点 <span class="sec-rule">（渲染器产出），不依赖伪元素；
+   blue 作 H2 导航信号；微信编译为同一节点 + 固定 px（safeCss）。 */
+.article h2 .sec-rule {
   display: block;
   width: 60px;
   height: 1px;
-  background: var(--ink);
+  background: var(--blue);
   margin-top: 14px;
 }
 
@@ -94,6 +94,38 @@
   letter-spacing: var(--ls-title);
   margin: var(--s-h3-top) 0 0.8em;
   color: var(--ink);
+}
+
+/* ── H4 / H5 / H6（Phase 2 进入生产）：段内小标题，层级递减，低视觉重量 ── */
+
+.article h4 {
+  font-family: var(--sans);
+  font-size: var(--t-h4);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 2em 0 0.7em;
+  color: var(--ink);
+}
+
+.article h5 {
+  font-family: var(--sans);
+  font-size: 0.95em;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  margin: 1.8em 0 0.6em;
+  color: var(--muted-ink);
+}
+
+.article h6 {
+  font-family: var(--mono);
+  font-size: 0.82em;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 1.6em 0 0.5em;
+  color: var(--muted-ink);
 }
 
 /* ── 段落：阅读主体 ───────────────────────────── */
@@ -122,17 +154,24 @@
 }
 
 .article a {
-  color: var(--cobalt);
+  color: var(--blue);
   text-decoration: none;
-  border-bottom: 1px solid rgba(49, 87, 213, 0.35);
+  border-bottom: 1px solid var(--blue);
+}
+
+/* 链接不只靠颜色：下划线 + 蓝色双通道。访问过用深蓝区分（不引入新语义色）。 */
+.article a:visited {
+  color: var(--deep);
 }
 
 /* ── blockquote：编辑引文（serif + 左墨线 + 来源行），非通用引用 ── */
 
+/* 普通 `>` 引用保持中性：引用 ≠ 证据 ≠ 反方。中性灰边 + neutral surface，不默认蓝/红。 */
 .article blockquote {
   margin: 2.4em 0;
-  padding: 4px 0 4px 22px;
-  border-left: 1px solid var(--ink);
+  padding: 12px 16px;
+  border-left: 2px solid var(--neutral);
+  background: var(--neutral-surface);
   font-family: var(--serif);
   font-size: var(--t-quote);
   line-height: var(--lh-quote);
@@ -144,15 +183,18 @@
 }
 
 /* 来源行：渲染器产出 .q-source 时生效（Phase 2 figure/引用扩展） */
+/* 来源行（渲染器产出 .q-source）：字号更小、muted-ink、与引文明确间距 */
 .article blockquote .q-source {
   display: block;
-  margin-top: 12px;
+  margin-top: 14px;
+  padding-top: 8px;
+  border-top: 1px solid var(--hairline);
   font-family: var(--mono);
   font-size: 10px;
-  line-height: 1;
+  line-height: 1.6;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--secondary);
+  color: var(--muted-ink);
   font-style: normal;
 }
 
@@ -175,7 +217,7 @@
   content: "—";
   position: absolute;
   left: 0;
-  color: var(--secondary);
+  color: var(--blue);
 }
 
 .article ol {
@@ -201,7 +243,16 @@
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.12em;
-  color: var(--cobalt);
+  color: var(--blue);
+}
+
+/* task list：真实符号 ☑/☐（微信稳定）；已完成=蓝，未完成=neutral，不新增绿色 */
+.article .task-mark {
+  color: var(--muted-ink);
+}
+
+.article .task-mark.task-done {
+  color: var(--blue);
 }
 
 /* ── horizontal rule：章节大分隔（editorial pause），全篇 ≤2（lint） ── */
@@ -217,24 +268,25 @@
 .article code {
   font-family: var(--mono);
   font-size: 0.86em;
-  background: var(--surface);
+  background: var(--neutral-surface);
   border: 1px solid var(--hairline);
   border-radius: 2px;
   padding: 0.12em 0.4em;
-  color: var(--ink);
+  color: var(--code-text);
 }
 
+/* 代码块：深墨色背景（非纯黑）+ 暖白文字；不做语法高亮（无沉重依赖）；长行自身横滚安全 */
 .article pre {
   margin: 2em 0;
   padding: 19px 21px;
-  background: var(--surface);
-  border: 1px solid var(--hairline);
+  background: var(--code-block-bg);
+  border: 1px solid var(--code-block-bg);
   border-radius: 2px;
   overflow-x: auto;
   font-family: var(--mono);
   font-size: 13px;
   line-height: 1.75;
-  color: var(--ink);
+  color: var(--code-block-fg);
 }
 
 .article pre code {
@@ -272,7 +324,8 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--secondary);
-  border-bottom: 1px solid var(--hairline);
+  background: var(--neutral-surface);
+  border-bottom: 1px solid var(--blue);
 }
 
 .article tr + tr td {
@@ -363,8 +416,14 @@
 
 .sblock-question {
   margin: var(--block-before) 0 var(--block-after);
-  padding: 0.2em 0 1.1em;
+  padding: 0.6em 1em 1.1em;
+  border-left: 2px solid var(--blue);
   border-bottom: 1px solid var(--border);
+  background: var(--blue-surface);
+}
+
+.sblock-question .sblock-label {
+  color: var(--blue);
 }
 
 .sblock-question .sblock-body {
@@ -392,12 +451,13 @@
 
 .sblock-ai-output {
   margin: var(--block-before) 0 var(--block-after);
-  border-left: 3px solid var(--border-strong);
+  border-left: 2px solid var(--blue);
   padding: 0.2em 0 0.2em 1.1em;
 }
 
 .sblock-ai-output .sblock-label {
   margin-bottom: 0.6em;
+  color: var(--blue);
 }
 
 .sblock-ai-output .sblock-body {
@@ -413,8 +473,25 @@
 .sblock-evidence,
 .sblock-counterpoint {
   margin: var(--block-before) 0 var(--block-after);
-  padding: 1.1em 0 0.2em;
-  border-top: 1px solid var(--border);
+  padding: 0.2em 0 0.2em 1.1em;
+}
+
+/* 红蓝对立（legibility parity，INVARIANT A2）：同一容器同一排版，仅 border/label 色区分；
+   蓝=Evidence/正方（结构），红=Counterpoint/反方（冲突）。body 仍墨色，视觉重量对等。 */
+.sblock-evidence {
+  border-left: 2px solid var(--blue);
+}
+
+.sblock-counterpoint {
+  border-left: 2px solid var(--red);
+}
+
+.sblock-evidence .sblock-label {
+  color: var(--blue);
+}
+
+.sblock-counterpoint .sblock-label {
+  color: var(--red);
 }
 
 .sblock-evidence .sblock-body,
@@ -507,6 +584,7 @@
 
 .sblock-judgment .sblock-label {
   margin-bottom: 1em;
+  color: var(--red);
 }
 
 .sblock-judgment .sblock-body {
@@ -580,7 +658,7 @@
   font-family: var(--mono);
   font-size: 0.68em;
   letter-spacing: 0.3em;
-  color: var(--muted);
+  color: var(--blue);
   margin-bottom: 1.1em;
 }
 
@@ -593,6 +671,11 @@
   font-weight: 600;
   /* V0.2.3：value 为 <p>（对齐 H01），覆盖 .article p 段距，避免数字行多出下边距 */
   margin: 0;
+}
+
+/* 负向风险（Phase 2）：只有明确 negative 时数字转红，且必须伴随文本标签（renderer 保证） */
+.metric-value-negative {
+  color: var(--red);
 }
 
 .metric-meta,
@@ -822,7 +905,7 @@
 }
 
 .article[data-mode='normal'] .sblock-metric[data-salience='inspection_specimen'] .metric-value {
-  font-size: clamp(2.4em, 6vw, 3.6em);
+  font-size: 2.4em;
 }
 
 .article[data-mode='normal'] .sblock-question,

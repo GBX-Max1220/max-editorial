@@ -1,36 +1,49 @@
 /* ═══════════════════════════════════════════════════════════════
-   DESIGN TOKENS — V0.3 · MAX EDITORIAL ART DIRECTION
-   设计权威：MAX_EDITORIAL_V03_ART_DIRECTION_LOCK.md §2–§5（SPEC ONLY → 生产实现）
+   DESIGN TOKENS — V0.3 Phase 2 · RED-BLUE EDITORIAL
+   设计权威：MAX_EDITORIAL_V03_ART_DIRECTION_LOCK.md §2–§5
+   Owner 最终配色裁决（2026-08）：红蓝身份色，替代被否决的 teal/terracotta 候选。
 
-   纪律（P0）：黑白做结构，颜色做身份。
-   - 去掉 accent 后页面仍成立（grayscale 自检）。
-   - cobalt/deep 覆盖率 ≈3–5% 视觉面积；不给全部标题染色，不建蓝色组件框。
+   纪律（P0）：黑白做结构，颜色做角色（红蓝 ≠ 真伪，= 信息角色）。
+   - 去掉颜色后页面仍成立（grayscale 自检）。
+   - blue : red ≈ 4 : 1 可见面积；颜色可以鲜艳，但面积必须克制。
+   - 不使用纯蓝 #0000FF / 纯红 #FF0000；不引入绿/紫/橙等新语义主色；
+     无渐变 / 阴影发光 / 玻璃拟态。
 
-   token 命名：V0.3 canonical 为准；下方保留 V0.2 别名，供编辑器 chrome
-   （app.css / base.css）与既有语义块规则引用，值已对齐 V0.3。
+   回退：--cobalt/--secondary/--surface/--bg 等旧别名全部指向新角色色，
+   一处改 --blue / --red 即可全局换色；回退旧 palette 只需改回别名映射。
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── color：V0.3 canonical ─────────────────────────── */
-  --paper: #F7F5EF;            /* 纸面（文章 canvas） */
-  --ink: #191918;              /* 墨色正文 / 主结构线 */
-  --secondary: #6A6862;        /* 次级文字 / 注记 */
-  --hairline: #D8D4CA;         /* 发丝线 */
-  --surface: #EFEEE8;          /* 浅面（code / lab-note 底色） */
-  --cobalt: #3157D5;           /* 身份 accent（序号、链接、Fig、Judgment 的 MAX、圆点） */
-  --deep: #243F9E;             /* 深 cobalt（SUPPORTED 判词、ai-output 引用条可选） */
+  /* ── color：RED-BLUE EDITORIAL canonical ─────────────────── */
+  --canvas: #E9E3D9;           /* 预览工作台（米灰画布，不导出） */
+  --paper: #FFFDF8;            /* 纸面（暖白，导出） */
+  --ink: #252421;              /* 墨色正文 / 主结构线 */
+  --muted-ink: #6F6B63;        /* 次级文字 / 注记 */
+  --hairline: #D8D1C6;         /* 发丝线 */
+  --neutral-surface: #F4F1EB;  /* 中性浅面（quote / lab-note / 表头） */
+  --blue: #2F5FD7;             /* 主蓝：结构 / 提问 / 链接 / 列表 / 证据 / 正方 */
+  --blue-surface: #EEF3FF;     /* 极浅蓝面（question） */
+  --red: #D4473F;              /* 判断红：反方 / 风险 / 边界 / 少量判断标签 */
+  --red-surface: #FFF0EE;      /* 极浅红面（counterpoint 可选） */
 
-  /* 派生辅助（不在 LOCK 清单，用于弱标签，低于 secondary） */
-  --faint: #B7B4AB;
+  /* ── 派生 / 角色色 ── */
+  --neutral: #746F67;          /* 中性 quote 左边框（不默认蓝/红） */
+  --faint: #B4B0A6;            /* 弱标签（低于 muted） */
+  --deep: #243F9E;             /* 深蓝（SUPPORTED 判词等，非新语义主色） */
+  --code-text: #B83E38;        /* inline code 文字：red 的安全深色版本 */
+  --code-block-bg: #23211E;    /* 代码块：深墨色背景，非纯黑 */
+  --code-block-fg: #F5F2EC;    /* 代码块：暖白文字 */
 
-  /* ── color：V0.2 别名（编辑器 chrome / 既有语义块，值对齐 V0.3） ── */
-  --bg: #E7E3D8;               /* 预览区工作台（quiet neutral workspace，低于 paper） */
+  /* ── color：旧别名（编辑器 chrome / 既有语义块；值对齐新角色） ── */
+  --bg: var(--canvas);
   --fg: var(--ink);
-  --muted: var(--secondary);
+  --secondary: var(--muted-ink);
+  --surface: var(--neutral-surface);
+  --surface-subtle: var(--neutral-surface);
   --border: var(--hairline);
-  --border-strong: #B7B4AB;    /* 旧"更实在的线"→ 中灰（组件边框）；V0.3 的墨线显式用 --ink */
-  --surface-subtle: var(--surface);
-  --accent: var(--cobalt);     /* V0.3 唯一 accent = cobalt */
+  --border-strong: #C7C0B4;    /* 组件边框（中灰） */
+  --cobalt: var(--blue);       /* 旧身份色别名 → blue（回退旧 palette 时改此处） */
+  --accent: var(--blue);       /* V0.3 唯一 accent = blue */
 
   /* ── type：三角色分工（LOCK §3）── serif = 编辑时刻/标题；sans = 阅读主体；mono = 系统/标签 ── */
   --serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
@@ -40,18 +53,17 @@
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
     "Liberation Mono", monospace;
 
-  /* ── type scale（LOCK §4，固定 px；微信编译另行收敛） ── */
-  --t-title: 42px;
+  /* ── type scale（LOCK §4，固定 px；微信编译另行收敛；H1 ≤ 40px） ── */
+  --t-title: 40px;
   --t-title-m: 33px;           /* mobile cover 标题 */
   --t-h2: 26px;
   --t-h3: 20px;
+  --t-h4: 17px;                /* H4：段内小标题（sans 600） */
   --t-body: 16px;
   --t-lede: 17.5px;            /* 开篇段 */
   --t-quote: 19px;
   --t-judgment: 23px;
   --t-judgment-m: 21px;        /* mobile judgment */
-  --t-metric: 84px;
-  --t-metric-m: 66px;          /* mobile metric */
   --t-label: 10px;             /* mono 标签 / 序号 / 元数据（10–11） */
   --t-note: 13px;              /* 次级说明 / qualifier */
   --t-next: 20px;
@@ -96,9 +108,10 @@
   --image-gap: 1.3em;
   --caption-gap: 0.55em;
 
-  /* metric 数字（V0.3 LOCK §18：specimen 84px serif 400；桌面/mobile 显式收敛） */
-  --metric-size-specimen: 84px;
-  --metric-size-specimen-m: 66px;
+  /* metric 数字（V0.3 Phase 2：specimen 收敛到微信上限 44px，不恢复 84px；
+     数字 ink，blue 只用于标签/单位/短线） */
+  --metric-size-specimen: 44px;
+  --metric-size-specimen-m: 44px;
   --metric-size-result: 1.5em;
   --metric-size-reference: 1.2em;
 }
