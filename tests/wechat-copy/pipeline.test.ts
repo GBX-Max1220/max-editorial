@@ -145,7 +145,7 @@ describe('content & semantics survive serialization', () => {
     expect(styleOf(doc, 'code')).toContain('font-family')
     const a = doc.querySelector('a[href="https://example.com/wechat-copy"]')
     expect(a).toBeTruthy()
-    expect((a as Element).getAttribute('style')).toContain('color: #3157D5')
+    expect((a as Element).getAttribute('style')).toContain('color: #2F5FD7')
   })
 
   it('blockquote survives with border-left', () => {
@@ -207,7 +207,7 @@ describe('self-contained inline styling (no app CSS dependency)', () => {
     const boldP = [...doc.querySelectorAll('p')].find((p) => p.textContent?.includes('普通段落'))
     expect(boldP?.getAttribute('style')).toContain('margin: 0 0 22px')
     expect(doc.querySelector('strong')?.getAttribute('style')).toContain('font-weight: 600')
-    expect(doc.querySelector('a')?.getAttribute('style')).toContain('color: #3157D5')
+    expect(doc.querySelector('a')?.getAttribute('style')).toContain('color: #2F5FD7')
     expect(doc.querySelector('blockquote')?.getAttribute('style')).toContain('border-left')
     const metricValue = [...doc.querySelectorAll('p')].find((p) => p.textContent?.trim() === '44')
     expect(metricValue?.getAttribute('style')).toContain('font-size: 44px')

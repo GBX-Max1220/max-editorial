@@ -111,7 +111,7 @@ describe('V0.3 纯 Markdown fixture（examples/v03-plain-markdown.md）', () => 
     expect(compiled).not.toMatch(/<style/i)
     expect(compiled).not.toMatch(/var\(\s*--/)
     // 核心身份（编号 + serif 标题）在微信产物中是真实文本与固定 px。
-    expect(compiled).toMatch(/<span class="sec-num" style="[^"]*color:\s*#3157D5/)
+    expect(compiled).toMatch(/<span class="sec-num" style="[^"]*color:\s*#2F5FD7/)
     expect(compiled).toMatch(/sec-title/)
   })
 })
