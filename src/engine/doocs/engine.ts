@@ -55,6 +55,17 @@ function createMarked(): Marked {
       html(this: unknown, token: { text: string }) {
         return escapeHtml(token.text)
       },
+      // 普通 `>` 引用保持中性；引文内以 `—`（U+2014）开头的行作为来源行渲染为 .q-source。
+      // 约定：`> —— 来源` 是作者显式书写，非伪造。同段内 `引文\n—— 来源`（marked 合并为一段）与
+      // 独立段落两种情况都处理；无来源行时输出等同默认 blockquote。
+      blockquote(this: { parser: { parse(tokens: Token[]): string; parseInline(tokens: Token[]): string } }, token: Tokens.Blockquote) {
+        const inner = this.parser.parse(token.tokens ?? [])
+        return `<blockquote>${splitQuoteSource(inner)}</blockquote>`
+      },
+      // GFM task list 的原生 checkbox 由 listitem 用真实符号 ☑/☐ 代替 → 压制 `<input>`（微信不可存活）。
+      checkbox() {
+        return ''
+      },
       // §12.12：图片 title 属性作为 caption（ANNOTATION 语法），与 legacy 引擎一致。
       image(this: unknown, token: Tokens.Image) {
         const src = escapeHtml(token.href)
@@ -63,6 +74,20 @@ function createMarked(): Marked {
         return title
           ? `<figure class="figure"><img src="${src}" alt="${alt}" title="${title}" /><figcaption class="figure-caption">${title}</figcaption></figure>`
           : `<img src="${src}" alt="${alt}" />`
+      },
+      // task list（GFM）：真实符号 ☑/☐（可复制、微信稳定），不用 <input>（微信不可存活）。
+      // 非 task 项走默认渲染路径，输出与 marked 默认一致（tight 单段 parseInline，其余 parse）。
+      listitem(this: { parser: { parse(t: Token[]): string; parseInline(t: Token[]): string } }, token: Tokens.ListItem) {
+        const mark = token.task
+          ? token.checked
+            ? '<span class="task-mark task-done">☑</span> '
+            : '<span class="task-mark">☐</span> '
+          : ''
+        const isTight = token.tokens.length === 1 && token.tokens[0].type === 'paragraph'
+        const body = isTight
+          ? this.parser.parseInline((token.tokens[0] as Tokens.Paragraph).tokens)
+          : this.parser.parse(token.tokens)
+        return `<li>${mark}${body}</li>`
       },
       // 表格结构与 V0.1 对齐：.table-wrap 包裹，无 align 属性。
       table(this: { parser: { parseInline(t: Token[]): string } }, token: Tokens.Table) {
@@ -76,6 +101,25 @@ function createMarked(): Marked {
   })
 
   return md
+}
+
+/**
+ * 把 blockquote 渲染 HTML 中，末段以 `—`（U+2014）开头的行拆为 .q-source 来源行。
+ * 只处理最后一个 `<p>…</p>`（marked 把同段 `引文\n—— 来源` 合并为一个段落）；无来源行原样返回。
+ */
+function splitQuoteSource(innerHtml: string): string {
+  const lastOpen = innerHtml.lastIndexOf('<p>')
+  if (lastOpen === -1) return innerHtml
+  const lastClose = innerHtml.lastIndexOf('</p>')
+  if (lastClose < lastOpen) return innerHtml
+  const body = innerHtml.slice(lastOpen + 3, lastClose)
+  const lines = body.split('\n')
+  const srcIdx = lines.findIndex((l) => l.trimStart().startsWith('—'))
+  if (srcIdx === -1) return innerHtml
+  const quote = lines.slice(0, srcIdx).join('\n')
+  const src = lines.slice(srcIdx).join('\n')
+  const prefix = quote ? `<p>${quote}</p><p class="q-source">${src}</p>` : `<p class="q-source">${src}</p>`
+  return innerHtml.slice(0, lastOpen) + prefix + innerHtml.slice(lastClose + 4)
 }
 
 export interface DoocsRenderOutcome {

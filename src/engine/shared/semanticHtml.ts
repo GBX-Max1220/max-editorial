@@ -108,9 +108,12 @@ function renderJudgment(input: SemanticRenderInput): string {
 }
 
 function renderEvidence(input: SemanticRenderInput): string {
+  const label = (input.props.label ?? 'EVIDENCE').trim()
   const supports = (input.props.supports ?? '').trim()
   const claimText = supports ? input.claimMap.get(supports) : undefined
   const ambiguous = supports ? input.ambiguousIds.has(supports) : false
+  // INVARIANT A7：evidence 必须引用被支持的 claim_id；无声明或解析失败 → 降级（lint 同步报 error）。
+  // Phase 2 红蓝对立用 supports/challenges 引用同一 claim，天然不降级。
   const degraded = !supports || claimText === undefined || ambiguous
 
   // §13.4 强制：被支持的 claim 引用行在最前，文本来自 claim_id 关系（live claim text），非作者复制的旧文本。
@@ -142,12 +145,14 @@ function renderEvidence(input: SemanticRenderInput): string {
     ? `<div class="evidence-fields">${fields.map((f) => `<div class="evidence-field">${esc(f)}</div>`).join('')}</div>`
     : ''
 
-  return `<section class="sblock sblock-evidence${degraded ? ' sblock-degraded' : ''}"><div class="sblock-label">EVIDENCE</div>${claimRef}${contentHtml}${fieldsHtml}</section>`
+  return `<section class="sblock sblock-evidence${degraded ? ' sblock-degraded' : ''}"><div class="sblock-label">${esc(label)}</div>${claimRef}${contentHtml}${fieldsHtml}</section>`
 }
 
 function renderCounterpoint(input: SemanticRenderInput): string {
   // §13.5：与 EVIDENCE 同一容器同一排版，仅 label 不同（legibility parity，INVARIANT A2）。
-  return `<section class="sblock sblock-counterpoint"><div class="sblock-label">COUNTERPOINT</div><div class="sblock-body">${input.lineHtml.join('<br/>')}</div></section>`
+  // Phase 2：可选 label prop 用于红蓝对立（观点 A / 观点 B 等真实文本标签）。
+  const label = (input.props.label ?? 'COUNTERPOINT').trim()
+  return `<section class="sblock sblock-counterpoint"><div class="sblock-label">${esc(label)}</div><div class="sblock-body">${input.lineHtml.join('<br/>')}</div></section>`
 }
 
 function renderLabNote(input: SemanticRenderInput): string {
@@ -189,7 +194,10 @@ function renderMetric(input: SemanticRenderInput): string {
   }
 
   // V0.2.3：数字行用 <p>（对齐 H01 探针的 P+44PX 结构）。所有 metric role 的 value 一致改 <p>（小重构，保持编译器一致）。
-  return `<section class="sblock sblock-metric" data-salience="${role}">${label ? `<div class="metric-label">${esc(label)}</div>` : ''}<p class="metric-value">${esc(value)}</p>${cover}${metaLine ? `<div class="metric-meta">${esc(metaLine)}</div>` : ''}${provLine ? `<div class="metric-provenance">${esc(provLine)}</div>` : ''}</section>`
+  // Phase 2：negative="true" → 数字红（负向风险），且必须伴随文本标签（label 或默认"负向风险"）。
+  const negative = input.props.negative === 'true'
+  const effLabel = negative && !label ? '负向风险' : label
+  return `<section class="sblock sblock-metric" data-salience="${role}">${effLabel ? `<div class="metric-label">${esc(effLabel)}</div>` : ''}<p class="metric-value${negative ? ' metric-value-negative' : ''}">${esc(value)}</p>${cover}${metaLine ? `<div class="metric-meta">${esc(metaLine)}</div>` : ''}${provLine ? `<div class="metric-provenance">${esc(provLine)}</div>` : ''}</section>`
 }
 
 function renderUnknown(input: SemanticRenderInput): string {
