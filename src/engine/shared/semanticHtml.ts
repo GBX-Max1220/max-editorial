@@ -45,6 +45,71 @@ export interface SemanticRenderInput {
   anchorDirections: ReadonlyMap<string, AnchorDirection>
 }
 
+/* ── PRINCIPLES（opt-in 原则卡）行解析 ──
+   序号标记语法与 markdown 有序列表一致（`1. ` / `1、` / `1) ` / `1）`）。
+   `.` 后必须跟空白（与 markdown 相同，避免把 "3.14 是圆周率" 当第三条）；
+   `、)）` 是无歧义的 CJK/全角枚举记号，允许不跟空白。
+   编号本身不进渲染 HTML —— 展示序号由位置生成（01/02/…，真实文本节点）。 */
+const PRINCIPLE_MARKER_RE = /^[ \t]*\d{1,3}(?:\.[ \t]+|[、)）][ \t]*)(.*)$/
+
+/** principles 块行 → 序号标记之后的内容（供两引擎的行内解析使用，保证 A/B 一致）。 */
+export function principleInlineSource(line: string): string {
+  return line.trim() === '' ? '' : (PRINCIPLE_MARKER_RE.exec(line)?.[1] ?? line).trimStart()
+}
+
+/** principles 块行分类：命中序号标记返回标记后内容；否则 null（说明行/导语行）。 */
+export function splitPrincipleMarker(line: string): string | null {
+  return PRINCIPLE_MARKER_RE.exec(line)?.[1] ?? null
+}
+
+interface PrincipleItem {
+  titleHtml: string
+  descHtml: string[]
+}
+
+/** 把 lines/lineHtml 切成（可选导语 +）编号条目；序号行 = 命中标记语法，其余非空行归入当前条目说明。 */
+function parsePrincipleItems(lines: string[], lineHtml: string[]): { intro: string[]; items: PrincipleItem[] } {
+  const intro: string[] = []
+  const items: PrincipleItem[] = []
+  lines.forEach((line, i) => {
+    const inline = lineHtml[i] ?? ''
+    if (line.trim() === '') return
+    if (PRINCIPLE_MARKER_RE.test(line)) {
+      items.push({ titleHtml: inline, descHtml: [] })
+    } else if (items.length > 0) {
+      items[items.length - 1].descHtml.push(inline)
+    } else {
+      intro.push(inline)
+    }
+  })
+  return { intro, items }
+}
+
+function renderPrinciples(input: SemanticRenderInput): string {
+  const { intro, items } = parsePrincipleItems(input.lines, input.lineHtml)
+  // 本块内所有块级节点都用 section（微信白名单）；与其它块的 div label 不同属本块有意差异。
+  const label = '<section class="sblock-label">原则</section>'
+  // 零条目降级：作者未用编号语法 → 按 prose 渲染，不制造空卡组。
+  if (items.length === 0) {
+    return `<section class="sblock sblock-principles">${label}<section class="sblock-body">${input.lineHtml.join('<br/>')}</section></section>`
+  }
+  // 展示序号 = 位置生成（01/02/…，两位补零；真实 DOM 文本，非伪元素/CSS counter，微信可存活）。
+  // 五色递进 data-tone（1..5），超过五条按位置稳定循环。
+  const cards = items
+    .map((item, i) => {
+      const num = String(i + 1).padStart(2, '0')
+      const tone = (i % 5) + 1
+      const head = `<p class="p-head"><span class="p-num">${num}</span><span class="p-title">${item.titleHtml}</span></p>`
+      const desc = item.descHtml.length ? `<section class="p-desc">${item.descHtml.join('<br/>')}</section>` : ''
+      return `<section class="p-item" data-tone="${tone}">${head}${desc}</section>`
+    })
+    .join('')
+  const introHtml = intro.length ? `<section class="p-intro">${intro.join('<br/>')}</section>` : ''
+  // 块级容器全部用 <section>（微信粘贴白名单保留 section 的 inline style，清掉 div 的 ——
+  // 真机验收实证：span 胶囊存活、div 卡片被剥样式）。编号由真实文本节点承载，无伪元素/counter 依赖。
+  return `<section class="sblock sblock-principles">${label}${introHtml}<section class="p-list">${cards}</section></section>`
+}
+
 const ORIGIN_LABELS: Record<string, string> = {
   model_output: '模型输出',
   internal_evaluation: '内部评估',
@@ -222,6 +287,8 @@ export function renderSemanticHtml(input: SemanticRenderInput): string {
       return renderLabNote(input)
     case 'metric':
       return renderMetric(input)
+    case 'principles':
+      return renderPrinciples(input)
     default:
       return renderUnknown(input)
   }

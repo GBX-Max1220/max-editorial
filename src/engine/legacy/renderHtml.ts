@@ -6,7 +6,7 @@
 
 import type { Block, InlineNode, SemanticBlock } from '../../markdown/types'
 import { parseInline } from '../../markdown/inline'
-import { buildAnchorDirections, buildClaimIndex, renderSemanticHtml, type AnchorDirection } from '../shared/semanticHtml'
+import { buildAnchorDirections, buildClaimIndex, renderSemanticHtml, principleInlineSource, type AnchorDirection } from '../shared/semanticHtml'
 import { createV03HeadingRenderer, type V03HeadingRenderer } from '../shared/v03Heading'
 
 function esc(s: string): string {
@@ -54,7 +54,8 @@ function semanticHtml(
     sType: b.type,
     props: b.props,
     lines: b.lines,
-    lineHtml: b.lines.map((l) => renderInlineHtml(parseInline(l))),
+    // principles：与 doocs 引擎同一剥离规则（行内解析输入不含序号标记），保证 A/B 一致。
+    lineHtml: b.lines.map((l) => renderInlineHtml(parseInline(b.type === 'principles' ? principleInlineSource(l) : l))),
     rawText: esc(b.lines.join('\n')),
     claimMap,
     ambiguousIds,

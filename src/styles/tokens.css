@@ -26,6 +26,20 @@
   --red: #D4473F;              /* 判断红：反方 / 风险 / 边界 / 少量判断标签 */
   --red-surface: #FBE2DE;      /* 红面（counterpoint / negative metric）：不透明、明显可读 */
 
+  /* ── :::principles 专用五色递进（OPT-IN；Owner 2026-09-15 授权，不进入全局语义色） ──
+     01 电光蓝 → 02 皇家蓝 → 03 蓝紫交汇 → 04 珊瑚红 → 05 石墨。
+     仅绑定 .sblock-principles [data-tone]；>5 条按位置循环回 tone 1。 */
+  --p-tone-1: #2D7FF9;         /* 电光蓝 */
+  --p-tone-2: #243F9E;         /* 皇家蓝（= --deep， royal） */
+  --p-tone-3: #5A5FD0;         /* 蓝紫交汇（indigo） */
+  --p-tone-4: #D4473F;         /* 珊瑚红（= --red） */
+  --p-tone-5: #252421;         /* 石墨（= --ink） */
+  --p-surface-1: #EAF1FF;      /* 电光蓝浅面 */
+  --p-surface-2: #E8EBF8;      /* 皇家蓝浅面 */
+  --p-surface-3: #ECECFB;      /* 蓝紫浅面 */
+  --p-surface-4: #FBE2DE;      /* 珊瑚红浅面（= --red-surface） */
+  --p-surface-5: #F4F1EB;      /* 石墨浅面（= --neutral-surface） */
+
   /* ── 派生 / 角色色 ── */
   --neutral: #746F67;          /* 中性 quote 左边框（不默认蓝/红） */
   --faint: #B4B0A6;            /* 弱标签（低于 muted） */

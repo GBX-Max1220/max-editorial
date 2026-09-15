@@ -11,6 +11,7 @@ const KNOWN_SEMANTIC = new Set([
   'counterpoint',
   'lab-note',
   'metric',
+  'principles',
 ])
 
 function findFenceClose(lines: string[], from: number, marker: string): number {
