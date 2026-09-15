@@ -15,6 +15,7 @@ export const SEMANTIC_TYPES = [
   'counterpoint',
   'lab-note',
   'metric',
+  'principles',
 ] as const
 
 export interface SemanticBlock {

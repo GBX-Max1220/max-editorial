@@ -155,6 +155,27 @@ export const WECHAT_SAFE_CSS = `
 .sblock-degraded .evidence-claim-text { color: #6F6B63; }
 .degraded-note { margin-top: 8px; font-size: 12px; color: #B4B0A6; }
 
+/* ── :::principles（OPT-IN 原则卡；编号 = 真实文本 span，非伪元素/counter） ──
+   全部固定 px + hex；block 流 + inline-block 胶囊；无 flex/gap/position。
+   五色递进 data-tone（1 电光蓝 / 2 皇家蓝 / 3 蓝紫 / 4 珊瑚红 / 5 石墨），>5 条循环。 */
+
+.sblock-principles { margin: 34px 0; }
+.sblock-principles .sblock-label { margin-bottom: 12px; }
+.sblock-principles .p-intro { margin: 0 0 12px; font-size: 15px; line-height: 1.75; color: #6F6B63; }
+.sblock-principles .p-list { margin: 0; }
+.sblock-principles .p-item { margin: 0 0 12px; padding: 14px 16px 13px; border-left: 3px solid #2D7FF9; background: #EAF1FF; border-radius: 2px; }
+.sblock-principles .p-item[data-tone='2'] { border-left-color: #243F9E; background: #E8EBF8; }
+.sblock-principles .p-item[data-tone='3'] { border-left-color: #5A5FD0; background: #ECECFB; }
+.sblock-principles .p-item[data-tone='4'] { border-left-color: #D4473F; background: #FBE2DE; }
+.sblock-principles .p-item[data-tone='5'] { border-left-color: #252421; background: #F4F1EB; }
+.sblock-principles .p-head { margin: 0; font-size: 16px; line-height: 1.6; font-weight: 600; color: #252421; }
+.sblock-principles .p-num { display: inline-block; font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace; font-size: 11px; line-height: 1; letter-spacing: 1px; padding: 3px 7px; border-radius: 2px; background: #2D7FF9; color: #FFFDF8; margin-right: 10px; }
+.sblock-principles .p-item[data-tone='2'] .p-num { background: #243F9E; }
+.sblock-principles .p-item[data-tone='3'] .p-num { background: #5A5FD0; }
+.sblock-principles .p-item[data-tone='4'] .p-num { background: #D4473F; }
+.sblock-principles .p-item[data-tone='5'] .p-num { background: #252421; }
+.sblock-principles .p-desc { margin-top: 9px; font-size: 14px; line-height: 1.75; color: #52504A; }
+
 /* ── masthead / footer（V0.3 封面开版；固定 px） ── */
 
 .masthead { padding-bottom: 20px; margin-bottom: 42px; border-bottom: 1px solid #252421; }

@@ -1,3 +1,170 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>principles · browser preview</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — V0.3 Phase 2 · RED-BLUE EDITORIAL
+   设计权威：MAX_EDITORIAL_V03_ART_DIRECTION_LOCK.md §2–§5
+   Owner 最终配色裁决（2026-08）：红蓝身份色，替代被否决的 teal/terracotta 候选。
+
+   纪律（P0）：黑白做结构，颜色做角色（红蓝 ≠ 真伪，= 信息角色）。
+   - 去掉颜色后页面仍成立（grayscale 自检）。
+   - blue : red ≈ 4 : 1 可见面积；颜色可以鲜艳，但面积必须克制。
+   - 不使用纯蓝 #0000FF / 纯红 #FF0000；不引入绿/紫/橙等新语义主色；
+     无渐变 / 阴影发光 / 玻璃拟态。
+
+   回退：--cobalt/--secondary/--surface/--bg 等旧别名全部指向新角色色，
+   一处改 --blue / --red 即可全局换色；回退旧 palette 只需改回别名映射。
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── color：RED-BLUE EDITORIAL canonical ─────────────────── */
+  --canvas: #E9E3D9;           /* 预览工作台（米灰画布，不导出） */
+  --paper: #FFFDF8;            /* 纸面（暖白，导出） */
+  --ink: #252421;              /* 墨色正文 / 主结构线 */
+  --muted-ink: #6F6B63;        /* 次级文字 / 注记 */
+  --hairline: #D8D1C6;         /* 发丝线 */
+  --neutral-surface: #F4F1EB;  /* 中性浅面（quote / lab-note / 表头） */
+  --blue: #2F5FD7;             /* 主蓝：结构 / 提问 / 链接 / 列表 / 证据 / 正方 */
+  --blue-surface: #DCE8FF;     /* 蓝面（question / ai-output / evidence / metric）：不透明、明显可读（Owner 真机反馈） */
+  --red: #D4473F;              /* 判断红：反方 / 风险 / 边界 / 少量判断标签 */
+  --red-surface: #FBE2DE;      /* 红面（counterpoint / negative metric）：不透明、明显可读 */
+
+  /* ── :::principles 专用五色递进（OPT-IN；Owner 2026-09-15 授权，不进入全局语义色） ──
+     01 电光蓝 → 02 皇家蓝 → 03 蓝紫交汇 → 04 珊瑚红 → 05 石墨。
+     仅绑定 .sblock-principles [data-tone]；>5 条按位置循环回 tone 1。 */
+  --p-tone-1: #2D7FF9;         /* 电光蓝 */
+  --p-tone-2: #243F9E;         /* 皇家蓝（= --deep， royal） */
+  --p-tone-3: #5A5FD0;         /* 蓝紫交汇（indigo） */
+  --p-tone-4: #D4473F;         /* 珊瑚红（= --red） */
+  --p-tone-5: #252421;         /* 石墨（= --ink） */
+  --p-surface-1: #EAF1FF;      /* 电光蓝浅面 */
+  --p-surface-2: #E8EBF8;      /* 皇家蓝浅面 */
+  --p-surface-3: #ECECFB;      /* 蓝紫浅面 */
+  --p-surface-4: #FBE2DE;      /* 珊瑚红浅面（= --red-surface） */
+  --p-surface-5: #F4F1EB;      /* 石墨浅面（= --neutral-surface） */
+
+  /* ── 派生 / 角色色 ── */
+  --neutral: #746F67;          /* 中性 quote 左边框（不默认蓝/红） */
+  --faint: #B4B0A6;            /* 弱标签（低于 muted） */
+  --deep: #243F9E;             /* 深蓝（SUPPORTED 判词等，非新语义主色） */
+  --code-text: #B83E38;        /* inline code 文字：red 的安全深色版本 */
+  --code-block-bg: #23211E;    /* 代码块：深墨色背景，非纯黑 */
+  --code-block-fg: #F5F2EC;    /* 代码块：暖白文字 */
+
+  /* ── color：旧别名（编辑器 chrome / 既有语义块；值对齐新角色） ── */
+  --bg: var(--canvas);
+  --fg: var(--ink);
+  --secondary: var(--muted-ink);
+  --surface: var(--neutral-surface);
+  --surface-subtle: var(--neutral-surface);
+  --border: var(--hairline);
+  --border-strong: #C7C0B4;    /* 组件边框（中灰） */
+  --cobalt: var(--blue);       /* 旧身份色别名 → blue（回退旧 palette 时改此处） */
+  --accent: var(--blue);       /* V0.3 唯一 accent = blue */
+
+  /* ── type：三角色分工（LOCK §3）── serif = 编辑时刻/标题；sans = 阅读主体；mono = 系统/标签 ── */
+  --serif: Georgia, "Times New Roman", "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", SimSun, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* ── type scale（LOCK §4，固定 px；微信编译另行收敛；H1 ≤ 40px） ── */
+  --t-title: 40px;
+  --t-title-m: 27px;           /* mobile cover 标题：27px 消除末行孤字（≥2 自然行） */
+  --t-h2: 26px;
+  --t-h3: 20px;
+  --t-h4: 17px;                /* H4：段内小标题（sans 600） */
+  --t-body: 16px;
+  --t-lede: 17.5px;            /* 开篇段 */
+  --t-quote: 19px;
+  --t-judgment: 23px;
+  --t-judgment-m: 21px;        /* mobile judgment */
+  --t-label: 10px;             /* mono 标签 / 序号 / 元数据（10–11） */
+  --t-note: 13px;              /* 次级说明 / qualifier */
+  --t-next: 20px;
+
+  /* ── line-height ── */
+  --lh-body: 1.85;
+  --lh-heading: 1.35;
+  --lh-h3: 1.45;
+  --lh-quote: 1.8;
+  --lh-judgment: 1.7;
+  --lh-mono: 1.85;
+
+  /* ── letter-spacing ── */
+  --ls-label: 0.32em;          /* mono 标签（英文大写） */
+  --ls-title: -0.005em;        /* 标题 */
+
+  /* ── rhythm（LOCK §5，垂直节奏；长文不喘不挤） ── */
+  --s-para: 1.4em;             /* 段距（正文为主，不过度空） */
+  --s-h2-top: 3.4em;           /* section 转换 */
+  --s-h2-bottom: 1.1em;        /* 标题亲近内容 */
+  --s-h3-top: 2.2em;           /* 子结构 */
+  --s-block: 2.5em;            /* 语义块/引用/图与上下文 */
+  --s-pause: 4.2em;            /* Judgment 暂停特权 */
+  --s-metric: 3.2em;           /* Metric 隔离 */
+  --s-cover: 42px;             /* cover 后到正文 */
+  --s-footer: 4em;             /* 页脚 */
+
+  /* ── paper canvas（桌面 publication 列；移动端由 article.css @media 收敛） ── */
+  --paper-width: 740px;
+  --paper-pad-x: 54px;
+  --paper-pad-y: 56px;
+
+  /* ── V0.2 spacing / metric 别名（既有语义块规则仍引用；值对齐 V0.3 节奏） ── */
+  --paragraph-gap: var(--s-para);
+  --heading-top: 2.2em;
+  --heading-bottom: 0.7em;
+  --section: 2.6em;
+  --block-before: 2.2em;
+  --block-after: 1.2em;
+  --block-inner: 1em;
+  --pause-gap: var(--s-pause);
+  --image-gap: 1.3em;
+  --caption-gap: 0.55em;
+
+  /* metric 数字（V0.3 Phase 2：specimen 收敛到微信上限 44px，不恢复 84px；
+     数字 ink，blue 只用于标签/单位/短线） */
+  --metric-size-specimen: 44px;
+  --metric-size-specimen-m: 44px;
+  --metric-size-result: 1.5em;
+  --metric-size-reference: 1.2em;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--sans);
+  color: var(--fg);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(47, 95, 215, 0.16);
+}
+
 /* ═══════════════════════════════════════════════════════════════
    文章排版（article.css）— V0.3 · MAX EDITORIAL ART DIRECTION
    预览与微信剪贴板共用：剪贴板通过 ?inline 读取本文件，把 var(--x) 解析成
@@ -1043,3 +1210,42 @@
     margin-bottom: 12px;
   }
 }
+
+body { background: var(--bg); }
+.stage { padding: 36px 28px 80px; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <article class="article paper" data-mode="editorial">
+<header class="masthead"><div class="masthead-brand"><span class="dot">●</span> MAX大郭的判断局</div><div class="masthead-series">JUDGMENT / 001</div><h1 class="masthead-title">原则块微信复制样张</h1><div class="masthead-deck">:::principles 编译产物验证</div><div class="masthead-date">Tue Sep 15 2026 08:00:00 GMT+0800 (中国标准时间)</div></header>
+    <div class="article-body">
+<h1>原则块微信复制样张</h1><p>普通有序列表（不得受 principles 样式影响）：</p>
+<ol>
+<li>第一条普通事项</li><li>第二条普通事项</li></ol>
+<section class="sblock sblock-principles"><section class="sblock-label">原则</section><section class="p-list"><section class="p-item" data-tone="1"><p class="p-head"><span class="p-num">01</span><span class="p-title"><strong>先明确解释要服务什么目标</strong></span></p><section class="p-desc">理解模型、验证单次建议、学习知识、满足问责和改善决策，是不同目标。</section></section><section class="p-item" data-tone="2"><p class="p-head"><span class="p-num">02</span><span class="p-title"><strong>把理由拆成可以检查的单位</strong></span></p><section class="p-desc">明确标出关键事实、证据来源、推断步骤和未知部分。</section></section><section class="p-item" data-tone="3"><p class="p-head"><span class="p-num">03</span><span class="p-title"><strong>同时展示支持与反对结论的信息</strong></span></p><section class="p-desc">系统需要暴露反例、替代解释和结论成立的边界。</section></section><section class="p-item" data-tone="4"><p class="p-head"><span class="p-num">04</span><span class="p-title"><strong>把摩擦留给真正高风险的节点</strong></span></p><section class="p-desc">在证据不足、行动不可逆或错误成本较高时，要求用户确认依据或转交决定。</section></section><section class="p-item" data-tone="5"><p class="p-head"><span class="p-num">05</span><span class="p-title"><strong>用行为和结果评价解释</strong></span></p><section class="p-desc">测量错误建议的接受、正确建议的拒绝、任务表现、核验行为和长期能力变化。</section></section></section></section>
+    </div>
+<footer class="article-footer"><div class="footer-brand">MAX / JUDGMENT / 001</div><div class="footer-tagline">:::principles 编译产物验证</div><div class="next"><div class="next-label">NEXT</div><div class="next-title">下一篇</div></div></footer>
+  </article>
+</div>
+
+<script>
+window.addEventListener('load', function () {
+  var vw = window.innerWidth;
+  var html = document.documentElement, body = document.body;
+  var bad = [];
+  document.querySelectorAll('.paper, .article-body, .sblock, .sblock-principles, .p-item, .p-head, .p-desc, blockquote, table, pre, img, ul, ol, h1, h2, h3').forEach(function (el) {
+    var r = el.getBoundingClientRect();
+    if (r.right > vw + 1 || r.left < -1) bad.push(el.tagName + '.' + String(el.className).slice(0, 30) + '@' + Math.round(r.right));
+  });
+  document.body.setAttribute('data-probe', JSON.stringify({
+    vw: vw,
+    htmlScroll: html.scrollWidth, htmlClient: html.clientWidth,
+    bodyScroll: body.scrollWidth, bodyClient: body.clientWidth,
+    overflowEls: bad.slice(0, 10),
+    pass: html.scrollWidth <= html.clientWidth && body.scrollWidth <= body.clientWidth && bad.length === 0
+  }));
+});
+</script>
+</body>
+</html>

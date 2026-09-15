@@ -1,6 +1,7 @@
 import type { Block, InlineNode, ParseResult, SemanticBlock } from '../markdown/types'
 import { parseInline } from '../markdown/inline'
 import { parseEvidence, parseLabNote } from './parseHelpers'
+import { splitPrincipleMarker } from '../engine/shared/semanticHtml'
 import { recordClipboardError } from '../clipboard/errors'
 import type { PreviewMode } from './modes'
 
@@ -150,6 +151,52 @@ function semanticHtml(b: SemanticBlock): string {
         ? `<div style="font-family:Consolas,Menlo,monospace;font-size:10px;letter-spacing:0.32em;color:#9a978d;margin-top:14px;">${esc(b.props.label)}</div>`
         : ''
       return `<section style="margin:44px 0;text-align:center;padding:24px 0;"><div style="font-size:52px;line-height:1;font-weight:600;letter-spacing:-0.02em;color:#171612;font-family:Georgia,serif;">${esc(value)}</div>${lbl}</section>`
+    }
+    case 'principles': {
+      // 展示序号按位置生成（01/02…，真实文本）；五色递进与本主题 tone 系统一致（固定 hex）。
+      const TONES = [
+        { bar: '#2D7FF9', surface: '#EAF1FF' },
+        { bar: '#243F9E', surface: '#E8EBF8' },
+        { bar: '#5A5FD0', surface: '#ECECFB' },
+        { bar: '#D4473F', surface: '#FBE2DE' },
+        { bar: '#252421', surface: '#F4F1EB' },
+      ]
+      const cards: string[] = []
+      let intro = ''
+      let title = ''
+      const descs: string[] = []
+      const flush = (): void => {
+        if (!title && descs.length === 0) return
+        const tone = TONES[cards.length % 5]
+        // 块级容器用 section：微信粘贴白名单保留 section 的 inline style，清掉 div 的。
+        const desc = descs.length
+          ? `<section style="margin-top:9px;font-size:14px;line-height:1.75;color:#52504A;">${descs.join('<br/>')}</section>`
+          : ''
+        cards.push(
+          `<section style="margin:0 0 12px;padding:14px 16px 13px;border-left:3px solid ${tone.bar};background:${tone.surface};border-radius:2px;"><p style="margin:0;font-size:16px;line-height:1.6;font-weight:600;color:#171612;"><span style="display:inline-block;font-family:Consolas,Menlo,monospace;font-size:11px;line-height:1;letter-spacing:1px;padding:3px 7px;border-radius:2px;background:${tone.bar};color:#FFFDF8;margin-right:10px;">${String(cards.length + 1).padStart(2, '0')}</span><span>${title}</span></p>${desc}</section>`,
+        )
+        title = ''
+        descs.length = 0
+      }
+      for (const l of b.lines) {
+        if (l.trim() === '') continue
+        const rest = splitPrincipleMarker(l)
+        if (rest !== null) {
+          flush()
+          title = inlineHtml(parseInline(rest.trimStart()))
+        } else if (title) {
+          descs.push(inlineHtml(parseInline(l.trimStart())))
+        } else if (intro) {
+          intro += `<br/>${inlineHtml(parseInline(l.trimStart()))}`
+        } else {
+          intro = inlineHtml(parseInline(l.trimStart()))
+        }
+      }
+      flush()
+      const introHtml = intro ? `<section style="margin:0 0 12px;font-size:15px;line-height:1.75;color:#52504A;">${intro}</section>` : ''
+      // 零条目降级：无编号语法 → 全部行已进 intro（prose，与共享渲染器一致）。
+      const body = cards.length ? introHtml + cards.join('') : introHtml
+      return `<section style="margin:28px 0;">${label}${body}</section>`
     }
     default:
       return `<section style="margin:28px 0;border:1px dashed #d8d6cd;border-radius:2px;padding:16px 18px;">${label}<div style="font-family:Consolas,Menlo,monospace;font-size:13px;line-height:1.7;color:#6b6a63;white-space:pre-wrap;">${esc(b.lines.join('\n'))}</div></section>`

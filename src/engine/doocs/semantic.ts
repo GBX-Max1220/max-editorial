@@ -15,7 +15,7 @@
 import type { MarkedExtension, RendererThis, Token, Tokens } from 'marked'
 import { escapeHtml } from './vendor/basicHelpers'
 import { parseRelations, type Relation } from './relations'
-import { renderSemanticHtml, type AnchorDirection } from '../shared/semanticHtml'
+import { renderSemanticHtml, principleInlineSource, type AnchorDirection } from '../shared/semanticHtml'
 
 export const SEMANTIC_TYPES = [
   'claim',
@@ -26,6 +26,7 @@ export const SEMANTIC_TYPES = [
   'counterpoint',
   'lab-note',
   'metric',
+  'principles',
 ] as const
 
 export interface SemanticBlockToken extends Tokens.Generic {
@@ -122,7 +123,11 @@ export function markedSemanticBlocks(): MarkedExtension {
             id: props.id,
             props,
             lines: dedented,
-            lineInline: dedented.map((l) => this.lexer.inline(l)),
+            // principles：行内解析输入剥离序号标记（展示序号由渲染器按位置生成真实文本）；
+            // 其余类型逐行原样解析，行为不变。
+            lineInline: dedented.map((l) =>
+              type === 'principles' ? this.lexer.inline(principleInlineSource(l)) : this.lexer.inline(l),
+            ),
             invalid: !closed,
             unknown: !KNOWN.has(type),
             relations: parseRelations(props),

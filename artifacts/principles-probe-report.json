@@ -1,0 +1,71 @@
+{
+  "shots": [
+    {
+      "file": "principles-desktop-top.png",
+      "width": 1440,
+      "height": 1000,
+      "overflow": null,
+      "pass": true
+    },
+    {
+      "file": "principles-mobile-top-390.png",
+      "width": 390,
+      "height": 844,
+      "overflow": {
+        "vw": 390,
+        "htmlScroll": 390,
+        "htmlClient": 390,
+        "bodyScroll": 390,
+        "bodyClient": 390,
+        "overflowEls": [],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "file": "principles-mobile-principles-390.png",
+      "width": 390,
+      "height": 844,
+      "overflow": {
+        "vw": 390,
+        "htmlScroll": 390,
+        "htmlClient": 390,
+        "bodyScroll": 390,
+        "bodyClient": 390,
+        "overflowEls": [],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "file": "principles-wechat-compiled-390.png",
+      "width": 390,
+      "height": 844,
+      "overflow": {
+        "vw": 390,
+        "htmlScroll": 390,
+        "htmlClient": 390,
+        "bodyScroll": 390,
+        "bodyClient": 390,
+        "overflowEls": [],
+        "pass": true
+      },
+      "pass": true
+    },
+    {
+      "file": "principles-wechat-compiled-principles-390.png",
+      "width": 390,
+      "height": 844,
+      "overflow": {
+        "vw": 390,
+        "htmlScroll": 390,
+        "htmlClient": 390,
+        "bodyScroll": 390,
+        "bodyClient": 390,
+        "overflowEls": [],
+        "pass": true
+      },
+      "pass": true
+    }
+  ]
+}
